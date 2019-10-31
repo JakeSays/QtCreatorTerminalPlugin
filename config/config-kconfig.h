@@ -1,0 +1,1 @@
+#define KCONFIG_USE_DBUS 0
