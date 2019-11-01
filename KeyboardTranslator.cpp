@@ -35,7 +35,7 @@
 #include <QKeySequence>
 
 // KDE
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 
 using namespace terminal;
 

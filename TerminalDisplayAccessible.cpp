@@ -21,7 +21,7 @@
 
 #include "TerminalDisplayAccessible.h"
 //#include "SessionController.h"
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 
 using namespace terminal;
 

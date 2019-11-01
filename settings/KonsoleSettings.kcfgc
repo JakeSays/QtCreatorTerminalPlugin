@@ -1,0 +1,10 @@
+File=konsole.kcfg
+NameSpace=Konsole
+ClassName=KonsoleSettings
+Singleton=true
+MemberVariables=private
+ItemAccessors=true
+Mutators=true
+GlobalEnums=true
+SetUserTexts=true
+Visibility=Q_DECL_EXPORT

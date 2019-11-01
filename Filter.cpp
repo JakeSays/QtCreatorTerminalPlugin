@@ -34,7 +34,7 @@
 #include <QFileInfo>
 
 // KDE
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 //#include <KRun>
 
 // terminal

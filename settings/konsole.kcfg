@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name="konsolerc" />
+  <group name="KonsoleWindow">
+    <entry name="ShowMenuBarByDefault" type="Bool">
+      <label>Show menubar by default</label>
+      <tooltip>Show menubar by default in each Konsole window</tooltip>
+      <default>true</default>
+    </entry>
+    <entry name="RemoveWindowTitleBarAndFrame" type="Bool">
+      <label>Remove window titlebar and frame</label>
+      <default>false</default>
+    </entry>
+    <entry name="ShowWindowTitleOnTitleBar" type="Bool">
+      <label>Show window title on the titlebar</label>
+      <tooltip>Show window title set by escape sequence on the titlebar</tooltip>
+      <default>false</default>
+    </entry>
+    <entry name="AllowMenuAccelerators" type="Bool">
+      <label>Enable menu accelerators</label>
+      <tooltip>Allow users to access top menu through Alt+Key combination</tooltip>
+      <default>false</default>
+    </entry>
+    <entry name="ShowTerminalSizeHint" type="Bool">
+      <label>Show hint for terminal size after resizing</label>
+      <tooltip>Show terminal size in columns and lines in the center of window after resizing</tooltip>
+      <default>true</default>
+    </entry>
+    <entry name="SaveGeometryOnExit" type="Bool">
+      <label>Use current window size on next startup</label>
+      <tooltip>The window size will be saved upon exiting Konsole</tooltip>
+      <default>true</default>
+    </entry>
+    <entry name="UseSingleInstance" type="Bool">
+      <label>Run all Konsole windows in a single process</label>
+      <tooltip>When launching Konsole re-use existing process if possible</tooltip>
+      <default>false</default>
+    </entry>
+  </group>
+  <group name="SearchSettings">
+    <entry name="SearchCaseSensitive" type="Bool">
+      <label>Search is case sensitive</label>
+      <tooltip>Sets whether the search is case sensitive</tooltip>
+      <default>false</default>
+    </entry>
+    <entry name="SearchRegExpression" type="Bool">
+      <label>Match using regular expressions</label>
+      <default>false</default>
+    </entry>
+    <entry name="SearchHighlightMatches" type="Bool">
+      <label>Highlight all search matches</label>
+      <tooltip>Sets whether matching text should be highlighted</tooltip>
+      <default>true</default>
+    </entry>
+    <entry name="SearchReverseSearch" type="Bool">
+      <label>Search backwards</label>
+      <tooltip>Sets whether search should start from the bottom</tooltip>
+      <default>true</default>
+    </entry>
+  </group>
+  <group name="TabBar">
+    <entry name="TabBarVisibility" type="Enum">
+      <label>Control the visibility of the whole tab bar</label>
+      <choices>
+        <choice name="AlwaysShowTabBar" />
+        <choice name="ShowTabBarWhenNeeded" />
+        <choice name="AlwaysHideTabBar" />
+      </choices>
+      <default>ShowTabBarWhenNeeded</default>
+    </entry>
+    <entry name="TabBarPosition" type="Enum">
+      <label>Control the position of the tab bar</label>
+      <choices>
+        <choice name="Top" />
+        <choice name="Bottom" />
+      </choices>
+      <default>Bottom</default>
+    </entry>
+    <entry name="TabBarStyleSheet" type="String">
+      <label>Control the visual style of the tab bar</label>
+      <default>QTabBar::tab { min-width: 2em ; max-width: 25em }</default>
+    </entry>
+    <entry name="TabBarUseUserStyleSheet" type="Bool">
+      <label>Use a user-defined .css file for the tab bar</label>
+      <default>false</default>
+    </entry>
+    <entry name="TabBarUserStyleSheetFile" type="Url">
+      <label>The .css file to use for the tab bar style</label>
+      <default></default>
+    </entry>
+    <entry name="CloseTabOnMiddleMouseButton" type="Bool">
+      <label>Allow middle-clicking on open tabs to close them</label>
+      <default>false</default>
+    </entry>
+    <entry name="NewTabButton" type="Bool">
+      <label>Control the visibility of 'New Tab' button on the tab bar</label>
+      <default>false</default>
+    </entry>
+    <entry name="CloseTabButton" type="Enum">
+      <label>Control where the "Close tab" button will be displayed</label>
+      <choices>
+        <choice name="OnEachTab" />
+        <choice name="OnTabBar" />
+        <choice name="None" />
+      </choices>
+      <default>OnEachTab</default>
+    </entry>
+    <entry name="NewTabBehavior" type="Enum">
+      <label>Control where to put the new tab</label>
+      <choices>
+        <choice name="PutNewTabAtTheEnd" />
+        <choice name="PutNewTabAfterCurrentTab" />
+      </choices>
+      <default>PutNewTabAtTheEnd</default>
+    </entry>
+    <entry name="ExpandTabWidth" type="Bool">
+      <label>Expand the tab widths</label>
+      <default>false</default>
+    </entry>
+  </group>
+  <group name="PrintOptions">
+    <entry name="PrinterFriendly" type="Bool">
+      <label>Printer &amp;friendly mode (black text, no background)</label>
+      <default>true</default>
+    </entry>
+    <entry name="ScaleOutput" type="Bool">
+      <label>&amp;Scale output</label>
+      <default>true</default>
+    </entry>
+  </group>
+  <group name="FileLocation">
+    <entry name="scrollbackUseSystemLocation" type="Bool">
+      <label>For scrollback files, use system-wide folder location</label>
+      <default>true</default>
+    </entry>
+    <entry name="scrollbackUseCacheLocation" type="Bool">
+      <label>For scrollback files, use user's specific folder location</label>
+      <default>false</default>
+    </entry>
+    <entry name="scrollbackUseSpecifiedLocation" type="Bool">
+      <label>For scrollback files, use specified folder location</label>
+      <default>false</default>
+    </entry>
+    <entry name="scrollbackUseSpecifiedLocationDirectory" type="Url">
+      <label>For scrollback files, use this folder</label>
+      <default></default>
+    </entry>
+  </group>
+</kcfg>

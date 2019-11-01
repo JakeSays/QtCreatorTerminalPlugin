@@ -28,7 +28,7 @@
 
 // KDE
 #include <config/kconfig.h>
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 #include <config/kconfiggroup.h>
 
 // STL

@@ -42,7 +42,7 @@
 #include <QThread>
 
 // KDE
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 //#include <KNotification>
 //#include <KRun>
 //#include <KShell>

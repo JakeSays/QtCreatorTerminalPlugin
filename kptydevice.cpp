@@ -28,7 +28,7 @@
 
 #include <QSocketNotifier>
 
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 
 #include <unistd.h>
 #include <errno.h>

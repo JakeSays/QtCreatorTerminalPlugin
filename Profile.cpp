@@ -27,7 +27,7 @@
 #include <QRegularExpression>
 
 // KDE
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 #include <QFontDatabase>
 
 // Konsole

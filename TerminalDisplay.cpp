@@ -51,7 +51,7 @@
 //#include <KShell>
 #include <ColorScheme.h>
 //#include <KCursor>
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 //#include <KNotification>
 //#include <KIO/DropJob>
 //#include <KJobWidgets>

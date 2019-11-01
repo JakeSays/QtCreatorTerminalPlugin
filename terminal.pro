@@ -1,5 +1,5 @@
 TEMPLATE = lib
-QT     += core gui widgets xml network
+QT     += core gui widgets xml network qml
 CONFIG += c++17
 
 QMAKE_CXXFLAGS += \
@@ -34,7 +34,9 @@ DEFINES += \
 
 INCLUDEPATH += \
     $$PWD \
-    $$PWD/kui
+    $$PWD/kui \
+    $$PWD/settings \
+    $$PWD/ki18n
 #    /apps/Qt5.13.1/5.13.1/gcc_64/include/QtNetwork
 #    /opt/clang9-x64-rel/include/c++/v1/
 
@@ -44,7 +46,6 @@ HEADERS += \
     Enumeration.h \
     ExtendedCharTable.h \
 #    IncrementalSearchBar.h \
-    KLocalizedString.h \
     KPtyProcess.h \
     KeyboardTranslatorManager.h \
     LineBlockCharacters.h \
@@ -83,6 +84,27 @@ HEADERS += \
     config/ksharedconfig.h \
     KonsoleSettings.h \
     hsluv.h \
+    ki18n/KLocalizedContext \
+    ki18n/KLocalizedString \
+    ki18n/KLocalizedTranslator \
+    ki18n/KuitMarkup \
+    ki18n/KuitSetup \
+    ki18n/common_helpers_p.h \
+    ki18n/config.h \
+    ki18n/gettext.h \
+    ki18n/kcatalog_p.h \
+    ki18n/ki18n_export.h \
+    ki18n/ki18n_logging.h \
+    ki18n/ki18n_logging_kuit.h \
+    ki18n/ki18n_version.h \
+    ki18n/klocalizedcontext.h \
+    ki18n/klocalizedstring.h \
+    ki18n/klocalizedtranslator.h \
+    ki18n/ktranscript_export.h \
+    ki18n/ktranscript_p.h \
+    ki18n/kuitmarkup.h \
+    ki18n/kuitmarkup_p.h \
+    ki18n/kuitsetup.h \
     kui/KCollapsibleGroupBox \
     kui/KConfigGui \
     kui/KConfigLoader \
@@ -92,22 +114,46 @@ HEADERS += \
     kui/KMessageBoxDontAskAgainInterface \
     kui/KMessageBoxNotifyInterface \
     kui/KMessageWidget \
+    kui/KPluralHandlingSpinBox \
     kui/KSqueezedTextLabel \
     kui/KStandardGuiItem \
+    kui/fonthelpers_p.h \
     kui/kcollapsiblegroupbox.h \
+    kui/kcolorbutton.h \
+    kui/kconfigdialog.h \
+    kui/kconfigdialogmanager.h \
     kui/kconfiggui.h \
     kui/kconfigloader.h \
     kui/kconfigloader_p.h \
     kui/kconfigloaderhandler_p.h \
     kui/kconfigskeleton.h \
+    kui/kconfigwidgets_debug.h \
+    kui/kfontaction.h \
+    kui/kfontchooser.h \
+    kui/kfontrequester.h \
+    kui/kfontsizeaction.h \
     kui/kguiitem.h \
     kui/kmessagebox.h \
     kui/kmessagebox_p.h \
     kui/kmessageboxdontaskagaininterface.h \
     kui/kmessageboxnotifyinterface.h \
     kui/kmessagewidget.h \
+    kui/kpagedialog.h \
+    kui/kpagedialog_p.h \
+    kui/kpagemodel.h \
+    kui/kpagemodel_p.h \
+    kui/kpageview.h \
+    kui/kpageview_p.h \
+    kui/kpagewidget.h \
+    kui/kpagewidget_p.h \
+    kui/kpagewidgetmodel.h \
+    kui/kpagewidgetmodel_p.h \
+    kui/kpluralhandlingspinbox.h \
+    kui/kselectaction.h \
+    kui/kselectaction_p.h \
     kui/ksqueezedtextlabel.h \
     kui/kstandardguiitem.h \
+    kui/ktitlewidget.h \
     kui/loggingcategory.h \
     Character.h \
     CharacterColor.h \
@@ -129,7 +175,12 @@ HEADERS += \
     kprocess.h \
     kpty.h \
     kpty_p.h \
-    kptydevice.h
+    kptydevice.h \
+    profile/ColorSchemeEditor.h \
+    profile/EditProfileDialog.h \
+    profile/FontDialog.h \
+    profile/KeyBindingEditor.h \
+    settings/HistorySizeWidget.h
 
 SOURCES += \
     KonsoleSettings.cpp \
@@ -163,17 +214,45 @@ SOURCES += \
     config/kcoreconfigskeleton.cpp \
     config/ksharedconfig.cpp \
     hsluv.c \
+    ki18n/common_helpers.cpp \
+    ki18n/kcatalog.cpp \
+    ki18n/ki18n_logging.cpp \
+    ki18n/ki18n_logging_kuit.cpp \
+    ki18n/klocalizedcontext.cpp \
+    ki18n/klocalizedstring.cpp \
+    ki18n/klocalizedtranslator.cpp \
+    ki18n/ktranscript.cpp \
+    ki18n/kuitmarkup.cpp \
+    ki18n/main.cpp \
+    kui/fonthelpers.cpp \
     kui/kcollapsiblegroupbox.cpp \
+    kui/kcolorbutton.cpp \
+    kui/kconfigdialog.cpp \
+    kui/kconfigdialogmanager.cpp \
     kui/kconfiggroupgui.cpp \
     kui/kconfiggui.cpp \
     kui/kconfigloader.cpp \
     kui/kconfigskeleton.cpp \
+    kui/kconfigwidgets_debug.cpp \
+    kui/kfontaction.cpp \
+    kui/kfontchooser.cpp \
+    kui/kfontrequester.cpp \
+    kui/kfontsizeaction.cpp \
     kui/kguiitem.cpp \
     kui/kmessagebox.cpp \
     kui/kmessagebox_p.cpp \
     kui/kmessagewidget.cpp \
+    kui/kpagedialog.cpp \
+    kui/kpagemodel.cpp \
+    kui/kpageview.cpp \
+    kui/kpageview_p.cpp \
+    kui/kpagewidget.cpp \
+    kui/kpagewidgetmodel.cpp \
+    kui/kpluralhandlingspinbox.cpp \
+    kui/kselectaction.cpp \
     kui/ksqueezedtextlabel.cpp \
     kui/kstandardguiitem.cpp \
+    kui/ktitlewidget.cpp \
     kui/loggingcategory.cpp \
     ColorScheme.cpp \
     Emulation.cpp \
@@ -191,7 +270,12 @@ SOURCES += \
     kprocess.cpp \
     kpty.cpp \
     kptydevice.cpp \
-    kptyprocess.cpp
+    kptyprocess.cpp \
+    profile/ColorSchemeEditor.cpp \
+    profile/EditProfileDialog.cpp \
+    profile/FontDialog.cpp \
+    profile/KeyBindingEditor.cpp \
+    settings/HistorySizeWidget.cpp
 
 
 ## set the QTC_SOURCE environment variable to override the setting here
@@ -222,3 +306,18 @@ QTC_PLUGIN_RECOMMENDS += \
     # optional plugin dependencies. nothing here at this time
 
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
+
+FORMS += \
+    profile/ColorSchemeEditor.ui \
+    profile/EditProfileAdvancedPage.ui \
+    profile/EditProfileAppearancePage.ui \
+    profile/EditProfileGeneralPage.ui \
+    profile/EditProfileKeyboardPage.ui \
+    profile/EditProfileMousePage.ui \
+    profile/EditProfileScrollingPage.ui \
+    profile/KeyBindingEditor.ui \
+    settings/HistorySizeWidget.ui
+
+DISTFILES += \
+    ki18n/COPYING.LIB \
+    ki18n/Messages.sh

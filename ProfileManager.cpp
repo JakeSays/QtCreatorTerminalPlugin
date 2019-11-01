@@ -34,7 +34,7 @@
 #include <config/ksharedconfig.h>
 #include <config/kconfig.h>
 #include <config/kconfiggroup.h>
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 #include <KMessageBox>
 
 // Konsole

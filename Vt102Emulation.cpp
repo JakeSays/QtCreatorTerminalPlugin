@@ -33,7 +33,7 @@
 #include <QKeyEvent>
 
 // KDE
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 
 // terminal
 #include "KeyboardTranslator.h"
