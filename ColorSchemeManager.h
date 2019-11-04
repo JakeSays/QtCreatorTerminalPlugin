@@ -116,6 +116,8 @@ public:
 private:
     // returns a list of paths of color schemes in the KDE 4+ .colorscheme file format
     QStringList listColorSchemes();
+    QStringList listResourceColorSchemes();
+
     // loads all of the color schemes
     void loadAllColorSchemes();
     // finds the path of a color scheme
@@ -126,6 +128,7 @@ private:
     QHash<QString, const ColorScheme *> _colorSchemes;
 
     bool _haveLoadedAll;
+    bool _resourcesOnly;
 
     static const ColorScheme _defaultColorScheme;
 

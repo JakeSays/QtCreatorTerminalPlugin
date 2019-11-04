@@ -441,7 +441,7 @@ bool KConfigIniBackend::writeConfig(const QByteArray &locale, KEntryMap &entryMa
         const KEntryKey &key = it.key();
 
         // only write entries that have the same "globality" as the file
-        if (it->bGlobal == bGlobal) {
+//        if (it->bGlobal == bGlobal) {
             if (it->bReverted) {
                 writeMap.remove(key);
             } else if (!it->bDeleted) {
@@ -456,7 +456,7 @@ bool KConfigIniBackend::writeConfig(const QByteArray &locale, KEntryMap &entryMa
                     writeMap[key] = *it; // otherwise write an explicitly deleted entry
                     //qDebug() << "Detected as deleted=>[$d]:" << key.mGroup << key.mKey << "global=" << bGlobal;
                 }
-            }
+  //          }
             it->bDirty = false;
         }
     }

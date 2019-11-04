@@ -36,7 +36,7 @@ struct KEntry {
     /** Constructor. @internal */
     KEntry()
         : mValue(), bDirty(false),
-          bGlobal(false), bImmutable(false), bDeleted(false), bExpand(false), bReverted(false),
+          bImmutable(false), bDeleted(false), bExpand(false), bReverted(false),
           bLocalizedCountry(false), bNotify(false) {}
     /** @internal */
     QByteArray mValue;
@@ -47,7 +47,7 @@ struct KEntry {
     /**
      * Entry should be written to the global config file
      */
-    bool    bGlobal: 1;
+//    bool    bGlobal: 1;
     /**
      * Entry can not be modified.
      */
@@ -78,7 +78,7 @@ struct KEntry {
 // omits the dirty/notify flag from the comparison.
 inline bool operator ==(const KEntry &k1, const KEntry &k2)
 {
-    return k1.bGlobal == k2.bGlobal && k1.bImmutable == k2.bImmutable
+    return k1.bImmutable == k2.bImmutable
            && k1.bDeleted == k2.bDeleted && k1.bExpand == k2.bExpand
            && k1.mValue == k2.mValue;
 }

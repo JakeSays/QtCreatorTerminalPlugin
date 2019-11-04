@@ -62,6 +62,13 @@ private:
     QPixmap *_picture;
 };
 
+enum class ColorSchemeSource
+{
+    Unknown,
+    FileSystem,
+    Resource
+};
+
 /**
  * Represents a color scheme for a terminal display.
  *
@@ -84,6 +91,9 @@ public:
     void setDescription(const QString &description);
     /** Returns the descriptive name of the color scheme. */
     QString description() const;
+
+    void setSource(ColorSchemeSource source) { _source = source; }
+    ColorSchemeSource source() { return _source; }
 
     /** Sets the name of the color scheme */
     void setName(const QString &name);
@@ -208,6 +218,7 @@ private:
     // returns the active color table.  if none has been set specifically,
     // this is the default color table.
     const ColorEntry *colorTable() const;
+    ColorSchemeSource _source = ColorSchemeSource::Unknown;
 
     // reads a single color entry from a KConfig source
     // and sets the palette entry at 'index' to the entry read.

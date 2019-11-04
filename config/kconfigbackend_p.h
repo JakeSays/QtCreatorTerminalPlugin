@@ -27,7 +27,6 @@
 #include <QString>
 #include <QExplicitlySharedDataPointer>
 
-
 #include <config/kconfigbase.h>
 class KConfigBackendPrivate;
 

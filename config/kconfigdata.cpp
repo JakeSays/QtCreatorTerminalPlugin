@@ -32,7 +32,7 @@ QDebug operator<<(QDebug dbg, const KEntryKey &key)
 QDebug operator<<(QDebug dbg, const KEntry &entry)
 {
     dbg.nospace() << "[" << entry.mValue << (entry.bDirty ? " dirty" : "") <<
-                  (entry.bGlobal ? " global" : "") << (entry.bImmutable ? " immutable" : "") <<
+                  (entry.bImmutable ? " immutable" : "") <<
                   (entry.bDeleted ? " deleted" : "") << (entry.bReverted ? " reverted" : "") <<
                   (entry.bExpand ? " expand" : "") << "]";
 
@@ -136,7 +136,6 @@ bool KEntryMap::setEntry(const QByteArray &group, const QByteArray &key, const Q
     e.bDirty = e.bDirty || (options & EntryDirty);
     e.bNotify = e.bNotify || (options & EntryNotify);
 
-    e.bGlobal = (options & EntryGlobal); //we can't use || here, because changes to entries in
     //kdeglobals would be written to kdeglobals instead
     //of the local config file, regardless of the globals flag
     e.bImmutable = e.bImmutable || (options & EntryImmutable);
@@ -263,8 +262,6 @@ bool KEntryMap::getEntryOption(const QMap< KEntryKey, KEntry >::ConstIterator &i
             return it->bDirty;
         case EntryLocalized:
             return it.key().bLocal;
-        case EntryGlobal:
-            return it->bGlobal;
         case EntryImmutable:
             return it->bImmutable;
         case EntryDeleted:
@@ -287,9 +284,6 @@ void KEntryMap::setEntryOption(QMap< KEntryKey, KEntry >::Iterator it, KEntryMap
         switch (option) {
         case EntryDirty:
             it->bDirty = bf;
-            break;
-        case EntryGlobal:
-            it->bGlobal = bf;
             break;
         case EntryImmutable:
             it->bImmutable = bf;

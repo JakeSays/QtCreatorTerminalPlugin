@@ -47,17 +47,19 @@ ProfileReader::~ProfileReader() = default;
 QStringList ProfileReader::findProfiles()
 {
     QStringList profiles;
-    const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("konsole"), QStandardPaths::LocateDirectory);
-    profiles.reserve(dirs.size());
-
-    for (const QString& dir : dirs) {
-        const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.profile"));
-        for (const QString& file : fileNames) {
-            profiles.append(dir + QLatin1Char('/') + file);
-        }
-    }
     return profiles;
+//    const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("konsole"), QStandardPaths::LocateDirectory);
+//    profiles.reserve(dirs.size());
+
+//    for (const QString& dir : dirs) {
+//        const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.profile"));
+//        for (const QString& file : fileNames) {
+//            profiles.append(dir + QLatin1Char('/') + file);
+//        }
+//    }
+//    return profiles;
 }
+
 void ProfileReader::readProperties(const KConfig& config, Profile::Ptr profile,
                                        const Profile::PropertyInfo* properties)
 {

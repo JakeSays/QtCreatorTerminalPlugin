@@ -22,23 +22,28 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+static void InitResources()
+{
+    static bool initialized = false;
+
+    if (initialized)
+    {
+        return;
+    }
+
+    initialized = true;
+
+    Q_INIT_RESOURCE(resources);
+}
+
 namespace terminal
 {
 
-
-/*! Constructs the Terminal plugin. Normally plugins don't do anything in
-    their constructor except for initializing their member variables. The
-    actual work is done later, in the initialize() and extensionsInitialized()
-    methods.
-*/
 TerminalPlugin::TerminalPlugin()
     : _outputPane(nullptr)
 {
 }
 
-/*! Plugins are responsible for deleting objects they created on the heap, and
-    to unregister objects from the plugin manager that they registered there.
-*/
 TerminalPlugin::~TerminalPlugin()
 {
     ExtensionSystem::PluginManager::instance()->removeObject(_outputPane);
@@ -46,16 +51,12 @@ TerminalPlugin::~TerminalPlugin()
     _outputPane = nullptr;
 }
 
-/*! Initializes the plugin. Returns true on success.
-    Plugins want to register objects with the plugin manager here.
-
-    \a errorMessage can be used to pass an error message to the plugin system,
-       if there was any.
-*/
 bool TerminalPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
+
+    InitResources();
 
     _outputPane = new TerminalOutputPane(this);
 
@@ -64,17 +65,6 @@ bool TerminalPlugin::initialize(const QStringList &arguments, QString *errorMess
     return true;
 }
 
-/*! Notification that all extensions that this plugin depends on have been
-    initialized. The dependencies are defined in the plugins .pluginspec file.
-
-    Normally this method is used for things that rely on other plugins to have
-    added objects to the plugin manager, that implement interfaces that we're
-    interested in. These objects can now be requested through the
-    PluginManagerInterface.
-
-    The TerminalPlugin doesn't need things from other plugins, so it does
-    nothing here.
-*/
 void TerminalPlugin::extensionsInitialized()
 {
 }

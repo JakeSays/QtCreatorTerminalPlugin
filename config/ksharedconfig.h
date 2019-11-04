@@ -72,8 +72,7 @@ public:
      * @sa KConfig
      */
     static KSharedConfig::Ptr openConfig(const QString &fileName = QString(),
-                                         OpenFlags mode = FullConfig,
-                                         QStandardPaths::StandardLocation type = QStandardPaths::GenericConfigLocation);
+                                         OpenFlags mode = FullConfig);
 
     ~KSharedConfig() override;
 
@@ -82,8 +81,7 @@ private:
     KConfigGroup groupImpl(const QByteArray &aGroup) override;
     const KConfigGroup groupImpl(const QByteArray &aGroup) const override;
 
-    KSharedConfig(const QString &file, OpenFlags mode,
-                  QStandardPaths::StandardLocation resourceType);
+    KSharedConfig(const QString &file, OpenFlags mode);
 
 };
 

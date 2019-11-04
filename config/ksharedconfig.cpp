@@ -74,8 +74,7 @@ void _k_globalMainConfigSync()
 }
 
 KSharedConfigPtr KSharedConfig::openConfig(const QString &_fileName,
-        OpenFlags flags,
-        QStandardPaths::StandardLocation resType)
+        OpenFlags flags)
 {
     QString fileName(_fileName);
     GlobalSharedConfigList *list = globalSharedConfigList();
@@ -84,25 +83,24 @@ KSharedConfigPtr KSharedConfig::openConfig(const QString &_fileName,
         fileName = KConfig::mainConfigName();
     }
 
-    if (!list->wasTestModeEnabled && QStandardPaths::isTestModeEnabled()) {
-        list->wasTestModeEnabled = true;
-        list->clear();
-        list->mainConfig = nullptr;
-    }
+//    if (!list->wasTestModeEnabled && QStandardPaths::isTestModeEnabled()) {
+//        list->wasTestModeEnabled = true;
+//        list->clear();
+//        list->mainConfig = nullptr;
+//    }
 
     for (auto cfg :  qAsConst(*list)) {
         if (cfg->name() == fileName &&
-                cfg->d_ptr->openFlags == flags &&
-                cfg->locationType() == resType
+                cfg->d_ptr->openFlags == flags
 //                cfg->backend()->type() == backend
            ) {
             return KSharedConfigPtr(cfg);
         }
     }
 
-    KSharedConfigPtr ptr(new KSharedConfig(fileName, flags, resType));
+    KSharedConfigPtr ptr(new KSharedConfig(fileName, flags));
 
-    if (_fileName.isEmpty() && flags == FullConfig && resType == QStandardPaths::GenericConfigLocation) {
+    if (_fileName.isEmpty() && flags == FullConfig) {
         list->mainConfig = ptr;
 
         const bool isMainThread = !qApp || QThread::currentThread() == qApp->thread();
@@ -122,9 +120,8 @@ KSharedConfigPtr KSharedConfig::openConfig(const QString &_fileName,
 }
 
 KSharedConfig::KSharedConfig(const QString &fileName,
-                             OpenFlags flags,
-                             QStandardPaths::StandardLocation resType)
-    : KConfig(fileName, flags, resType)
+                             OpenFlags flags)
+    : KConfig(fileName, flags)
 {
     globalSharedConfigList()->append(this);
 }

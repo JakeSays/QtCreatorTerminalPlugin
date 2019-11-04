@@ -39,7 +39,6 @@ class KConfigPrivate
     friend class KConfig;
 public:
     KConfig::OpenFlags openFlags;
-    QStandardPaths::StandardLocation resourceType;
 
     void changeFileName(const QString &fileName);
 
@@ -69,8 +68,7 @@ public:
 protected:
     QExplicitlySharedDataPointer<KConfigBackend> mBackend;
 
-    KConfigPrivate(KConfig::OpenFlags flags,
-                   QStandardPaths::StandardLocation type);
+    KConfigPrivate(KConfig::OpenFlags flags);
 
     virtual ~KConfigPrivate()
     {
@@ -95,14 +93,6 @@ private:
     QString etc_kderc;
     KConfigBase::AccessMode configState;
 
-    bool wantGlobals() const
-    {
-        return openFlags & KConfig::IncludeGlobals && !bSuppressGlobal;
-    }
-    bool wantDefaults() const
-    {
-        return openFlags & KConfig::CascadeConfig;
-    }
     bool isSimple() const
     {
         return openFlags == KConfig::SimpleConfig;
@@ -113,8 +103,6 @@ private:
     }
 
     bool setLocale(const QString &aLocale);
-    QStringList getGlobalFiles() const;
-    void parseGlobalFiles();
     void parseConfigFiles();
     void initCustomized(KConfig *);
     bool lockLocal();

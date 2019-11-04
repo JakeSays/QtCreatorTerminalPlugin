@@ -4,27 +4,14 @@ CONFIG += c++17
 
 QMAKE_CXXFLAGS += \
     -std=c++17 \
-#    -nostdinc++ \
     -Wno-unused-parameter \
     -Wno-unused-variable \
     -Wno-deprecated-declarations
-
-#QMAKE_LFLAGS_DEBUG += -Wl,--no-undefined
-
-#debug {
-#    QMAKE_CXXFLAGS_DEBUG += -O0 -g -ggdb
-#    QMAKE_LFLAGS_DEBUG += -O0 -g -ggdb
-#}
-
-    QMAKE_CXXFLAGS_DEBUG += -O0 -ggdb -g3
-    QMAKE_LFLAGS_DEBUG += -O0 -ggdb -g3
 
 LIBS += -lutil
 
 DEFINES += \
     TERMINALPLUGIN_LIBRARY \
-    qtermwidget5_EXPORT \
-    qtermwidget5_EXPORTS \
     HAVE_POSIX_OPENPT \
     HAVE_SYS_TIME_H \
     HAVE_UPDWTMPX \
@@ -37,11 +24,21 @@ INCLUDEPATH += \
     $$PWD/kui \
     $$PWD/settings \
     $$PWD/ki18n
-#    /apps/Qt5.13.1/5.13.1/gcc_64/include/QtNetwork
-#    /opt/clang9-x64-rel/include/c++/v1/
+
+FORMS += \
+    profile/ColorSchemeEditor.ui \
+    profile/EditProfileAdvancedPage.ui \
+    profile/EditProfileAppearancePage.ui \
+    profile/EditProfileGeneralPage.ui \
+    profile/EditProfileKeyboardPage.ui \
+    profile/EditProfileMousePage.ui \
+    profile/EditProfileScrollingPage.ui \
+    profile/KeyBindingEditor.ui \
+    settings/HistorySizeWidget.ui
 
 HEADERS += \
     CharacterWidth.h \
+    ColorSchemeLoader.h \
     ColorSchemeManager.h \
     Enumeration.h \
     ExtendedCharTable.h \
@@ -53,7 +50,7 @@ HEADERS += \
     Profile.h \
     ProfileManager.h \
     ProfileReader.h \
-    ProfileWriter.h \
+#    ProfileWriter.h \
     PtyConfig.h \
     ScrollState.h \
     TerminalConfig.h \
@@ -183,6 +180,7 @@ HEADERS += \
     settings/HistorySizeWidget.h
 
 SOURCES += \
+    ColorSchemeLoader.cpp \
     KonsoleSettings.cpp \
     CharacterWidth.cpp \
     ColorSchemeManager.cpp \
@@ -194,7 +192,7 @@ SOURCES += \
     Profile.cpp \
     ProfileManager.cpp \
     ProfileReader.cpp \
-    ProfileWriter.cpp \
+#    ProfileWriter.cpp \
     ScrollState.cpp \
     TerminalDisplayAccessible.cpp \
     SessionManager.cpp \
@@ -205,6 +203,7 @@ SOURCES += \
     config/kauthorized.cpp \
     config/kconfig.cpp \
     config/kconfig_core_log_settings.cpp \
+    config/kconfig_p.cpp \
     config/kconfigbackend.cpp \
     config/kconfigbase.cpp \
     config/kconfigdata.cpp \
@@ -307,17 +306,8 @@ QTC_PLUGIN_RECOMMENDS += \
 
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 
-FORMS += \
-    profile/ColorSchemeEditor.ui \
-    profile/EditProfileAdvancedPage.ui \
-    profile/EditProfileAppearancePage.ui \
-    profile/EditProfileGeneralPage.ui \
-    profile/EditProfileKeyboardPage.ui \
-    profile/EditProfileMousePage.ui \
-    profile/EditProfileScrollingPage.ui \
-    profile/KeyBindingEditor.ui \
-    settings/HistorySizeWidget.ui
-
 DISTFILES += \
-    ki18n/COPYING.LIB \
-    ki18n/Messages.sh
+    ki18n/COPYING.LIB
+
+RESOURCES += \
+    resources.qrc

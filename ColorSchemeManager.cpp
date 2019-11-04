@@ -71,7 +71,8 @@ void ColorSchemeManager::loadAllColorSchemes()
     int failed = 0;
 
     QStringList nativeColorSchemes = listColorSchemes();
-    foreach (const QString &colorScheme, nativeColorSchemes) {
+    for (const QString &colorScheme : nativeColorSchemes)
+    {
         if (loadColorScheme(colorScheme)) {
             success++;
         } else {
@@ -147,18 +148,28 @@ QString ColorSchemeManager::colorSchemeNameFromPath(const QString &path)
 
 QStringList ColorSchemeManager::listColorSchemes()
 {
-    QStringList colorschemes;
-    const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("konsole"),
-                                                       QStandardPaths::LocateDirectory);
-    colorschemes.reserve(dirs.size());
+    return listResourceColorSchemes();
+//    QStringList colorschemes;
+//    const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("konsole"),
+//                                                       QStandardPaths::LocateDirectory);
+//    colorschemes.reserve(dirs.size());
 
-    for (const QString &dir : dirs) {
-        const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.colorscheme"));
-        for (const QString &file : fileNames) {
-            colorschemes.append(dir + QLatin1Char('/') + file);
-        }
-    }
-    return colorschemes;
+//    for (const QString &dir : dirs) {
+//        const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.colorscheme"));
+//        for (const QString &file : fileNames) {
+//            colorschemes.append(dir + QLatin1Char('/') + file);
+//        }
+//    }
+//    return colorschemes;
+}
+
+QStringList ColorSchemeManager::listResourceColorSchemes()
+{
+    QDir resourceDir(":/data/color-schemes");
+
+    auto entries = resourceDir.entryList(QDir::Files);
+
+    return entries;
 }
 
 const ColorScheme ColorSchemeManager::_defaultColorScheme;
@@ -178,13 +189,13 @@ void ColorSchemeManager::addColorScheme(ColorScheme *scheme)
 
     // save changes to disk
 
-    const QString dir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-                        + QStringLiteral("/konsole/");
-    QDir().mkpath(dir);
-    const QString path = dir + scheme->name() + QStringLiteral(".colorscheme");
-    KConfig config(path, KConfig::NoGlobals);
+//    const QString dir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+//                        + QStringLiteral("/konsole/");
+//    QDir().mkpath(dir);
+//    const QString path = dir + scheme->name() + QStringLiteral(".colorscheme");
+//    KConfig config(path, KConfig::NoGlobals);
 
-    scheme->write(config);
+//    scheme->write(config);
 }
 
 bool ColorSchemeManager::deleteColorScheme(const QString &name)

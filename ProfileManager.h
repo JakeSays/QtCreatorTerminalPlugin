@@ -169,14 +169,14 @@ public:
      * Specifies whether a profile should be included in the user's
      * list of favorite profiles.
      */
-    void setFavorite(const Profile::Ptr &profile, bool favorite);
+//    void setFavorite(const Profile::Ptr &profile, bool favorite);
 
     /**
      * Returns the set of the user's favorite profiles.
      */
-    QSet<Profile::Ptr> findFavorites();
+//    QSet<Profile::Ptr> findFavorites();
 
-    QList<Profile::Ptr> sortedFavorites();
+//    QList<Profile::Ptr> sortedFavorites();
 
     /**
      * Sorts the profile list by menuindex; those without an menuindex, sort by name.
@@ -189,10 +189,10 @@ public:
     /**
      * Associates a shortcut with a particular profile.
      */
-    void setShortcut(Profile::Ptr profile, const QKeySequence &keySequence);
+//    void setShortcut(Profile::Ptr profile, const QKeySequence &keySequence);
 
     /** Returns the shortcut associated with a particular profile. */
-    QKeySequence shortcut(Profile::Ptr profile) const;
+//    QKeySequence shortcut(Profile::Ptr profile) const;
 
     /**
      * Returns the list of shortcut key sequences which
@@ -203,13 +203,13 @@ public:
      * use findByShortcut() to load the profile associated
      * with the shortcut.
      */
-    QList<QKeySequence> shortcuts();
+//    QList<QKeySequence> shortcuts();
 
     /**
      * Finds and loads the profile associated with
      * the specified @p shortcut key sequence and returns a pointer to it.
      */
-    Profile::Ptr findByShortcut(const QKeySequence &shortcut);
+//    Profile::Ptr findByShortcut(const QKeySequence &shortcut);
 
 Q_SIGNALS:
 
@@ -226,7 +226,7 @@ Q_SIGNALS:
      * @param profile The profile to change
      * @param favorite Specifies whether the profile is a favorite or not
      */
-    void favoriteStatusChanged(const Profile::Ptr &profile, bool favorite);
+//    void favoriteStatusChanged(const Profile::Ptr &profile, bool favorite);
 
     /**
      * Emitted when the shortcut for a profile is changed.
@@ -234,7 +234,7 @@ Q_SIGNALS:
      * @param profile The profile whose status was changed
      * @param newShortcut The new shortcut key sequence for the profile
      */
-    void shortcutChanged(const Profile::Ptr &profile, const QKeySequence &newShortcut);
+//    void shortcutChanged(const Profile::Ptr &profile, const QKeySequence &newShortcut);
 
 public Q_SLOTS:
     /** Saves settings (favorites, shortcuts, default profile etc.) to disk. */
@@ -246,18 +246,6 @@ private Q_SLOTS:
 
 private:
     Q_DISABLE_COPY(ProfileManager)
-
-    // loads the mappings between shortcut key sequences and
-    // profile paths
-    void loadShortcuts();
-    // saves the mappings between shortcut key sequences and
-    // profile paths
-    void saveShortcuts();
-
-    //loads the set of favorite profiles
-    void loadFavorites();
-    //saves the set of favorite profiles
-    void saveFavorites();
 
     // records which profile is set as the default profile
     // Note: it does not save the profile itself into disk. That is
@@ -277,13 +265,6 @@ private:
     Profile::Ptr _fallbackProfile;
 
     bool _loadedAllProfiles; // set to true after loadAllProfiles has been called
-    bool _loadedFavorites; // set to true after loadFavorites has been called
-
-    struct ShortcutData {
-        Profile::Ptr profileKey;
-        QString profilePath;
-    };
-    QMap<QKeySequence, ShortcutData> _shortcuts; // shortcut keys -> profile path
 
     // finds out if it's a internal profile or an external one,
     // fixing the path to point to the correct location for the profile.

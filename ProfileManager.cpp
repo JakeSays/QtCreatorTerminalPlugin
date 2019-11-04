@@ -39,7 +39,7 @@
 
 // Konsole
 #include "ProfileReader.h"
-#include "ProfileWriter.h"
+//#include "ProfileWriter.h"
 
 using namespace terminal;
 
@@ -70,22 +70,15 @@ static void sortByNameProfileList(QList<Profile::Ptr>& list)
 
 static QString GetDefaultProfilePath(const QString& profileBaseName)
 {
-    auto profileName = profileBaseName;
-    profileName.replace(".profile", ".qtcreator.profile");
+//    auto profileName = profileBaseName;
+//    profileName.replace(".profile", ".qtcreator.profile");
 
-    if (profileName.isEmpty())
-    {
-        return QString();
-    }
+//    if (profileName.isEmpty())
+//    {
+//        return QString();
+//    }
 
-    auto path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + profileName);
-
-    if (path.isEmpty())
-    {
-        path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + profileBaseName);
-    }
-
-    return path;
+    return profileBaseName;
 }
 
 ProfileManager::ProfileManager()
@@ -94,8 +87,6 @@ ProfileManager::ProfileManager()
     , _defaultProfile(nullptr)
     , _fallbackProfile(nullptr)
     , _loadedAllProfiles(false)
-    , _loadedFavorites(false)
-    , _shortcuts(QMap<QKeySequence, ShortcutData>())
 {
     //load fallback profile
     _fallbackProfile = Profile::Ptr(new Profile());
@@ -129,14 +120,13 @@ ProfileManager::ProfileManager()
             _defaultProfile = profile;
         }
     }
+    else
+    {
+        // load the default profile from a qrc resource
+    }
 
     Q_ASSERT(_profiles.count() > 0);
     Q_ASSERT(_defaultProfile);
-
-    // get shortcuts and paths of profiles associated with
-    // them - this doesn't load the shortcuts themselves,
-    // that is done on-demand.
-    loadShortcuts();
 }
 
 ProfileManager::~ProfileManager() = default;
@@ -166,14 +156,15 @@ Profile::Ptr ProfileManager::loadProfile(const QString& shortPath)
     if (fileInfo.suffix() != QLatin1String("profile")) {
         path.append(QLatin1String(".profile"));
     }
-    if (fileInfo.path().isEmpty() || fileInfo.path() == QLatin1Char('.')) {
-        path.prepend(QLatin1String("konsole") + QDir::separator());
-    }
 
-    // if the file is not an absolute path, look it up
-    if (!fileInfo.isAbsolute()) {
-        path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, path);
-    }
+//    if (fileInfo.path().isEmpty() || fileInfo.path() == QLatin1Char('.')) {
+//        path.prepend(QLatin1String("konsole") + QDir::separator());
+//    }
+
+//    // if the file is not an absolute path, look it up
+//    if (!fileInfo.isAbsolute()) {
+//        path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, path);
+//    }
 
     // if the file is not found, return immediately
     if (path.isEmpty()) {
@@ -181,7 +172,7 @@ Profile::Ptr ProfileManager::loadProfile(const QString& shortPath)
     }
 
     // check that we have not already loaded this profile
-    foreach(const Profile::Ptr& profile, _profiles) {
+    for(const auto& profile : _profiles) {
         if (profile->path() == path) {
             return profile;
         }
@@ -241,7 +232,8 @@ QStringList ProfileManager::availableProfileNames() const
 {
     QStringList names;
 
-    foreach(Profile::Ptr profile, ProfileManager::instance()->allProfiles()) {
+    for(auto profile : ProfileManager::instance()->allProfiles())
+    {
         if (!profile->isHidden()) {
             names.push_back(profile->name());
         }
@@ -259,7 +251,7 @@ void ProfileManager::loadAllProfiles()
     }
 
     const QStringList& paths = availableProfilePaths();
-    foreach(const QString& path, paths) {
+    for(const auto& path : paths) {
         loadProfile(path);
     }
 
@@ -315,23 +307,9 @@ void ProfileManager::saveSettings()
     // save default profile
     saveDefaultProfile();
 
-    // save shortcuts
-    saveShortcuts();
-
-    // save favorites
-    saveFavorites();
-
     // ensure default/favorites/shortcuts settings are synced into disk
     KSharedConfigPtr appConfig = KSharedConfig::openConfig();
     appConfig->sync();
-}
-
-QList<Profile::Ptr> ProfileManager::sortedFavorites()
-{
-    QList<Profile::Ptr> favorites = findFavorites().toList();
-
-    sortProfiles(favorites);
-    return favorites;
 }
 
 QList<Profile::Ptr> ProfileManager::allProfiles()
@@ -357,16 +335,17 @@ Profile::Ptr ProfileManager::fallbackProfile() const
 
 QString ProfileManager::saveProfile(const Profile::Ptr &profile)
 {
-    ProfileWriter writer;
+    return QString();
+//    ProfileWriter writer;
 
-    QString newPath = writer.getPath(profile);
+//    QString newPath = writer.getPath(profile);
 
-    if (!writer.writeProfile(newPath, profile)) {
-        KMessageBox::sorry(nullptr,
-                           i18n("Konsole does not have permission to save this profile to %1", newPath));
-    }
+//    if (!writer.writeProfile(newPath, profile)) {
+//        KMessageBox::sorry(nullptr,
+//                           i18n("Konsole does not have permission to save this profile to %1", newPath));
+//    }
 
-    return newPath;
+//    return newPath;
 }
 
 void ProfileManager::changeProfile(Profile::Ptr profile,
@@ -391,7 +370,7 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
         // in the profile manager
         QList<Profile::Ptr> existingProfiles = allProfiles();
         QStringList existingProfileNames;
-        foreach(Profile::Ptr existingProfile, existingProfiles) {
+        for (auto existingProfile : existingProfiles) {
             existingProfileNames.append(existingProfile->name());
         }
 
@@ -435,7 +414,7 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
     // is saved to disk
     ProfileGroup::Ptr group = newProfile->asGroup();
     if (group) {
-        foreach(const Profile::Ptr & groupProfile, group->profiles()) {
+        for(const auto& groupProfile : group->profiles()) {
             changeProfile(groupProfile, propertyMap, persistent);
         }
         return;
@@ -455,14 +434,12 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
             // this is needed to include the old profile too
             _loadedAllProfiles = false;
            const QList<Profile::Ptr> availableProfiles = ProfileManager::instance()->allProfiles();
-            foreach(auto oldProfile, availableProfiles) {
+            for (auto oldProfile : availableProfiles)
+            {
                 if (oldProfile->path() == origPath) {
                     // assign the same shortcut of the old profile to
                     // the newly renamed profile
-                    const auto oldShortcut = shortcut(oldProfile);
-                    if (deleteProfile(oldProfile)) {
-                        setShortcut(newProfile, oldShortcut);
-                    }
+                    deleteProfile(oldProfile);
                 }
             }
         }
@@ -499,8 +476,6 @@ bool ProfileManager::deleteProfile(Profile::Ptr profile)
         }
 
         // remove from favorites, profile list, shortcut list etc.
-        setFavorite(profile, false);
-        setShortcut(profile, QKeySequence());
         _profiles.remove(profile);
 
         // mark the profile as hidden so that it does not show up in the
@@ -543,177 +518,12 @@ void ProfileManager::saveDefaultProfile()
     group.writeEntry("DefaultProfile", fileInfo.fileName());
 }
 
-QSet<Profile::Ptr> ProfileManager::findFavorites()
-{
-    loadFavorites();
-
-    return _favorites;
-}
-void ProfileManager::setFavorite(const Profile::Ptr &profile , bool favorite)
-{
-    if (!_profiles.contains(profile)) {
-        addProfile(profile);
-    }
-
-    if (favorite && !_favorites.contains(profile)) {
-        _favorites.insert(profile);
-        emit favoriteStatusChanged(profile, favorite);
-    } else if (!favorite && _favorites.contains(profile)) {
-        _favorites.remove(profile);
-        emit favoriteStatusChanged(profile, favorite);
-    }
-}
-void ProfileManager::loadShortcuts()
-{
-    KSharedConfigPtr appConfig = KSharedConfig::openConfig();
-    KConfigGroup shortcutGroup = appConfig->group("Profile Shortcuts");
-
-    QMap<QString, QString> entries = shortcutGroup.entryMap();
-
-    QMapIterator<QString, QString> iter(entries);
-    while (iter.hasNext()) {
-        iter.next();
-
-        QKeySequence shortcut = QKeySequence::fromString(iter.key());
-        QString profilePath = iter.value();
-
-        ShortcutData data;
-
-        // if the file is not an absolute path, look it up
-        QFileInfo fileInfo(profilePath);
-        if (!fileInfo.isAbsolute()) {
-            profilePath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + profilePath);
-        }
-
-        data.profilePath = profilePath;
-        _shortcuts.insert(shortcut, data);
-    }
-}
 
 QString ProfileManager::normalizePath(const QString& path) const {
-    QFileInfo fileInfo(path);
-    const QString location = QStandardPaths::locate(
-            QStandardPaths::GenericDataLocation, QStringLiteral("konsole/") + fileInfo.fileName());
-    return (!fileInfo.isAbsolute()) || location.isEmpty() ? path : fileInfo.fileName();
-}
-
-void ProfileManager::saveShortcuts()
-{
-    KSharedConfigPtr appConfig = KSharedConfig::openConfig();
-    KConfigGroup shortcutGroup = appConfig->group("Profile Shortcuts");
-    shortcutGroup.deleteGroup();
-
-    QMapIterator<QKeySequence, ShortcutData> iter(_shortcuts);
-    while (iter.hasNext()) {
-        iter.next();
-        QString shortcutString = iter.key().toString();
-        QString profileName = normalizePath(iter.value().profilePath);
-        shortcutGroup.writeEntry(shortcutString, profileName);
-    }
-}
-
-
-void ProfileManager::saveFavorites()
-{
-    KSharedConfigPtr appConfig = KSharedConfig::openConfig();
-    KConfigGroup favoriteGroup = appConfig->group("Favorite Profiles");
-
-    QStringList paths;
-    foreach(const Profile::Ptr& profile, _favorites) {
-        Q_ASSERT(_profiles.contains(profile) && profile);
-        paths << normalizePath(profile->path());
-    }
-    favoriteGroup.writeEntry("Favorites", paths);
-}
-
-
-void ProfileManager::setShortcut(Profile::Ptr profile ,
-                                 const QKeySequence& keySequence)
-{
-    QKeySequence existingShortcut = shortcut(profile);
-    _shortcuts.remove(existingShortcut);
-
-    if (keySequence.isEmpty()) {
-        return;
-    }
-
-    ShortcutData data;
-    data.profileKey = profile;
-    data.profilePath = profile->path();
-    // TODO - This won't work if the profile doesn't
-    // have a path yet
-    _shortcuts.insert(keySequence, data);
-
-    emit shortcutChanged(profile, keySequence);
-}
-void ProfileManager::loadFavorites()
-{
-    if (_loadedFavorites) {
-        return;
-    }
-
-    KSharedConfigPtr appConfig = KSharedConfig::openConfig();
-    KConfigGroup favoriteGroup = appConfig->group("Favorite Profiles");
-
-    QSet<QString> favoriteSet;
-
-    if (favoriteGroup.hasKey("Favorites")) {
-        QStringList list = favoriteGroup.readEntry("Favorites", QStringList());
-        favoriteSet = QSet<QString>::fromList(list);
-    }
-
-    // look for favorites among those already loaded
-    foreach(const Profile::Ptr& profile, _profiles) {
-        const QString& path = profile->path();
-        if (favoriteSet.contains(path)) {
-            _favorites.insert(profile);
-            favoriteSet.remove(path);
-        }
-    }
-    // load any remaining favorites
-    foreach(const QString& favorite, favoriteSet) {
-        Profile::Ptr profile = loadProfile(favorite);
-        if (profile) {
-            _favorites.insert(profile);
-        }
-    }
-
-    _loadedFavorites = true;
-}
-
-QList<QKeySequence> ProfileManager::shortcuts()
-{
-    return _shortcuts.keys();
-}
-
-Profile::Ptr ProfileManager::findByShortcut(const QKeySequence& shortcut)
-{
-    Q_ASSERT(_shortcuts.contains(shortcut));
-
-    if (!_shortcuts[shortcut].profileKey) {
-        Profile::Ptr key = loadProfile(_shortcuts[shortcut].profilePath);
-        if (!key) {
-            _shortcuts.remove(shortcut);
-            return Profile::Ptr();
-        }
-        _shortcuts[shortcut].profileKey = key;
-    }
-
-    return _shortcuts[shortcut].profileKey;
-}
-
-
-QKeySequence ProfileManager::shortcut(Profile::Ptr profile) const
-{
-    QMapIterator<QKeySequence, ShortcutData> iter(_shortcuts);
-    while (iter.hasNext()) {
-        iter.next();
-        if (iter.value().profileKey == profile
-                || iter.value().profilePath == profile->path()) {
-            return iter.key();
-        }
-    }
-
-    return QKeySequence();
+    return path;
+//    QFileInfo fileInfo(path);
+//    const QString location = QStandardPaths::locate(
+//            QStandardPaths::GenericDataLocation, QStringLiteral("konsole/") + fileInfo.fileName());
+//    return (!fileInfo.isAbsolute()) || location.isEmpty() ? path : fileInfo.fileName();
 }
 
