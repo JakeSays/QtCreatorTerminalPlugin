@@ -4,20 +4,9 @@ CONFIG += c++17
 
 QMAKE_CXXFLAGS += \
     -std=c++17 \
-#    -nostdinc++ \
     -Wno-unused-parameter \
     -Wno-unused-variable \
     -Wno-deprecated-declarations
-
-#QMAKE_LFLAGS_DEBUG += -Wl,--no-undefined
-
-#debug {
-#    QMAKE_CXXFLAGS_DEBUG += -O0 -g -ggdb
-#    QMAKE_LFLAGS_DEBUG += -O0 -g -ggdb
-#}
-
-    QMAKE_CXXFLAGS_DEBUG += -O0 -ggdb -g3
-    QMAKE_LFLAGS_DEBUG += -O0 -ggdb -g3
 
 LIBS += -lutil
 
@@ -31,6 +20,10 @@ DEFINES += \
     COLORSCHEMES_DIR="\\\"/usr/local/share/qtermwidget5/color-schemes\\\"" \
     KB_LAYOUT_DIR="\\\"/usr/local/share/qtermwidget5/kb-layouts\\\"" \
     TRANSLATIONS_DIR="\\\"/usr/local/share/qtermwidget5/translations\\\""
+
+#to remove the necessity of building a custom creator libProjectExplorer.so
+#  uncomment this line
+#DEFINES += PLUGIN_DISABLE_FINDFILEINSESSION
 
 INCLUDEPATH += \
     $$PWD \

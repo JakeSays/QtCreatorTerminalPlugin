@@ -576,8 +576,12 @@ RegExpFilter::HotSpot *FileFilter::newHotSpot(int startLine, int startColumn, in
     if (!info.isAbsolute())
     {
         auto path = Utils::FilePath::fromString(filename);
-        auto candidateFiles = ProjectExplorer::Internal::findFileInSession(path);
-
+        auto candidateFiles =
+#if !defined(PLUGIN_DISABLE_FINDFILEINSESSION)
+            ProjectExplorer::Internal::findFileInSession(path);
+#else
+            Utils::FilePathList();
+#endif
         if (candidateFiles.count() > 0)
         {
             fullPath = candidateFiles[0].toString();
