@@ -6,7 +6,8 @@ QMAKE_CXXFLAGS += \
     -std=c++17 \
     -Wno-unused-parameter \
     -Wno-unused-variable \
-    -Wno-deprecated-declarations
+    -Wno-deprecated-declarations \
+    -Wno-deprecated-copy
 
 LIBS += -lutil
 
@@ -21,17 +22,11 @@ DEFINES += \
     KB_LAYOUT_DIR="\\\"/usr/local/share/qtermwidget5/kb-layouts\\\"" \
     TRANSLATIONS_DIR="\\\"/usr/local/share/qtermwidget5/translations\\\""
 
-#to remove the necessity of building a custom creator libProjectExplorer.so
-#  uncomment this line
-#DEFINES += PLUGIN_DISABLE_FINDFILEINSESSION
-
 INCLUDEPATH += \
     $$PWD \
     $$PWD/kui \
     $$PWD/settings \
     $$PWD/ki18n
-#    /apps/Qt5.13.1/5.13.1/gcc_64/include/QtNetwork
-#    /opt/clang9-x64-rel/include/c++/v1/
 
 HEADERS += \
     CharacterWidth.h \
@@ -48,6 +43,7 @@ HEADERS += \
     ProfileReader.h \
     ProfileWriter.h \
     PtyConfig.h \
+    QContainerAdapters.h \
     ScrollState.h \
     TerminalConfig.h \
     TerminalDisplayAccessible.h \
@@ -56,6 +52,9 @@ HEADERS += \
     TerminalOutputPane.h \
     TerminalPlugin.h \
     TerminalWindow.h \
+    config/GenericPathProvider.h \
+    config/PathProvider.h \
+    config/StandardPathProvider.h \
     config/bufferfragment_p.h \
     config/config-kconfig.h \
     config/conversioncheck.h \
@@ -195,6 +194,9 @@ SOURCES += \
     TerminalOutputPane.cpp \
     TerminalPlugin.cpp \
     TerminalWindow.cpp \
+    config/GenericPathProvider.cpp \
+    config/PathProvider.cpp \
+    config/StandardPathProvider.cpp \
     config/kauthorized.cpp \
     config/kconfig.cpp \
     config/kconfig_core_log_settings.cpp \
@@ -270,15 +272,19 @@ SOURCES += \
     profile/KeyBindingEditor.cpp \
     settings/HistorySizeWidget.cpp
 
+QTCREATOR_SOURCES = $$QTC_SOURCE
+isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=$$(QTC_SOURCE)
 
-## set the QTC_SOURCE environment variable to override the setting here
-QTCREATOR_SOURCES = $$(QTC_SOURCE)
-isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=/p/qt/qt-creator-opensource-src-4.10.0/
+if (isEmpty(QTCREATOR_SOURCES)) {
+    error(Please set the variable QTC_SOURCE to point to the qt creator source tree.)
+}
 
-## set the QTC_BUILD environment variable to override the setting here
-IDE_BUILD_TREE = $$(QTC_BUILD)
-#isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=/p/qt/qt-creator-opensource-src-4.10.0/build-qtc/release/
-isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=/apps/Qt5.13.1b/Tools/QtCreator/
+IDE_BUILD_TREE = $$QTC_BUILD
+isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=$$(QTC_BUILD)
+
+if (isEmpty(IDE_BUILD_TREE)) {
+    error(Please set the variable QTC_BUILD to point to the qt creator build/install location where the plugin will be copied to.)
+}
 
 ## uncomment to build plugin into user config directory
 ## <localappdata>/plugins/<ideversion>

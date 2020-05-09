@@ -599,6 +599,8 @@ protected:
 
     void onColorsChanged();
 
+    void ScrollToEnd();
+
 protected Q_SLOTS:
 
     void scrollBarPositionChanged(int value);

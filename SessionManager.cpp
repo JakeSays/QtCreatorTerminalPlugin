@@ -315,21 +315,20 @@ void SessionManager::sessionProfileCommandReceived(const QString &text)
         newProfile = _sessionRuntimeProfiles[session];
     }
 
-    QHashIterator<Profile::Property, QVariant> iter(changes);
-    while (iter.hasNext()) {
-        iter.next();
-        newProfile->setProperty(iter.key(), iter.value());
+    for (auto key : changes.keys())
+    {
+        newProfile->setProperty(key, changes[key]);
     }
 
     _sessionProfiles[session] = newProfile;
     applyProfile(newProfile, true);
     emit sessionUpdated(session);
 
-    if (!zoomFontSizes.isEmpty()) {
-        QHashIterator<TerminalDisplay *, QFont> it(zoomFontSizes);
-        while (it.hasNext()) {
-            it.next();
-            it.key()->setVTFont(it.value());
+    if (!zoomFontSizes.isEmpty())
+    {
+        for (auto key : zoomFontSizes.keys())
+        {
+            key->setVTFont(zoomFontSizes[key]);
         }
     }
 }

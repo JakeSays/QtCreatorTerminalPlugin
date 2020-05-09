@@ -507,9 +507,8 @@ void Vt102Emulation::processSessionAttributeRequest()
 
 void Vt102Emulation::updateSessionAttributes()
 {
-    QListIterator<int> iter(_pendingSessionAttributesUpdates.keys());
-    while (iter.hasNext()) {
-        int arg = iter.next();
+    for (auto arg : _pendingSessionAttributesUpdates.keys())
+    {
         emit sessionAttributeChanged(arg , _pendingSessionAttributesUpdates[arg]);
     }
     _pendingSessionAttributesUpdates.clear();

@@ -516,6 +516,9 @@ bool KConfig::isDirty() const
 
 void KConfig::checkUpdate(const QString &id, const QString &updateFile)
 {
+    Q_UNUSED(id)
+    Q_UNUSED(updateFile)
+
 //    const KConfigGroup cg(this, "$Version");
 //    const QString cfg_id = updateFile + QLatin1Char(':') + id;
 //    const QStringList ids = cg.readEntry("update_info", QStringList());

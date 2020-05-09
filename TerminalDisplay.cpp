@@ -172,6 +172,30 @@ void TerminalDisplay::onColorsChanged()
     update();
 }
 
+void TerminalDisplay::ScrollToEnd()
+{
+    if (_screenWindow.isNull())
+    {
+        return;
+    }
+
+    auto scrollMax = _scrollBar->maximum();
+    if (_scrollBar->value() == scrollMax)
+    {
+        return;
+    }
+
+    _screenWindow->scrollTo(scrollMax);
+
+    // if the thumb has been moved to the bottom of the _scrollBar then set
+    // the display to automatically track new output,
+    // that is, scroll down automatically
+    // to how new _lines as they are added
+    _screenWindow->setTrackOutput(true);
+
+    updateImage();
+}
+
 void TerminalDisplay::setBackgroundColor(const QColor& color)
 {
     _colorTable[DEFAULT_BACK_COLOR] = color;
@@ -1790,7 +1814,7 @@ void TerminalDisplay::setBlinkingTextEnabled(bool blink)
     }
 }
 
-void TerminalDisplay::focusOutEvent(QFocusEvent*)
+void TerminalDisplay::focusOutEvent(QFocusEvent* /*event*/)
 {
     // trigger a repaint of the cursor so that it is both:
     //
@@ -1817,7 +1841,7 @@ void TerminalDisplay::focusOutEvent(QFocusEvent*)
     emit focusLost();
 }
 
-void TerminalDisplay::focusInEvent(QFocusEvent*)
+void TerminalDisplay::focusInEvent(QFocusEvent* /*event*/)
 {
     if (_allowBlinkingCursor) {
         _blinkCursorTimer->start();
@@ -2073,11 +2097,14 @@ void TerminalDisplay::setScrollBarPosition(Enum::ScrollBarPositionEnum position)
     update();
 }
 
-void TerminalDisplay::scrollBarPositionChanged(int)
+void TerminalDisplay::scrollBarPositionChanged(int /*pos*/)
 {
     if (_screenWindow.isNull()) {
         return;
     }
+
+    auto scrollValue = _scrollBar->value();
+    auto scrollMax = _scrollBar->maximum();
 
     _screenWindow->scrollTo(_scrollBar->value());
 
@@ -2085,7 +2112,7 @@ void TerminalDisplay::scrollBarPositionChanged(int)
     // the display to automatically track new output,
     // that is, scroll down automatically
     // to how new _lines as they are added
-    const bool atEndOfOutput = (_scrollBar->value() == _scrollBar->maximum());
+    const bool atEndOfOutput = (scrollValue == scrollMax);
     _screenWindow->setTrackOutput(atEndOfOutput);
 
     updateImage();
@@ -2098,17 +2125,20 @@ void TerminalDisplay::setScroll(int cursor, int slines)
     //
     // setting the range or value of a _scrollBar will always trigger
     // a repaint, so it should be avoided if it is not necessary
-    if (_scrollBar->minimum() == 0                 &&
-            _scrollBar->maximum() == (slines - _lines) &&
-            _scrollBar->value()   == cursor) {
+    if (_scrollBar->minimum() == 0 &&
+        _scrollBar->maximum() == (slines - _lines) &&
+        _scrollBar->value()   == cursor)
+    {
         return;
     }
 
     disconnect(_scrollBar, &QScrollBar::valueChanged, this, &terminal::TerminalDisplay::scrollBarPositionChanged);
+
     _scrollBar->setRange(0, slines - _lines);
     _scrollBar->setSingleStep(1);
     _scrollBar->setPageStep(_lines);
     _scrollBar->setValue(cursor);
+
     connect(_scrollBar, &QScrollBar::valueChanged, this, &terminal::TerminalDisplay::scrollBarPositionChanged);
 }
 
@@ -3497,11 +3527,14 @@ void TerminalDisplay::scrollScreenWindow(enum ScreenWindow::RelativeScrollMode m
 
 void TerminalDisplay::keyPressEvent(QKeyEvent* event)
 {
-    if ((_urlHintsModifiers != 0u) && event->modifiers() == _urlHintsModifiers) {
+    if ((_urlHintsModifiers != 0u) && event->modifiers() == _urlHintsModifiers)
+    {
         int nHotSpots = _filterChain->hotSpots().count();
         int hintSelected = event->key() - 0x31;
-        if (hintSelected >= 0 && hintSelected < 10 && hintSelected < nHotSpots) {
-            if (_reverseUrlHints) {
+        if (hintSelected >= 0 && hintSelected < 10 && hintSelected < nHotSpots)
+        {
+            if (_reverseUrlHints)
+            {
                 hintSelected = nHotSpots - hintSelected - 1;
             }
             _filterChain->hotSpots().at(hintSelected)->activate();
@@ -3510,7 +3543,8 @@ void TerminalDisplay::keyPressEvent(QKeyEvent* event)
             return;
         }
 
-        if (!_showUrlHint) {
+        if (!_showUrlHint)
+        {
             processFilters();
             _showUrlHint = true;
             update();
@@ -3519,13 +3553,22 @@ void TerminalDisplay::keyPressEvent(QKeyEvent* event)
 
     _screenWindow->screen()->setCurrentTerminalDisplay(this);
 
-    if (!_readOnly) {
+    if (!event->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier) &&
+            !event->modifiers().testFlag(Qt::KeyboardModifier::AltModifier))
+    {
+        ScrollToEnd();
+    }
+
+    if (!_readOnly)
+    {
         _actSel = 0; // Key stroke implies a screen update, so TerminalDisplay won't
                      // know where the current selection is.
 
-        if (_allowBlinkingCursor) {
+        if (_allowBlinkingCursor)
+        {
             _blinkCursorTimer->start();
-            if (_cursorBlinking) {
+            if (_cursorBlinking)
+            {
                 // if cursor is blinking(hidden), blink it again to show it
                 blinkCursorEvent();
             }
@@ -3615,7 +3658,10 @@ bool TerminalDisplay::handleShortcutOverrideEvent(QKeyEvent* keyEvent)
 bool TerminalDisplay::event(QEvent* event)
 {
     bool eventHandled = false;
-    switch (event->type()) {
+    switch (event->type())
+    {
+        case QEvent::KeyPress:
+            break;
     case QEvent::ShortcutOverride:
         eventHandled = handleShortcutOverrideEvent(static_cast<QKeyEvent*>(event));
         break;
@@ -3663,7 +3709,7 @@ int TerminalDisplay::bellMode() const
     return _bellMode;
 }
 
-void TerminalDisplay::bell(const QString& message)
+void TerminalDisplay::bell(const QString& /*message*/)
 {
     if (_bellMasked) {
         return;

@@ -29,6 +29,7 @@
 #include <QFont>
 #include <QColor>
 
+
 // Konsole
 namespace terminal {
 class ProfileGroup;

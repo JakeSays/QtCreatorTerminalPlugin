@@ -40,10 +40,9 @@ ExtendedCharTable::ExtendedCharTable() :
 ExtendedCharTable::~ExtendedCharTable()
 {
     // free all allocated character buffers
-    QHashIterator<uint, uint *> iter(_extendedCharTable);
-    while (iter.hasNext()) {
-        iter.next();
-        delete[] iter.value();
+    for (auto value : _extendedCharTable)
+    {
+        delete [] value;
     }
 }
 

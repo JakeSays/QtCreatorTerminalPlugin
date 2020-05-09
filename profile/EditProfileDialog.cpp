@@ -43,6 +43,8 @@
 //#include <KNSCore/DownloadManager>
 //#include <KWindowSystem>
 
+#include "QContainerAdapters.h"
+
 // Konsole
 #include "ui_EditProfileGeneralPage.h"
 #include "ui_EditProfileAppearancePage.h"
@@ -224,10 +226,9 @@ void EditProfileDialog::save()
 
     // ensure that these settings are not undone by a call
     // to unpreview()
-    QHashIterator<Profile::Property, QVariant> iter(_tempProfile->setProperties());
-    while (iter.hasNext()) {
-        iter.next();
-        _previewedProperties.remove(iter.key());
+    for (auto [key, _] : QHashAdapter(_tempProfile->setProperties()))
+    {
+        _previewedProperties.remove(key);
     }
 
     createTempProfile();
@@ -851,14 +852,15 @@ void EditProfileDialog::unpreviewAll()
     _delayedPreviewProperties.clear();
 
     QHash<Profile::Property, QVariant> map;
-    QHashIterator<int, QVariant> iter(_previewedProperties);
-    while (iter.hasNext()) {
-        iter.next();
-        map.insert(static_cast<Profile::Property>(iter.key()), iter.value());
+
+    for (auto [key, value] : QHashAdapter(_previewedProperties))
+    {
+        map.insert(static_cast<Profile::Property>(key), value);
     }
 
     // undo any preview changes
-    if (!map.isEmpty()) {
+    if (!map.isEmpty())
+    {
         ProfileManager::instance()->changeProfile(_profile, map, false);
     }
 }
@@ -890,10 +892,9 @@ void EditProfileDialog::delayedPreviewActivate()
 {
     Q_ASSERT(qobject_cast<QTimer *>(sender()));
 
-    QMutableHashIterator<int, QVariant> iter(_delayedPreviewProperties);
-    if (iter.hasNext()) {
-        iter.next();
-        preview(iter.key(), iter.value());
+    for (auto [key, value] : QHashAdapter(_delayedPreviewProperties))
+    {
+        preview(key, value);
     }
 }
 
@@ -1156,13 +1157,8 @@ void EditProfileDialog::updateButtonApply()
 {
     bool userModified = false;
 
-    QHashIterator<Profile::Property, QVariant> iter(_tempProfile->setProperties());
-    while (iter.hasNext()) {
-        iter.next();
-
-        Profile::Property property = iter.key();
-        QVariant value = iter.value();
-
+    for (auto [property, value] : QHashAdapter(_tempProfile->setProperties()))
+    {
         // for previewed property
         if (_previewedProperties.contains(static_cast<int>(property))) {
             if (value != _previewedProperties.value(static_cast<int>(property))) {

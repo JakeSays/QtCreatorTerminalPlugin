@@ -738,15 +738,15 @@ void Session::silenceTimerDone()
         return;
     }
 
-    bool hasFocus = false;
-    for(auto display : _views)
-    {
-        if(display->hasFocus())
-        {
-            hasFocus = true;
-            break;
-        }
-    }
+//    bool hasFocus = false;
+//    for(auto display : _views)
+//    {
+//        if(display->hasFocus())
+//        {
+//            hasFocus = true;
+//            break;
+//        }
+//    }
 
 //    KNotification::event(hasFocus ? QStringLiteral("Silence") : QStringLiteral("SilenceHidden"),
 //            i18n("Silence in session '%1'", _nameTitle), QPixmap(),
@@ -812,14 +812,14 @@ void Session::activityStateSet(int state)
         emit bellRequest(i18n("Bell in session '%1'", _nameTitle));
     } else if (state == NOTIFYACTIVITY) {
         // Don't notify if the terminal is active
-        bool hasFocus = false;
-        for (auto display : _views)
-        {
-            if (display->hasFocus()) {
-                hasFocus = true;
-                break;
-            }
-        }
+//        bool hasFocus = false;
+//        for (auto display : _views)
+//        {
+//            if (display->hasFocus()) {
+//                hasFocus = true;
+//                break;
+//            }
+//        }
 
         if (_monitorActivity  && !_notifiedActivity) {
 //            KNotification::event(hasFocus ? QStringLiteral("Activity") : QStringLiteral("ActivityHidden"),

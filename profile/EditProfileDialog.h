@@ -39,6 +39,7 @@
 #include "KeyboardTranslatorManager.h"
 #include "FontDialog.h"
 
+
 class KLocalizedString;
 class QItemSelectionModel;
 namespace Ui {

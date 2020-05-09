@@ -34,6 +34,8 @@
 
 #include <kconfigskeleton.h>
 
+#include "QContainerAdapters.h"
+
 typedef QHash<QString, QByteArray> MyHash;
 Q_GLOBAL_STATIC(MyHash, s_propertyMap)
 Q_GLOBAL_STATIC(MyHash, s_changedMap)
@@ -345,21 +347,18 @@ bool KConfigDialogManager::parseChildren(const QWidget *widget, bool trackChange
     return valueChanged;
 }
 
+
 void KConfigDialogManager::updateWidgets()
 {
     bool changed = false;
     bool bSignalsBlocked = signalsBlocked();
     blockSignals(true);
 
-    QWidget *widget;
-    QHashIterator<QString, QWidget *> it(d->knownWidget);
-    while (it.hasNext()) {
-        it.next();
-        widget = it.value();
-
-        KConfigSkeletonItem *item = d->m_conf->findItem(it.key());
+    for (auto [key, widget] : QHashAdapter(d->knownWidget))
+    {
+        KConfigSkeletonItem *item = d->m_conf->findItem(key);
         if (!item) {
-            qCWarning(KCONFIG_WIDGETS_LOG) << "The setting '" << it.key() << "' has disappeared!";
+            qCWarning(KCONFIG_WIDGETS_LOG) << "The setting '" << key << "' has disappeared!";
             continue;
         }
 
@@ -370,7 +369,7 @@ void KConfigDialogManager::updateWidgets()
         }
         if (item->isImmutable()) {
             widget->setEnabled(false);
-            QWidget *buddy = d->buddyWidget.value(it.key(), nullptr);
+            QWidget *buddy = d->buddyWidget.value(key, nullptr);
             if (buddy) {
                 buddy->setEnabled(false);
             }
@@ -394,15 +393,12 @@ void KConfigDialogManager::updateSettings()
 {
     bool changed = false;
 
-    QWidget *widget;
-    QHashIterator<QString, QWidget *> it(d->knownWidget);
-    while (it.hasNext()) {
-        it.next();
-        widget = it.value();
+    for (auto [key, widget] : QHashAdapter(d->knownWidget))
+    {
 
-        KConfigSkeletonItem *item = d->m_conf->findItem(it.key());
+        KConfigSkeletonItem *item = d->m_conf->findItem(key);
         if (!item) {
-            qCWarning(KCONFIG_WIDGETS_LOG) << "The setting '" << it.key() << "' has disappeared!";
+            qCWarning(KCONFIG_WIDGETS_LOG) << "The setting '" << key << "' has disappeared!";
             continue;
         }
 
@@ -565,15 +561,11 @@ QVariant KConfigDialogManager::property(QWidget *w) const
 
 bool KConfigDialogManager::hasChanged() const
 {
-    QWidget *widget;
-    QHashIterator<QString, QWidget *> it(d->knownWidget);
-    while (it.hasNext()) {
-        it.next();
-        widget = it.value();
-
-        KConfigSkeletonItem *item = d->m_conf->findItem(it.key());
+    for (auto [key, widget] : QHashAdapter(d->knownWidget))
+    {
+        KConfigSkeletonItem *item = d->m_conf->findItem(key);
         if (!item) {
-            qCWarning(KCONFIG_WIDGETS_LOG) << "The setting '" << it.key() << "' has disappeared!";
+            qCWarning(KCONFIG_WIDGETS_LOG) << "The setting '" << key << "' has disappeared!";
             continue;
         }
 

@@ -41,6 +41,8 @@
 #include "ProfileReader.h"
 #include "ProfileWriter.h"
 
+#include "QContainerAdapters.h"
+
 using namespace terminal;
 
 static bool profileIndexLessThan(const Profile::Ptr& p1, const Profile::Ptr& p2)
@@ -421,9 +423,9 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
     }
 
     // insert the changes into the existing Profile instance
-    QListIterator<Profile::Property> iter(propertyMap.keys());
-    while (iter.hasNext()) {
-        const Profile::Property property = iter.next();
+
+    for (auto& property : propertyMap.keys())
+    {
         newProfile->setProperty(property, propertyMap[property]);
     }
 
@@ -435,7 +437,8 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
     // is saved to disk
     ProfileGroup::Ptr group = newProfile->asGroup();
     if (group) {
-        foreach(const Profile::Ptr & groupProfile, group->profiles()) {
+        for (const auto& groupProfile : group->profiles())
+        {
             changeProfile(groupProfile, propertyMap, persistent);
         }
         return;
@@ -455,7 +458,8 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
             // this is needed to include the old profile too
             _loadedAllProfiles = false;
            const QList<Profile::Ptr> availableProfiles = ProfileManager::instance()->allProfiles();
-            foreach(auto oldProfile, availableProfiles) {
+
+           for (auto & oldProfile : availableProfiles) {
                 if (oldProfile->path() == origPath) {
                     // assign the same shortcut of the old profile to
                     // the newly renamed profile
@@ -563,20 +567,16 @@ void ProfileManager::setFavorite(const Profile::Ptr &profile , bool favorite)
         emit favoriteStatusChanged(profile, favorite);
     }
 }
+
+
 void ProfileManager::loadShortcuts()
 {
     KSharedConfigPtr appConfig = KSharedConfig::openConfig();
     KConfigGroup shortcutGroup = appConfig->group("Profile Shortcuts");
 
-    QMap<QString, QString> entries = shortcutGroup.entryMap();
-
-    QMapIterator<QString, QString> iter(entries);
-    while (iter.hasNext()) {
-        iter.next();
-
-        QKeySequence shortcut = QKeySequence::fromString(iter.key());
-        QString profilePath = iter.value();
-
+    for (auto [key, profilePath] : QMapAdapter(shortcutGroup.entryMap()))
+    {
+        auto shortcut = QKeySequence::fromString(key);
         ShortcutData data;
 
         // if the file is not an absolute path, look it up
@@ -603,12 +603,10 @@ void ProfileManager::saveShortcuts()
     KConfigGroup shortcutGroup = appConfig->group("Profile Shortcuts");
     shortcutGroup.deleteGroup();
 
-    QMapIterator<QKeySequence, ShortcutData> iter(_shortcuts);
-    while (iter.hasNext()) {
-        iter.next();
-        QString shortcutString = iter.key().toString();
-        QString profileName = normalizePath(iter.value().profilePath);
-        shortcutGroup.writeEntry(shortcutString, profileName);
+    for (auto [shortcut, data] : QMapAdapter(_shortcuts))
+    {
+        QString profileName = normalizePath(data.profilePath);
+        shortcutGroup.writeEntry(shortcut.toString(), profileName);
     }
 }
 
@@ -705,12 +703,11 @@ Profile::Ptr ProfileManager::findByShortcut(const QKeySequence& shortcut)
 
 QKeySequence ProfileManager::shortcut(Profile::Ptr profile) const
 {
-    QMapIterator<QKeySequence, ShortcutData> iter(_shortcuts);
-    while (iter.hasNext()) {
-        iter.next();
-        if (iter.value().profileKey == profile
-                || iter.value().profilePath == profile->path()) {
-            return iter.key();
+    for (auto [shortcut, data] : QMapAdapter(_shortcuts))
+    {
+        if (data.profileKey == profile
+                || data.profilePath == profile->path()) {
+            return shortcut;
         }
     }
 

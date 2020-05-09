@@ -50,13 +50,12 @@ using namespace terminal;
 
 FilterChain::~FilterChain()
 {
-    QMutableListIterator<Filter *> iter(*this);
-
-    while (iter.hasNext()) {
-        Filter *filter = iter.next();
-        iter.remove();
+    for (auto filter : *this)
+    {
         delete filter;
     }
+
+    clear();
 }
 
 void FilterChain::addFilter(Filter *filter)
@@ -71,38 +70,37 @@ void FilterChain::removeFilter(Filter *filter)
 
 void FilterChain::reset()
 {
-    QListIterator<Filter *> iter(*this);
-    while (iter.hasNext()) {
-        iter.next()->reset();
+    for (auto filter : *this)
+    {
+        filter->reset();
     }
 }
 
 void FilterChain::setBuffer(const QString *buffer, const QList<int> *linePositions)
 {
-    QListIterator<Filter *> iter(*this);
-    while (iter.hasNext()) {
-        iter.next()->setBuffer(buffer, linePositions);
+    for (auto filter : *this)
+    {
+        filter->setBuffer(buffer, linePositions);
     }
 }
 
 void FilterChain::process()
 {
-    QListIterator<Filter *> iter(*this);
-    while (iter.hasNext()) {
-        iter.next()->process();
+    for (auto filter : *this)
+    {
+        filter->process();
     }
 }
 
 void FilterChain::clear()
 {
-    QList<Filter *>::clear();
+    QList<Filter*>::clear();
 }
 
 Filter::HotSpot *FilterChain::hotSpotAt(int line, int column) const
 {
-    QListIterator<Filter *> iter(*this);
-    while (iter.hasNext()) {
-        Filter *filter = iter.next();
+    for (auto filter : *this)
+    {
         Filter::HotSpot *spot = filter->hotSpotAt(line, column);
         if (spot != nullptr) {
             return spot;
@@ -115,9 +113,8 @@ Filter::HotSpot *FilterChain::hotSpotAt(int line, int column) const
 QList<Filter::HotSpot *> FilterChain::hotSpots() const
 {
     QList<Filter::HotSpot *> list;
-    QListIterator<Filter *> iter(*this);
-    while (iter.hasNext()) {
-        Filter *filter = iter.next();
+    for (auto filter : *this)
+    {
         list << filter->hotSpots();
     }
     return list;
@@ -164,7 +161,8 @@ void TerminalImageFilterChain::setImage(const Character * const image, int lines
     QTextStream lineStream(_buffer);
     decoder.begin(&lineStream);
 
-    for (int i = 0; i < lines; i++) {
+    for (int i = 0; i < lines; i++)
+    {
         _linePositions->append(_buffer->length());
         decoder.decodeLine(image + i * columns, columns, LINE_DEFAULT);
 
@@ -201,10 +199,11 @@ Filter::~Filter()
 void Filter::reset()
 {
     _hotspots.clear();
-    QListIterator<HotSpot *> iter(_hotspotList);
-    while (iter.hasNext()) {
-        delete iter.next();
+    for (auto hotspot : _hotspotList)
+    {
+        delete hotspot;
     }
+
     _hotspotList.clear();
 }
 
@@ -262,7 +261,8 @@ Filter::HotSpot *Filter::hotSpotAt(int line, int column) const
 {
     QList<HotSpot *> hotspots = _hotspots.values(line);
 
-    foreach (HotSpot *spot, hotspots) {
+    for (auto spot : hotspots)
+    {
         if (spot->startLine() == line && spot->startColumn() > column) {
             continue;
         }
@@ -364,7 +364,8 @@ void RegExpFilter::process()
     }
 
     QRegularExpressionMatchIterator iterator(_searchText.globalMatch(*text));
-    while (iterator.hasNext()) {
+    while (iterator.hasNext())
+    {
         QRegularExpressionMatch match(iterator.next());
 
         int startLine = 0;
@@ -578,7 +579,7 @@ RegExpFilter::HotSpot *FileFilter::newHotSpot(int startLine, int startColumn, in
         auto path = Utils::FilePath::fromString(filename);
         auto candidateFiles =
 #if !defined(PLUGIN_DISABLE_FINDFILEINSESSION)
-            ProjectExplorer::Internal::findFileInSession(path);
+            ProjectExplorer::findFileInSession(path);
 #else
             Utils::FilePathList();
 #endif

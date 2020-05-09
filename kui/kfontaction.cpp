@@ -143,7 +143,7 @@ QWidget *KFontAction::createWidget(QWidget *parent)
 {
 //    qCDebug(KWidgetsAddonsLog) << "KFontAction::createWidget()";
 #ifdef __GNUC__
-#warning FIXME: items need to be converted
+//#warning FIXME: items need to be converted
 #endif
     // This is the visual element on the screen.  This method overrides
     // the KSelectAction one, preventing KSelectAction from creating its

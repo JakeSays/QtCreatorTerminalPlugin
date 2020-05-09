@@ -19,14 +19,12 @@ TerminalWindow::TerminalWindow(QWidget *parent)
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
     _copyAction = new QAction("Copy", this);
-    _copyAction->setShortcut(QKeySequence::Copy);
-    connect(_copyAction, &QAction::triggered, this, &TerminalWindow::onCopyAction);
-    addAction(_copyAction);
+    _copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
 
     _pasteAction = new QAction("Paste", this);
-    _pasteAction->setShortcut(QKeySequence::Paste);
-    connect(_pasteAction, &QAction::triggered, this, &TerminalWindow::onPasteAction);
-    addAction(_pasteAction);
+    _pasteAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V));
+
+    InstallActions();
 }
 
 static
@@ -40,8 +38,13 @@ TerminalDisplay* createTerminalDisplay(Session *session)
 
 void TerminalWindow::CreateDisplay()
 {
-    if (_display)
+    if (_display != nullptr)
     {
+//        disconnect(_display, &TerminalDisplay::focusGained, this, &TerminalWindow::displayFocusGained);
+//        disconnect(_display, &TerminalDisplay::focusLost, this, &TerminalWindow::displayFocusLost);
+        disconnect(_display, &terminal::TerminalDisplay::configureRequest,
+            this, &TerminalWindow::contextMenuRequested);
+
         delete _display;
     }
 
@@ -61,6 +64,8 @@ void TerminalWindow::CreateDisplay()
     auto display = createTerminalDisplay(_session);
     connect(display, &terminal::TerminalDisplay::configureRequest,
         this, &TerminalWindow::contextMenuRequested);
+//    connect(_display, &TerminalDisplay::focusGained, this, &TerminalWindow::displayFocusGained);
+//    connect(_display, &TerminalDisplay::focusLost, this, &TerminalWindow::displayFocusLost);
 
     display->applyProfile(profile);
 
@@ -107,6 +112,51 @@ void TerminalWindow::ClearDisplay()
     _display->sendStringToEmu("clear\n");
 }
 
+void TerminalWindow::focusInEvent(QFocusEvent *event)
+{
+    Q_UNUSED(event)
+//    InstallActions();
+//    SetActionState(true);
+}
+
+void TerminalWindow::focusOutEvent(QFocusEvent *event)
+{
+    Q_UNUSED(event)
+//    RemoveActions();
+//    SetActionState(false);
+}
+
+void TerminalWindow::SetActionState(bool enable)
+{
+    if (enable)
+    {
+        _copyAction->setEnabled(_display->screenWindow()->hasSelection());
+        _pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasText());
+        return;
+    }
+
+    _copyAction->setEnabled(false);
+    _pasteAction->setEnabled(false);
+}
+
+void TerminalWindow::InstallActions()
+{
+    connect(_pasteAction, &QAction::triggered, this, &TerminalWindow::onPasteAction);
+    addAction(_pasteAction);
+    connect(_copyAction, &QAction::triggered, this, &TerminalWindow::onCopyAction);
+    addAction(_copyAction);
+//    SetActionState(true);
+}
+
+void TerminalWindow::RemoveActions()
+{
+    SetActionState(false);
+    disconnect(_pasteAction, &QAction::triggered, this, &TerminalWindow::onPasteAction);
+    disconnect(_copyAction, &QAction::triggered, this, &TerminalWindow::onCopyAction);
+    removeAction(_pasteAction);
+    removeAction(_copyAction);
+}
+
 void TerminalWindow::contextMenuRequested(const QPoint &point, SpotType spotType)
 {
     QPoint globalPos = mapToGlobal(point);
@@ -122,11 +172,13 @@ void TerminalWindow::contextMenuRequested(const QPoint &point, SpotType spotType
     }
     else
     {
-        _copyAction->setEnabled(_display->screenWindow()->hasSelection());
-        _pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasText());
+        SetActionState(true);
+
         menu.addAction(_copyAction);
         menu.addAction(_pasteAction);
     }
+
+    SetActionState(true);
 
     menu.exec(globalPos);
 }
@@ -154,4 +206,14 @@ void TerminalWindow::closeInvoked()
 void TerminalWindow::finishedInvoked()
 {
     initialze();
+}
+
+void TerminalWindow::displayFocusLost()
+{
+//    InstallActions();
+}
+
+void TerminalWindow::displayFocusGained()
+{
+ //   RemoveActions();
 }

@@ -29,6 +29,15 @@ public:
 signals:
     void initialized();
 
+private:
+    void focusInEvent(QFocusEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
+
+    void SetActionState(bool enable);
+
+    void InstallActions();
+    void RemoveActions();
+
 private slots:
     void contextMenuRequested(const QPoint& location, SpotType spotType);
     void copyAvailable(bool);
@@ -36,8 +45,8 @@ private slots:
     void onPasteAction();
     void closeInvoked();
     void finishedInvoked();
-
-    //    void OnCompilerLine(const terminal::LineDetails &deets);
+    void displayFocusLost();
+    void displayFocusGained();
 
 private:
     void CreateDisplay();

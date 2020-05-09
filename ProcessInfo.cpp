@@ -31,13 +31,14 @@
 #include <pwd.h>
 #include <sys/param.h>
 #include <cerrno>
-
+#include <algorithm>
 // Qt
 #include <QDir>
 #include <QFileInfo>
 #include <QTextStream>
 #include <QStringList>
 #include <QHostInfo>
+#include <QListIterator>
 
 // KDE
 #include <config/kconfiggroup.h>
@@ -147,26 +148,24 @@ QString ProcessInfo::formatShortDir(const QString &input) const
 
     QString result;
 
-    const QStringList &parts = input.split(QDir::separator());
-
+    QStringList parts = input.split(QDir::separator());
+    std::reverse(parts.begin(), parts.end());
     QSet<QString> dirNamesToShorten = commonDirNames();
-
-    QListIterator<QString> iter(parts);
-    iter.toBack();
 
     // go backwards through the list of the path's parts
     // adding abbreviations of common directory names
     // and stopping when we reach a dir name which is not
     // in the commonDirNames set
-    while (iter.hasPrevious()) {
-        const QString &part = iter.previous();
 
-        if (dirNamesToShorten.contains(part)) {
+    for (auto& part : parts)
+    {
+        if (dirNamesToShorten.contains(part))
+        {
             result.prepend(QDir::separator() + part[0]);
-        } else {
-            result.prepend(part);
-            break;
+            continue;
         }
+        result.prepend(part);
+        break;
     }
 
     return result;
@@ -422,6 +421,8 @@ public:
         UnixProcessInfo(pid)
     {
     }
+
+    ~LinuxProcessInfo() override;
 
 protected:
     bool readCurrentDir(int pid) Q_DECL_OVERRIDE
@@ -1188,4 +1189,8 @@ ProcessInfo *ProcessInfo::newInstance(int pid)
 #endif
     info->readProcessInfo(pid);
     return info;
+}
+
+LinuxProcessInfo::~LinuxProcessInfo()
+{
 }

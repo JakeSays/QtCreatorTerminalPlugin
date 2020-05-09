@@ -108,10 +108,11 @@ void KFontSizeAction::setFontSize(int size)
         // Insert at the correct position in the list (to keep sorting)
         QList<int> lst;
         // Convert to list of ints
-        QStringListIterator itemsIt(items());
-        while (itemsIt.hasNext()) {
-            lst.append(itemsIt.next().toInt());
+        for (auto& item : items())
+        {
+            lst.append(item.toInt());
         }
+
         // New size
         lst.append(size);
         // Sort the list
