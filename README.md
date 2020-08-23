@@ -16,9 +16,15 @@ If you wish to get things going quickly you can copy `binaries/libTerminalPlugin
 To build all that is needed is an environment suitable for building Qt Creator plugins.
 
 More specifically:
-* Qt version 5.13.1 or later. Earlier versions may work - use at your own risk.
-* A Qt Creator version 4.10 install. This can be either locally built or an official installation.
-* The Qt Creator 4.10 source code. Even though building Qt Creator is not required, plugins are reliant on internal headers which are only available via the source code. Because of this the terminal plugin (along with all Qt Creator plugins) are tightly coupled to the Qt Creator version they were built against.
+
+* Qt version 5.13.1 or later. Earlier versions may work - use at your own risk. Qt Creator builds are usually tied to a particular version of Qt so try to match the two as close as possible.
+* A Qt Creator version 4.10+ install. This can be either locally built or an official installation.
+* The Qt Creator 4.10+ source code. Even though building Qt Creator is not required, plugins are reliant on internal headers which are only available via the source code. Because of this the terminal plugin (along with all Qt Creator plugins) are tightly coupled to the Qt Creator version they were built against.
+
+> I have yet to confirm this but I believe the required Qt Creator headers are now provided independent of the source code. If anyone knows anything about this feel free to let me know.
+
+#### for Qt Creator version 4.12 and later
+
 
 Beyond these requirements if you can successfully build and run a Qt application then you should be able to build the plugin.
 
@@ -38,11 +44,13 @@ By default `libTerminalPlugin.so` is moved to `$IDE_BUILD_TREE/lib/qtcreator/plu
 Note that I may change this behavior in the future. I am not keen on the idea of a development build automatically depositing binaries for me.
 
 ### Configuration
-As it stands the plugin will look for konsole profiles and settings in the same location as konsole. I am re-writing this part to store configuration in its own location.
+As it stands the plugin will look for konsole profiles and settings in the same location as konsole. I will be re-writing this part to store configuration in its own location.
 
 ### Known Issues
 
 The terminal plugin has the ability to detect file paths in its screen buffer and, if it points to a project file (or a file known to Qt Creator) that file will be highlighted. If you control-left-click (or right-click and select open) the file will be opened in the editor. If the path is followed by `:<line>:<col>` it will be opened to that location.
+
+> The following applies to versions 4.10 and 4.11 of Qt Creator. The needed functionality was added to 4.12 by the Qt Creator team. The file path ability described above works with stock Creator.
 
 To enable this hot link functionaly a custom build of one of the Qt Creator libraries is required. There is one function needed by the plugin that isn't exported. I have temporarily included a local build in the repository of the library (`libProjectExplorer.so`) that you can use as a drop-in replacement. The _only_ difference between the stock and custom libraries is the addition of an export macro. There are no functional code changes. I will also be submitting a PR upstream for this.
 

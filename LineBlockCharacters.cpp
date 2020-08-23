@@ -27,6 +27,7 @@
 
 // Qt
 #include <QPainter>
+#include <QPainterPath>
 
 namespace terminal {
 namespace LineBlockCharacters {
