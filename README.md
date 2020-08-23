@@ -6,11 +6,6 @@ Currently support is limited to Linux, but I suspect adding Macos support would 
 
 Due to the vastly different console API's between Windows and Linux a Windows port isn't being considered. This may change at some point, however, now that Microsoft has rewritten the Windows 10 console system.
 
-### Quick & Dirty
-If you wish to get things going quickly you can copy `binaries/libTerminalPlugin.so` to one of the directories listed in the Installation section below. Note that this shared object will only run on 64 bit Linux, and it does not require a custom Qt Creator library described in Known Issues below.
-
-    Eventually "official" releases will be provided, but this is what you get for now.
-
 ### Building
 
 To build all that is needed is an environment suitable for building Qt Creator plugins.
@@ -22,9 +17,6 @@ More specifically:
 * The Qt Creator 4.10+ source code. Even though building Qt Creator is not required, plugins are reliant on internal headers which are only available via the source code. Because of this the terminal plugin (along with all Qt Creator plugins) are tightly coupled to the Qt Creator version they were built against.
 
 > I have yet to confirm this but I believe the required Qt Creator headers are now provided independent of the source code. If anyone knows anything about this feel free to let me know.
-
-#### for Qt Creator version 4.12 and later
-
 
 Beyond these requirements if you can successfully build and run a Qt application then you should be able to build the plugin.
 
