@@ -176,7 +176,8 @@ void TerminalImageFilterChain::setImage(const Character * const image, int lines
         // TODO - Use the "line wrapped" attribute associated with lines in a
         // terminal image to avoid adding this imaginary character for wrapped
         // lines
-        if ((lineProperties.value(i, LINE_DEFAULT) & LINE_WRAPPED) == 0) {
+        if ((lineProperties.value(i, LINE_DEFAULT) & LINE_WRAPPED) == 0)
+        {
             lineStream << QLatin1Char('\n');
         }
     }
@@ -247,7 +248,8 @@ void Filter::addHotSpot(HotSpot *spot)
 {
     _hotspotList << spot;
 
-    for (int line = spot->startLine(); line <= spot->endLine(); line++) {
+    for (int line = spot->startLine(); line <= spot->endLine(); line++)
+    {
         _hotspots.insert(line, spot);
     }
 }
@@ -434,14 +436,19 @@ void UrlFilter::HotSpot::activate(QObject *object)
         return;
     }
 
-    if ((object == nullptr) || actionName == QLatin1String("open-action")) {
-        if (kind == StandardUrl) {
+    if ((object == nullptr) || actionName == QLatin1String("open-action"))
+    {
+        if (kind == StandardUrl)
+        {
             // if the URL path does not include the protocol ( eg. "www.kde.org" ) then
             // prepend http:// ( eg. "www.kde.org" --> "http://www.kde.org" )
-            if (!url.contains(QLatin1String("://"))) {
+            if (!url.contains(QLatin1String("://")))
+            {
                 url.prepend(QLatin1String("http://"));
             }
-        } else if (kind == Email) {
+        }
+        else if (kind == Email)
+        {
             url.prepend(QLatin1String("mailto:"));
         }
 
@@ -492,10 +499,12 @@ QList<QAction *> UrlFilter::HotSpot::actions()
     const UrlType kind = urlType();
     Q_ASSERT(kind == StandardUrl || kind == Email);
 
-    if (kind == StandardUrl) {
+    if (kind == StandardUrl)
+    {
         openAction->setText(i18n("Open Link"));
         copyAction->setText(i18n("Copy Link Address"));
-    } else if (kind == Email) {
+    } else if (kind == Email)
+    {
         openAction->setText(i18n("Send Email To..."));
         copyAction->setText(i18n("Copy Email Address"));
     }

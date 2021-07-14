@@ -11,6 +11,9 @@ QMAKE_CXXFLAGS += \
 
 LIBS += -lutil
 
+QMAKE_LIBDIR += \
+    /apps/qtcreator-4.15.0/lib/qtcreator
+
 DEFINES += \
     TERMINALPLUGIN_LIBRARY \
     qtermwidget5_EXPORT \
