@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # list(APPEND CMAKE_PREFIX_PATH "<set to the build folder of QtCreator>")
+list(APPEND CMAKE_PREFIX_PATH "/home/przemek/Projekty/3rdparty/qt/qt-creator/build_5.0")
 
 project(TerminalPlugin)
 
