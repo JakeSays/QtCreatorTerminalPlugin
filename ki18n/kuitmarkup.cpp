@@ -20,6 +20,7 @@
 #include <QHash>
 #include <QSet>
 #include <QRegExp>
+#include <QRegularExpression>
 #include <QStack>
 #include <QXmlStreamReader>
 #include <QStringList>
@@ -70,7 +71,7 @@ static QString shorten(const QString &str)
     if (str.length() <= maxlen) {
         return str;
     } else {
-        return str.leftRef(maxlen) + QSL("...");
+        return str.left(maxlen) + QSL("...");
     }
 }
 
@@ -1342,10 +1343,10 @@ QString KuitFormatterPrivate::toVisualText(const QString &text_,
     QString text;
     int p = original.indexOf(QL1C('&'));
     while (p >= 0) {
-        text.append(original.midRef(0, p + 1));
+        text.append(original.mid(0, p + 1));
         original.remove(0, p + 1);
-        static QRegExp staticRestRx(QLatin1String("^(" ENTITY_SUBRX ");"));
-        QRegExp restRx = staticRestRx; // QRegExp not thread-safe
+        static QRegularExpression staticRestRx(QLatin1String("^(" ENTITY_SUBRX ");"));
+        QRegularExpression restRx = staticRestRx; // QRegExp not thread-safe
         if (original.indexOf(restRx) != 0) { // not an entity
             text.append(QSL("amp;"));
         }
@@ -1366,7 +1367,7 @@ QString KuitFormatterPrivate::toVisualText(const QString &text_,
     QStack<OpenEl> openEls;
     QXmlStreamReader xml(text);
     xml.setEntityResolver(&s->xmlEntityResolver);
-    QStringRef lastElementName;
+    QStringView lastElementName;
 
     while (!xml.atEnd()) {
         xml.readNext();
@@ -1569,15 +1570,15 @@ QString KuitFormatterPrivate::finalizeVisualText(const QString &text_,
         QString plain;
         while (p >= 0) {
             QString ent = entRx.capturedTexts().at(1);
-            plain.append(text.midRef(0, p));
+            plain.append(text.mid(0, p));
             text.remove(0, p + ent.length() + 2);
             if (ent.startsWith(QL1C('#'))) { // numeric character entity
                 QChar c;
                 bool ok;
                 if (ent[1] == QL1C('x')) {
-                    c = QChar(ent.midRef(2).toInt(&ok, 16));
+                    c = QChar(ent.mid(2).toInt(&ok, 16));
                 } else {
-                    c = QChar(ent.midRef(1).toInt(&ok, 10));
+                    c = QChar(ent.mid(1).toInt(&ok, 10));
                 }
                 if (ok) {
                     plain.append(c);
@@ -1623,10 +1624,10 @@ QString KuitFormatterPrivate::salvageMarkup(const QString &text_,
         int previousPos = pos;
         pos = wrapRx.indexIn(text, previousPos);
         if (pos < 0) {
-            ntext += text.midRef(previousPos);
+            ntext += text.mid(previousPos);
             break;
         }
-        ntext += text.midRef(previousPos, pos - previousPos);
+        ntext += text.mid(previousPos, pos - previousPos);
         const QStringList capts = wrapRx.capturedTexts();
         QString tagname = capts[2].toLower();
         QString content = salvageMarkup(capts[4], format, setup);
@@ -1654,10 +1655,10 @@ QString KuitFormatterPrivate::salvageMarkup(const QString &text_,
         int previousPos = pos;
         pos = nowrRx.indexIn(text, previousPos);
         if (pos < 0) {
-            ntext += text.midRef(previousPos);
+            ntext += text.mid(previousPos);
             break;
         }
-        ntext += text.midRef(previousPos, pos - previousPos);
+        ntext += text.mid(previousPos, pos - previousPos);
         const QStringList capts = nowrRx.capturedTexts();
         QString tagname = capts[1].toLower();
         if (setup.d->knownTags.contains(tagname)) {

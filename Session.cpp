@@ -287,7 +287,7 @@ QString tildeExpand(const QString &fname)
         }
         QString ret = QDir::homePath() + fname.mid(1, pos - 1);
         if (!ret.isNull()) {
-            ret += fname.midRef(pos);
+            ret += fname.mid(pos);
         }
         return ret;
     } else if (fname.length() > 1 && fname[0] == QLatin1Char(ESCAPE) && fname[1] == u'~') {
@@ -1045,8 +1045,7 @@ void Session::sendText(const QString& text) const
 // Only D-Bus calls this function
 void Session::runCommand(const QString& command) const
 {
-    sendText(command + u'
-');
+    sendText(command + u'\n');
 }
 
 void Session::sendMouseEvent(int buttons, int column, int line, int eventType)

@@ -246,8 +246,7 @@ int countLines(const QString &s, int p)
     int n = 1;
     int len = s.length();
     for (int i = 0; i < p && i < len; ++i) {
-        if (s[i] == u'
-') {
+        if (s[i] == u'\n') {
             ++n;
         }
     }
@@ -300,22 +299,18 @@ QString trimSmart(const QString &raw)
     int len = raw.length();
 
     int is = 0;
-    while (is < len && raw[is].isSpace() && raw[is] != u'
-') {
+    while (is < len && raw[is].isSpace() && raw[is] != u'\n') {
         ++is;
     }
-    if (is >= len || raw[is] != u'
-') {
+    if (is >= len || raw[is] != u'\n') {
         is = -1;
     }
 
     int ie = len - 1;
-    while (ie >= 0 && raw[ie].isSpace() && raw[ie] != u'
-') {
+    while (ie >= 0 && raw[ie].isSpace() && raw[ie] != u'\n') {
         --ie;
     }
-    if (ie < 0 || raw[ie] != u'
-') {
+    if (ie < 0 || raw[ie] != u'\n') {
         ie = len;
     }
 
@@ -357,7 +352,7 @@ TsConfig readConfig(const QString &fname)
         return config;
     }
     QTextStream stream(&file);
-    stream.setCodec("UTF-8");
+    stream.setEncoding(QStringConverter::Encoding::Utf8);
     while (!stream.atEnd()) {
         QString line = stream.readLine();
         int p1, p2;
@@ -391,10 +386,10 @@ TsConfig readConfig(const QString &fname)
             if (p1 < 0) {
                 continue;
             }
-            QStringRef field = line.leftRef(p1).trimmed();
-            QStringRef value = line.midRef(p1 + 1).trimmed();
+            QString field = line.left(p1).trimmed();
+            QString value = line.mid(p1 + 1).trimmed();
             if (!field.isEmpty()) {
-                (*configGroup)[field.toString()] = value.toString();
+                (*configGroup)[field] = value;
             }
         }
     }
@@ -651,8 +646,7 @@ void KTranscriptImp::loadModules(const QList<QStringList> &mods,
     currentModulePath.clear();
 
     for (const QString &merr : qAsConst(modErrors)) {
-        error.append(merr + u'
-');
+        error.append(merr + u'\n');
     }
 }
 
@@ -832,7 +826,7 @@ QJSValue Scriptface::fallback()
 
 QJSValue Scriptface::nsubs()
 {
-    return QJSValue(subList->size());
+    return QJSValue(static_cast<int>(subList->size()));
 }
 
 QJSValue Scriptface::subs(const QJSValue &index)
@@ -1049,7 +1043,7 @@ static QString toCaseFirst(const QString &qstr, int qnalt, bool toupper)
     while (i < len) {
         QChar c = qstr[i];
 
-        if (qnalt && !remainingAlts && qstr.midRef(i, hlen) == head) {
+        if (qnalt && !remainingAlts && qstr.mid(i, hlen) == head) {
             // An alternatives directive is just starting.
             i += 2;
             if (i >= len) {
@@ -1229,7 +1223,7 @@ QJSValue Scriptface::load(const QJSValueList &fnames)
         }
 
         QTextStream stream(&file);
-        stream.setCodec("UTF-8");
+        stream.setEncoding(QStringConverter::Encoding::Utf8);
         QString source = stream.readAll();
         file.close();
 
@@ -1263,7 +1257,7 @@ QString Scriptface::loadProps_text(const QString &fpath)
                .arg(fpath);
     }
     QTextStream stream(&file);
-    stream.setCodec("UTF-8");
+    stream.setEncoding(QStringConverter::Encoding::Utf8);
     QString s = stream.readAll();
     file.close();
 
@@ -1311,8 +1305,7 @@ QString Scriptface::loadProps_text(const QString &fpath)
                 state = s_nextKey;
             } else {
                 // This is a comment, skip to EOL, don't change state.
-                while (s[i] != u'
-') {
+                while (s[i] != u'\n') {
                     ++i;
                     if (i >= slen) {
                         goto END_PROP_PARSE;

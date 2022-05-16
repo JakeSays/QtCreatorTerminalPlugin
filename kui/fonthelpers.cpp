@@ -50,10 +50,10 @@ void splitFontString(const QString &name, QString *family, QString *foundry)
         int p2 = name.indexOf(u']', p1);
         p2 = p2 > p1 ? p2 : name.length();
         if (family) {
-            *family = name.leftRef(p1).trimmed().toString();
+            *family = name.left(p1).trimmed();
         }
         if (foundry) {
-            *foundry = name.midRef(p1 + 1, p2 - p1 - 1).trimmed().toString();
+            *foundry = name.mid(p1 + 1, p2 - p1 - 1).trimmed();
         }
     }
 }

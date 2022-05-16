@@ -39,6 +39,7 @@
 //#include "Shortcut_p.h"
 
 class QColor;
+class QTextCodec;
 
 class KConfigGroup;
 class KProcess;

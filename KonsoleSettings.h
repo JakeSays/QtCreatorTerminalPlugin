@@ -12,7 +12,6 @@ namespace terminal {
 class Q_DECL_EXPORT KonsoleSettings : public KCoreConfigSkeleton
 {
 	Q_OBJECT
-	Q_OBJECT
   public:
     enum EnumTabBarVisibility { AlwaysShowTabBar, ShowTabBarWhenNeeded, AlwaysHideTabBar };
     enum EnumTabBarPosition { Top, Bottom };

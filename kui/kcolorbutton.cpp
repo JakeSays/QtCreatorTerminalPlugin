@@ -232,7 +232,7 @@ void KColorButton::paintEvent(QPaintEvent *)
     if (hasFocus()) {
         QRect focusRect = style->subElementRect(QStyle::SE_PushButtonFocusRect, &butOpt, this);
         QStyleOptionFocusRect focusOpt;
-        focusOpt.init(this);
+        focusOpt.initFrom(this);
         focusOpt.rect            = focusRect;
         focusOpt.backgroundColor = palette().window().color();
         style->drawPrimitive(QStyle::PE_FrameFocusRect, &focusOpt, &painter, this);
@@ -243,16 +243,14 @@ QSize KColorButton::sizeHint() const
 {
     QStyleOptionButton opt;
     d->initStyleOption(&opt);
-    return style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(40, 15), this).
-           expandedTo(QApplication::globalStrut());
+    return style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(40, 15), this);
 }
 
 QSize KColorButton::minimumSizeHint() const
 {
     QStyleOptionButton opt;
     d->initStyleOption(&opt);
-    return style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(3, 3), this).
-           expandedTo(QApplication::globalStrut());
+    return style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(3, 3), this);
 }
 
 void KColorButton::dragEnterEvent(QDragEnterEvent *event)

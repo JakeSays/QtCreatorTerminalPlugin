@@ -24,6 +24,7 @@
 
 #include <QDialogButtonBox>
 #include <QMessageBox>
+#include <QStringList>
 
 #include <kguiitem.h>
 #include <kstandardguiitem.h>
@@ -35,7 +36,6 @@ class KMessageBoxNotifyInterface;
 class QDialog;
 class QDialogButtonBox;
 class QWidget;
-class QStringList;
 class KConfig;
 
 /**

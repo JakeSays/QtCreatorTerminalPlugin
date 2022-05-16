@@ -69,7 +69,7 @@ KConfigPrivate::KConfigPrivate(KConfig::OpenFlags flags,
       bFileImmutable(false), bForceGlobal(false), bSuppressGlobal(false),
       configState(KConfigBase::NoAccess)
 {
-    static QBasicAtomicInt use_etc_kderc = Q_BASIC_ATOMIC_INITIALIZER(-1);
+    static std::atomic<int> use_etc_kderc(-1);
     if (use_etc_kderc.load() < 0) {
         use_etc_kderc.store( !qEnvironmentVariableIsSet("KDE_SKIP_KDERC"));    // for unit tests
     }
@@ -174,13 +174,13 @@ QString KConfigPrivate::expandString(const QString &value)
         if (aValue[nDollarPos + 1] != u'$') {
             int nEndPos = nDollarPos + 1;
             // the next character is not $
-            QStringRef aVarName;
+            QString aVarName;
             if (aValue[nEndPos] == u'{') {
                 while ((nEndPos <= aValue.length()) && (aValue[nEndPos] != u'}')) {
                     nEndPos++;
                 }
                 nEndPos++;
-                aVarName = aValue.midRef(nDollarPos + 2, nEndPos - nDollarPos - 3);
+                aVarName = aValue.mid(nDollarPos + 2, nEndPos - nDollarPos - 3);
             } else {
                 while (nEndPos <= aValue.length() &&
                         (aValue[nEndPos].isNumber() ||
@@ -188,7 +188,7 @@ QString KConfigPrivate::expandString(const QString &value)
                          aValue[nEndPos] == u'_')) {
                     nEndPos++;
                 }
-                aVarName = aValue.midRef(nDollarPos + 1, nEndPos - nDollarPos - 1);
+                aVarName = aValue.mid(nDollarPos + 1, nEndPos - nDollarPos - 1);
             }
             QString env;
             if (!aVarName.isEmpty()) {
@@ -256,7 +256,7 @@ KConfig::KConfig(KConfigPrivate &d)
 KConfig::~KConfig()
 {
     Q_D(KConfig);
-    if (d->bDirty && (d->mBackend && d->mBackend->ref.load() == 1)) {
+    if (d->bDirty && (d->mBackend && d->mBackend->ref.loadAcquire() == 1)) {
         sync();
     }
     delete d;
@@ -276,7 +276,7 @@ QStringList KConfig::groupList() const
         }
     }
 
-    return groups.toList();
+    return {groups.begin(), groups.end()};
 }
 
 QStringList KConfigPrivate::groupList(const QByteArray &group) const
@@ -292,7 +292,7 @@ QStringList KConfigPrivate::groupList(const QByteArray &group) const
         }
     }
 
-    return groups.toList();
+    return {groups.begin(), groups.end()};
 }
 
 static bool isGroupOrSubGroupMatch(const QByteArray &potentialGroup, const QByteArray &group)
@@ -345,7 +345,7 @@ QStringList KConfigPrivate::keyListImpl(const QByteArray &theGroup) const
                 tmp << QString::fromUtf8(key.mKey);
             }
         }
-        keys = tmp.toList();
+        keys = QStringList(tmp.begin(), tmp.end());
     }
 
     return keys;
@@ -365,7 +365,7 @@ QMap<QString, QString> KConfig::entryMap(const QString &aGroup) const
     const QByteArray theGroup(aGroup.isEmpty() ? "<default>" : aGroup.toUtf8());
 
     const KEntryMapConstIterator theEnd = d->entryMap.constEnd();
-    KEntryMapConstIterator it = d->entryMap.findEntry(theGroup, nullptr, nullptr);
+    KEntryMapConstIterator it = d->entryMap.findEntry(theGroup);
     if (it != theEnd) {
         ++it; // advance past the special group entry marker
 
@@ -847,7 +847,7 @@ bool KConfig::isImmutable() const
 bool KConfig::isGroupImmutableImpl(const QByteArray &aGroup) const
 {
     Q_D(const KConfig);
-    return isImmutable() || d->entryMap.getEntryOption(aGroup, nullptr, nullptr, KEntryMap::EntryImmutable);
+    return isImmutable() || d->entryMap.getEntryOption(aGroup, {}, {}, KEntryMap::EntryImmutable);
 }
 
 //#if KCONFIGCORE_BUILD_DEPRECATED_SINCE(4, 0)
@@ -878,7 +878,7 @@ const KConfigGroup KConfig::groupImpl(const QByteArray &group) const
 
 KEntryMap::EntryOptions convertToOptions(KConfig::WriteConfigFlags flags)
 {
-    KEntryMap::EntryOptions options = nullptr;
+    KEntryMap::EntryOptions options = static_cast<KEntryMap::EntryOptions>(0);
 
     if (flags & KConfig::Persistent) {
         options |= KEntryMap::EntryDirty;

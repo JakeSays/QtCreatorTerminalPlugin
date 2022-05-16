@@ -178,8 +178,7 @@ void TerminalImageFilterChain::setImage(const Character * const image, int lines
         // lines
         if ((lineProperties.value(i, LINE_DEFAULT) & LINE_WRAPPED) == 0)
         {
-            lineStream << u'
-';
+            lineStream << u'\n';
         }
     }
     decoder.end();
@@ -465,17 +464,14 @@ void UrlFilter::HotSpot::activate(QObject *object)
 //regexp matches:
 // full url:
 // protocolname:// or www. followed by anything other than whitespaces, <, >, ' or ", and ends before whitespaces, <, >, ', ", ], !, ), :, comma and dot
-const QRegularExpression UrlFilter::FullUrlRegExp(QStringLiteral("(www\\.(?!\\.)|[a-z][a-z0-9+.-]*://)[^\\s<>'\"]+[^!,\\.\\s<>'\"\\]\\)\\:]"),
-                                                  QRegularExpression::OptimizeOnFirstUsageOption);
+const QRegularExpression UrlFilter::FullUrlRegExp(QStringLiteral("(www\\.(?!\\.)|[a-z][a-z0-9+.-]*://)[^\\s<>'\"]+[^!,\\.\\s<>'\"\\]\\)\\:]"));
 // email address:
 // [word chars, dots or dashes]@[word chars, dots or dashes].[word chars]
-const QRegularExpression UrlFilter::EmailAddressRegExp(QStringLiteral("\\b(\\w|\\.|-|\\+)+@(\\w|\\.|-)+\\.\\w+\\b"),
-                                                       QRegularExpression::OptimizeOnFirstUsageOption);
+const QRegularExpression UrlFilter::EmailAddressRegExp(QStringLiteral("\\b(\\w|\\.|-|\\+)+@(\\w|\\.|-)+\\.\\w+\\b"));
 
 // matches full url or email address
 const QRegularExpression UrlFilter::CompleteUrlRegExp(u'(' + FullUrlRegExp.pattern() + u'|'
-                                                      + EmailAddressRegExp.pattern() + u')',
-                                                      QRegularExpression::OptimizeOnFirstUsageOption);
+                                                      + EmailAddressRegExp.pattern() + u')');
 
 UrlFilter::UrlFilter()
 {
@@ -742,14 +738,15 @@ void FileFilter::HotSpot::activate(QObject* object)
         if (_deets->DocumentLine == -1 &&
             _deets->DocumentColumn == -1)
         {
-            Core::EditorManager::openEditor(_deets->FullPath);
+            Core::EditorManager::openEditor(Utils::FilePath::fromString(_deets->FullPath));
         }
 
-        Core::EditorManager::openEditorAt(_deets->FullPath,
-            _deets->DocumentLine,
-            _deets->DocumentColumn == -1
-                ? 0
-                : _deets->DocumentColumn);
+        // TODO: Adam Sowa, port to new API
+//        Core::EditorManager::openEditorAt(Utils::FilePath::fromString(_deets->FullPath),
+//            _deets->DocumentLine,
+//            _deets->DocumentColumn == -1
+//                ? 0
+//                : _deets->DocumentColumn);
         return;
     }
 

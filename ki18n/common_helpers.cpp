@@ -40,9 +40,9 @@ static QString removeReducedCJKAccMark(const QString &label, int pos)
         --p2;
 
         if (p1 == 0) {
-            return label.leftRef(pos - 1) + label.midRef(p2 + 1);
+            return label.left(pos - 1) + label.mid(p2 + 1);
         } else if (p2 + 1 == len) {
-            return label.leftRef(p1) + label.midRef(pos + 2);
+            return label.left(p1) + label.mid(pos + 2);
         }
     }
     return label;
@@ -62,7 +62,7 @@ QString removeAcceleratorMarker(const QString &label_)
 
         if (label[p + 1].isLetterOrNumber()) {
             // Valid accelerator.
-            label = QString(label.leftRef(p) + label.midRef(p + 1));
+            label = QString(label.left(p) + label.mid(p + 1));
 
             // May have been an accelerator in CJK-style "(&X)"
             // at the start or end of text.
@@ -71,7 +71,7 @@ QString removeAcceleratorMarker(const QString &label_)
             accmarkRemoved = true;
         } else if (label[p + 1] == u'&') {
             // Escaped accelerator marker.
-            label = QString(label.leftRef(p) + label.midRef(p + 1));
+            label = QString(label.left(p) + label.mid(p + 1));
         }
 
         ++p;

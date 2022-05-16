@@ -24,9 +24,9 @@
 #include <QColor>
 #include <QFont>
 #include <QHash>
-#include <QtXml/QXmlContentHandler>
-#include <QtXml/QXmlInputSource>
-#include <QtXml/QXmlSimpleReader>
+#include <QXmlContentHandler>
+#include <QXmlInputSource>
+#include <QXmlSimpleReader>
 #include <QUrl>
 
 #include <QDebug>

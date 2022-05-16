@@ -19,11 +19,12 @@
 #include "ksqueezedtextlabel.h"
 #include <QAction>
 #include <QContextMenuEvent>
-#include <QDesktopWidget>
 #include <QMenu>
 #include <QClipboard>
 #include <QApplication>
 #include <QTextDocument>
+#include <QRegularExpression>
+#include <QWindow>
 
 class KSqueezedTextLabelPrivate
 {
@@ -75,7 +76,8 @@ QSize KSqueezedTextLabel::minimumSizeHint() const
 
 QSize KSqueezedTextLabel::sizeHint() const
 {
-    int maxWidth = QApplication::desktop()->screenGeometry(this).width() * 3 / 4;
+    QScreen *screen = this->window()->windowHandle()->screen();
+    int maxWidth = screen->geometry().width() * 3 / 4;
     QFontMetrics fm(fontMetrics());
     int textWidth = fm.boundingRect(d->fullText).width();
     if (textWidth > maxWidth) {
@@ -115,8 +117,7 @@ void KSqueezedTextLabel::squeezeTextToLabel()
     const int labelWidth = contentsRect().width();
     QStringList squeezedLines;
     bool squeezed = false;
-    const auto textLines = d->fullText.split(u'
-');
+    const auto textLines = d->fullText.split(u'\n');
     squeezedLines.reserve(textLines.size());
     for (const QString &line : textLines) {
         int lineWidth = fm.boundingRect(line).width();
@@ -129,8 +130,7 @@ void KSqueezedTextLabel::squeezeTextToLabel()
     }
 
     if (squeezed) {
-        QLabel::setText(squeezedLines.join(u'
-'));
+        QLabel::setText(squeezedLines.join(u'\n'));
         setToolTip(d->fullText);
     } else {
         QLabel::setText(d->fullText);
@@ -248,7 +248,7 @@ void KSqueezedTextLabel::mouseReleaseEvent(QMouseEvent *ev)
             // Strip markup tags
             if (textFormat() == Qt::RichText
                     || (textFormat() == Qt::AutoText && Qt::mightBeRichText(txt))) {
-                txt.remove(QRegExp(QStringLiteral("<[^>]*>")));
+                txt.remove(QRegularExpression(QStringLiteral("<[^>]*>")));
                 // account for stripped characters
                 charsAfterSelection -= d->fullText.length() - txt.length();
             }

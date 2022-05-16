@@ -471,16 +471,14 @@ void EditProfileDialog::showEnvironmentEditor()
     QString text = QInputDialog::getMultiLineText(this,
                                                   i18n("Edit Environment"),
                                                   i18n("One environment variable per line"),
-                                                  currentEnvironment.join(u'
-'),
+                                                  currentEnvironment.join(u'\n'),
                                                   &ok);
 
     QStringList newEnvironment;
 
     if (ok) {
         if(!text.isEmpty()) {
-            newEnvironment = text.split(u'
-');
+            newEnvironment = text.split(u'\n');
             updateTempProfileProperty(Profile::Environment, newEnvironment);
         } else {
             // the user could have removed all entries so we return an empty list
@@ -1319,7 +1317,7 @@ void EditProfileDialog::setupButtonGroup(const ButtonGroupOptions &options, cons
     }
     activeButton->setChecked(true);
 
-    connect(options.group, QOverload<int>::of(&QButtonGroup::buttonClicked),
+    connect(options.group, &QButtonGroup::idClicked,
             this, [this, options](int value) {
         if (options.preview) {
             preview(options.profileProperty, value);

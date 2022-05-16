@@ -11,7 +11,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(QtCreator REQUIRED COMPONENTS Core)
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Qml Widgets Xml Network)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Qml Widgets Xml Network Core5Compat)
 #find_package(KF5I18n NO_MODULE)
 set(QtX Qt${QT_VERSION_MAJOR})
 
@@ -25,8 +25,8 @@ add_qtc_plugin(TerminalPlugin
     QtCreator::ExtensionSystem
     QtCreator::Utils
   SOURCES
-    .github/workflows/build_cmake.yml
-    .github/workflows/README.md
+    #.github/workflows/build_cmake.yml
+    #.github/workflows/README.md
     #README.md
 
     KonsoleSettings.cpp
@@ -282,7 +282,10 @@ CharacterWidth.h
     settings/HistorySizeWidget.ui
 )
 
-#target_link_libraries(TerminalPlugin PRIVATE KF5::I18n)
+target_link_libraries(TerminalPlugin PRIVATE
+    Qt6::Core5Compat
+    #KF5::I18n
+)
 
 target_include_directories(TerminalPlugin SYSTEM PRIVATE
     kui

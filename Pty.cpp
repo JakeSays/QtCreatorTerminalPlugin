@@ -66,6 +66,26 @@ void Pty::init()
     setPtyChannels(KPtyProcess::AllChannels);
 
     connect(pty(), &KPtyDevice::readyRead, this, &terminal::Pty::dataReceived);
+
+    std::function<void(void)> childModifier = childProcessModifier();
+    setChildProcessModifier([this, childModifier]() {
+
+        if (childModifier) {
+            childModifier();
+        }
+
+        // reset all signal handlers
+        // this ensures that terminal applications respond to
+        // signals generated via key sequences such as Ctrl+C
+        // (which sends SIGINT)
+        struct sigaction action;
+        sigemptyset(&action.sa_mask);
+        action.sa_handler = SIG_DFL;
+        action.sa_flags = 0;
+        for (int signal = 1; signal < NSIG; signal++) {
+            sigaction(signal, &action, nullptr);
+        }
+    });
 }
 
 Pty::~Pty() = default;
@@ -321,21 +341,4 @@ int Pty::foregroundProcessGroup() const
     }
 
     return 0;
-}
-
-void Pty::setupChildProcess()
-{
-    KPtyProcess::setupChildProcess();
-
-    // reset all signal handlers
-    // this ensures that terminal applications respond to
-    // signals generated via key sequences such as Ctrl+C
-    // (which sends SIGINT)
-    struct sigaction action;
-    sigemptyset(&action.sa_mask);
-    action.sa_handler = SIG_DFL;
-    action.sa_flags = 0;
-    for (int signal = 1; signal < NSIG; signal++) {
-        sigaction(signal, &action, nullptr);
-    }
 }

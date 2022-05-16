@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QLibrary>
 #include <QPluginLoader>
+#include <QRecursiveMutex>
 #include <QDir>
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -53,7 +54,7 @@ static QString shortenMessage(const QString &str)
     if (str.length() <= maxlen) {
         return str;
     } else {
-        return str.leftRef(maxlen) + u"..."_qs;
+        return str.left(maxlen) + u"..."_qs;
     }
 }
 
@@ -302,7 +303,7 @@ public:
     QList<QByteArray> qtDomains;
     QList<int> qtDomainInsertCount;
 
-    QMutex klspMutex;
+    QRecursiveMutex klspMutex;
 
     KLocalizedStringPrivateStatics();
     ~KLocalizedStringPrivateStatics();
@@ -336,8 +337,6 @@ KLocalizedStringPrivateStatics::KLocalizedStringPrivateStatics()
 
     , qtDomains()
     , qtDomainInsertCount()
-
-    , klspMutex(QMutex::Recursive)
 {
     initializeLocaleLanguages();
     languages = localeLanguages;
@@ -909,7 +908,7 @@ int KLocalizedStringPrivate::resolveInterpolation(const QString &scriptedTransla
                                    shortenMessage(scriptedTranslation));
             return -1;
         }
-        if (scriptedTranslation.midRef(tpos, ielen) == s->endInterp) {
+        if (scriptedTranslation.mid(tpos, ielen) == s->endInterp) {
             break; // no more arguments
         }
 
@@ -1058,7 +1057,7 @@ QVariant KLocalizedStringPrivate::segmentToValue(const QString &segment) const
     // Reference number must start with 1-9.
     // (If numstr is empty, toInt() will return 0.)
     QString numstr = segment.mid(1);
-    if (numstr.leftRef(1).toInt() < 1) {
+    if (numstr.left(1).toInt() < 1) {
         return QVariant();
     }
 

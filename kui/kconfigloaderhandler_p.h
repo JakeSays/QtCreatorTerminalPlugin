@@ -21,7 +21,7 @@
 #ifndef KCONFIGLOADERHANDLER_P_H
 #define KCONFIGLOADERHANDLER_P_H
 
-#include <QtXml/QXmlDefaultHandler>
+#include <QXmlDefaultHandler>
 #include "kconfigloader.h"
 
 class ConfigLoaderHandler : public QXmlDefaultHandler

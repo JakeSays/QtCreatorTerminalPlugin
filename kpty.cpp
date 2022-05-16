@@ -145,8 +145,6 @@ extern "C" {
 #include <QDebug>
 #include <qplatformdefs.h>
 
-#include <Q_PID>
-
 #define TTY_GROUP "tty"
 
 #ifndef PATH_MAX

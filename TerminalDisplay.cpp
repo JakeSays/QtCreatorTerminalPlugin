@@ -46,6 +46,7 @@
 #include <QAccessible>
 #include <QtMath>
 #include <QMessageBox>
+#include <QMatrix4x4>
 
 // KDE
 //#include <KShell>
@@ -259,13 +260,13 @@ void TerminalDisplay::fontChange(const QFont&)
     // "Base character width on widest ASCII character. This prevents too wide
     //  characters in the presence of double wide (e.g. Japanese) characters."
     // Get the width from representative normal width characters
-    _fontWidth = qRound((static_cast<double>(fm.width(QStringLiteral(REPCHAR))) / static_cast<double>(qstrlen(REPCHAR))));
+    _fontWidth = qRound((static_cast<double>(fm.horizontalAdvance(QStringLiteral(REPCHAR))) / static_cast<double>(qstrlen(REPCHAR))));
 
     _fixedFont = true;
 
-    const int fw = fm.width(QLatin1Char(REPCHAR[0]));
+    const int fw = fm.horizontalAdvance(QLatin1Char(REPCHAR[0]));
     for (unsigned int i = 1; i < qstrlen(REPCHAR); i++) {
-        if (fw != fm.width(QLatin1Char(REPCHAR[i]))) {
+        if (fw != fm.horizontalAdvance(QLatin1Char(REPCHAR[i]))) {
             _fixedFont = false;
             break;
         }
@@ -291,9 +292,6 @@ void TerminalDisplay::setVTFont(const QFont& f)
     // depending on the user's font configuration, this may not be respected
     strategy |= _antialiasText ? QFont::PreferAntialias : QFont::NoAntialias;
 
-    // terminal cannot handle non-integer font metrics
-    strategy |= QFont::ForceIntegerMetrics;
-
     // In case the provided font doesn't have some specific characters it should
     // fall back to a Monospace fonts.
     newFont.setStyleHint(QFont::TypeWriter, QFont::StyleStrategy(strategy));
@@ -307,8 +305,6 @@ void TerminalDisplay::setVTFont(const QFont& f)
         // Ask for a generic font so at least it is usable.
         // Font listed in profile's dialog will not be updated.
         newFont = QFont(QStringLiteral("Monospace"));
-        // Set style strategy without ForceIntegerMetrics for the font
-        strategy &= ~QFont::ForceIntegerMetrics;
         newFont.setStyleHint(QFont::TypeWriter, QFont::StyleStrategy(strategy));
         qCDebug(TerminalDebug)<<"Font changed to "<<newFont.toString();
     }
@@ -825,7 +821,7 @@ void TerminalDisplay::drawCharacters(QPainter& painter,
             || currentFont.italic() != useItalic
             || currentFont.strikeOut() != useStrikeOut
             || currentFont.overline() != useOverline) {
-        currentFont.setWeight(useBold ? boldWeight : normalWeight);
+        currentFont.setWeight(useBold ? QFont::Weight::Bold : QFont::Weight::Normal);
         currentFont.setUnderline(useUnderline);
         currentFont.setItalic(useItalic);
         currentFont.setStrikeOut(useStrikeOut);
@@ -1676,7 +1672,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
             univec.resize(p);
 
             // Create a text scaling matrix for double width and double height lines.
-            QMatrix textScale;
+            QTransform textScale;
 
             if (y < _lineProperties.size()) {
                 if ((_lineProperties[y] & LINE_DOUBLEWIDTH) != 0) {
@@ -1690,7 +1686,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
 
             //Apply text scaling matrix.
             // TODO: setWorldMatrix is obsolete, change to setWorldTransform
-            paint.setWorldMatrix(textScale, true);
+            paint.setWorldTransform(textScale, true);
 
             //calculate the area in which the text will be drawn
             QRect textArea = QRect(_contentRect.left() + contentsRect().left() + _fontWidth * x,
@@ -1725,7 +1721,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
 
             //reset back to single-width, single-height _lines
             // TODO: setWorldMatrix is obsolete, change to setWorldTransform
-            paint.setWorldMatrix(textScale.inverted(), true);
+            paint.setWorldTransform(textScale.inverted(), true);
 
             if (y < _lineProperties.size() - 1) {
                 //double-height _lines are represented by two adjacent _lines
@@ -2250,7 +2246,7 @@ void TerminalDisplay::mousePressEvent(QMouseEvent* ev)
                 }
             }
         //}
-    } else if (ev->button() == Qt::MidButton) {
+    } else if (ev->button() == Qt::MiddleButton) {
         processMidButtonClick(ev);
     } else if (ev->button() == Qt::RightButton) {
         if (!_usesMouseTracking || ((ev->modifiers() & Qt::ShiftModifier) != 0u)) {
@@ -2345,7 +2341,7 @@ void TerminalDisplay::mouseMoveEvent(QMouseEvent* ev)
         if ((ev->buttons() & Qt::LeftButton) != 0u) {
             button = 0;
         }
-        if ((ev->buttons() & Qt::MidButton) != 0u) {
+        if ((ev->buttons() & Qt::MiddleButton) != 0u) {
             button = 1;
         }
         if ((ev->buttons() & Qt::RightButton) != 0u) {
@@ -2384,7 +2380,7 @@ void TerminalDisplay::mouseMoveEvent(QMouseEvent* ev)
     }
 
 // don't extend selection while pasting
-    if ((ev->buttons() & Qt::MidButton) != 0u) {
+    if ((ev->buttons() & Qt::MiddleButton) != 0u) {
         return;
     }
 
@@ -2599,9 +2595,9 @@ void TerminalDisplay::mouseReleaseEvent(QMouseEvent* ev)
     }
 
     if (_usesMouseTracking &&
-            (ev->button() == Qt::RightButton || ev->button() == Qt::MidButton) &&
+            (ev->button() == Qt::RightButton || ev->button() == Qt::MiddleButton) &&
             !(ev->modifiers() & Qt::ShiftModifier)) {
-        emit mouseSignal(ev->button() == Qt::MidButton ? 1 : 2,
+        emit mouseSignal(ev->button() == Qt::MiddleButton ? 1 : 2,
                          charColumn + 1,
                          charLine + 1 + _scrollBar->value() - _scrollBar->maximum() ,
                          2);
@@ -2656,7 +2652,7 @@ void TerminalDisplay::processMidButtonClick(QMouseEvent* ev)
 void TerminalDisplay::mouseDoubleClickEvent(QMouseEvent* ev)
 {
     // Yes, successive middle click can trigger this event
-    if (ev->button() == Qt::MidButton) {
+    if (ev->button() == Qt::MiddleButton) {
         processMidButtonClick(ev);
         return;
     }
@@ -2718,9 +2714,10 @@ void TerminalDisplay::mouseDoubleClickEvent(QMouseEvent* ev)
 void TerminalDisplay::wheelEvent(QWheelEvent* ev)
 {
     // Only vertical scrolling is supported
-    if (ev->orientation() != Qt::Vertical) {
-        return;
-    }
+    // TODO: Adam Sowa: port to Qt6
+//    if (ev->orientation() != Qt::Vertical) {
+//        return;
+//    }
 
     const int modifiers = ev->modifiers();
 
@@ -2779,7 +2776,7 @@ void TerminalDisplay::wheelEvent(QWheelEvent* ev)
 
             int charLine;
             int charColumn;
-            getCharacterPosition(ev->pos() , charLine , charColumn, !_usesMouseTracking);
+            getCharacterPosition(ev->position().toPoint(), charLine , charColumn, !_usesMouseTracking);
             const int steps = _scrollWheelState.consumeLegacySteps(ScrollState::DEFAULT_ANGLE_SCROLL_LINE);
             const int button = (steps > 0) ? 4 : 5;
             for (int i = 0; i < abs(steps); ++i) {
@@ -3111,7 +3108,7 @@ QChar TerminalDisplay::charClass(const Character& ch) const
             }
             return letterOrNumber ? u'a' : s.at(0);
         }
-        return 0;
+        return QChar(0);
     } else {
         const QChar qch(ch.character);
         if (qch.isSpace()) {
@@ -3176,7 +3173,7 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
     }
 
     if (appendReturn) {
-        text.append(u""_qs);
+        text.append(u"\n"_qs);
     }
 
     if (text.length() > 8000) {
@@ -3192,8 +3189,7 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
 
     QStringList unsafeCharacters;
     for (const QChar &c : text) {
-        if (!c.isPrint() && c != u'	' && c != u'
-') {
+        if (!c.isPrint() && c != u'\t' && c != u'\n') {
             QString description;
             switch(c.unicode()) {
             case '\x03':
@@ -3249,8 +3245,7 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
             case KMessageBox::Yes: {
                 QString sanitized;
                 for (const QChar &c : text) {
-                    if (c.isPrint() || c == u'	' || c == u'
-') {
+                    if (c.isPrint() || c == u'\t' || c == u'\n') {
                         sanitized.append(c);
                     }
                 }
@@ -3265,12 +3260,11 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
     }
 
     if (!text.isEmpty()) {
-        text.replace(u'
-', u'');
+        text.replace(u'\n', u'\n');
         if (bracketedPasteMode()) {
-            text.remove(u""_qs);
-            text.prepend(u"[200~"_qs);
-            text.append(u"[201~"_qs);
+            text.remove(u"\033"_qs);
+            text.prepend(u"\033[200~"_qs);
+            text.append(u"\033[201~"_qs);
         }
         // perform paste by simulating keypress events
         QKeyEvent e(QEvent::KeyPress, 0, Qt::NoModifier, text);
@@ -3380,7 +3374,7 @@ QVariant TerminalDisplay::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     const QPoint cursorPos = cursorPosition();
     switch (query) {
-    case Qt::ImMicroFocus:
+    case Qt::ImCursorRectangle:
         return imageToWidget(QRect(cursorPos.x(), cursorPos.y(), 1, 1));
     case Qt::ImFont:
         return font();

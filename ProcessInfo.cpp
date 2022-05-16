@@ -472,7 +472,7 @@ private:
                 }
             } while (!statusLine.isNull() && uidLine.isNull());
 
-            uidStrings << uidLine.split(u'	', Qt::SkipEmptyParts);
+            uidStrings << uidLine.split(u'\t', Qt::SkipEmptyParts);
             // Must be 5 entries: 'Uid: %d %d %d %d' and
             // uid string must be less than 5 chars (uint)
             if (uidStrings.size() == 5) {
@@ -577,7 +577,7 @@ private:
             QTextStream stream(&argumentsFile);
             const QString &data = stream.readAll();
 
-            const QStringList &argList = data.split(u' ');
+            const QStringList &argList = data.split(u'\0');
 
             foreach (const QString &entry, argList) {
                 if (!entry.isEmpty()) {
@@ -1047,7 +1047,7 @@ SSHProcessInfo::SSHProcessInfo(const ProcessInfo &process) :
             // If this one is an option ...
             // Most options together with its argument will be skipped.
             if (args[i].startsWith(u'-')) {
-                const QChar optionChar = (args[i].length() > 1) ? args[i][1] : u' ';
+                const QChar optionChar = (args[i].length() > 1) ? args[i][1] : u'\0';
                 // for example: -p2222 or -p 2222 ?
                 const bool optionArgumentCombined = args[i].length() > 2;
 

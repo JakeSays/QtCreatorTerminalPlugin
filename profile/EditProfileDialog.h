@@ -42,6 +42,7 @@
 
 class KLocalizedString;
 class QItemSelectionModel;
+class QTextCodec;
 namespace Ui {
     class EditProfileGeneralPage;
     class EditProfileAppearancePage;

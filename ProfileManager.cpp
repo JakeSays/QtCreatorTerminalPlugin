@@ -330,7 +330,8 @@ void ProfileManager::saveSettings()
 
 QList<Profile::Ptr> ProfileManager::sortedFavorites()
 {
-    QList<Profile::Ptr> favorites = findFavorites().toList();
+    QSet<Profile::Ptr> set = findFavorites();
+    QList<Profile::Ptr> favorites(set.begin(), set.end());
 
     sortProfiles(favorites);
     return favorites;
@@ -340,12 +341,12 @@ QList<Profile::Ptr> ProfileManager::allProfiles()
 {
     loadAllProfiles();
 
-    return _profiles.toList();
+    return QList<Profile::Ptr>(_profiles.begin(), _profiles.end());
 }
 
 QList<Profile::Ptr> ProfileManager::loadedProfiles() const
 {
-    return _profiles.toList();
+    return QList<Profile::Ptr>(_profiles.begin(), _profiles.end());
 }
 
 Profile::Ptr ProfileManager::defaultProfile() const
@@ -657,7 +658,7 @@ void ProfileManager::loadFavorites()
 
     if (favoriteGroup.hasKey("Favorites")) {
         QStringList list = favoriteGroup.readEntry("Favorites", QStringList());
-        favoriteSet = QSet<QString>::fromList(list);
+        favoriteSet = QSet<QString>(list.begin(), list.end());
     }
 
     // look for favorites among those already loaded

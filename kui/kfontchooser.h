@@ -23,9 +23,9 @@
 
 
 #include <QWidget>
+#include <QStringList>
 
 class QFont;
-class QStringList;
 
 /**
  * @class KFontChooser kfontchooser.h KFontChooser

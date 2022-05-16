@@ -29,7 +29,7 @@
 #include <QLayout>
 #include <QListWidget>
 #include <QPushButton>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTextBrowser>
@@ -200,7 +200,7 @@ QDialogButtonBox::StandardButton createKMessageBox(QDialog *dialog, QDialogButto
 
     QWidget *mainWidget = new QWidget(dialog);
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
-    const int spacingHint = mainWidget->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+    const int spacingHint = mainWidget->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
     mainLayout->setSpacing(spacingHint * 2); // provide extra spacing
     mainLayout->setContentsMargins(0, 0, 0, 0);
     buttons->setParent(dialog);
@@ -234,7 +234,8 @@ QDialogButtonBox::StandardButton createKMessageBox(QDialog *dialog, QDialogButto
     }
     messageLabel->setTextInteractionFlags(flags);
 
-    QRect desktop = QApplication::desktop()->screenGeometry(dialog);
+    QScreen *screen = dialog->window()->windowHandle()->screen();
+    QRect desktop = screen->geometry();
     bool usingSqueezedTextLabel = false;
     if (messageLabel->sizeHint().width() > desktop.width() * 0.5) {
         // enable automatic wrapping of messages which are longer than 50% of screen width
@@ -364,9 +365,7 @@ QDialogButtonBox::StandardButton createKMessageBox(QDialog *dialog, QDialogButto
     if ((options & KMessageBox::Notify)) {
         QString message = text;
         if (!strlist.isEmpty()) {
-            message += u'
-' + strlist.join(u'
-');
+            message += u'\n' + strlist.join(u'\n');
         }
         notifyInterface()->sendNotification(notifyType, message, dialog->topLevelWidget());
     }

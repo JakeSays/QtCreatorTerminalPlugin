@@ -19,10 +19,10 @@ TerminalWindow::TerminalWindow(QWidget *parent)
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
     _copyAction = new QAction("Copy", this);
-    _copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+    _copyAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_C));
 
     _pasteAction = new QAction("Paste", this);
-    _pasteAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V));
+    _pasteAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_V));
 
     InstallActions();
 }
