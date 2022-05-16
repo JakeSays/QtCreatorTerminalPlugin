@@ -48,14 +48,14 @@ static QString DropAmpersands(const QString &text)
 {
     QString label = text;
 
-    int p = label.indexOf(QLatin1Char('&'));
+    int p = label.indexOf(u'&');
     while (p >= 0 && p < label.length() - 1) {
         if (label[p + 1].isLetterOrNumber() // Valid accelerator.
-                || label[p + 1] == QLatin1Char('&')) { // Escaped accelerator marker.
+                || label[p + 1] == u'&') { // Escaped accelerator marker.
             label.remove(p, 1);
         }
 
-        p = label.indexOf(QLatin1Char('&'), p + 1);
+        p = label.indexOf(u'&', p + 1);
     }
 
     return label;

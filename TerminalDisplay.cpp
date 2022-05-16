@@ -2955,7 +2955,7 @@ QPoint TerminalDisplay::findWordEnd(const QPoint &pnt)
             if (x < maxX) {
                 if (charClass(image[j + 1]) == selClass &&
                     // A colon right before whitespace is never part of a word
-                    ! (image[j + 1].character == ':' && charClass(image[j + 2]) == QLatin1Char(' '))) {
+                    ! (image[j + 1].character == ':' && charClass(image[j + 2]) == u' ')) {
                     continue;
                 }
                 goto out;
@@ -2963,7 +2963,7 @@ QPoint TerminalDisplay::findWordEnd(const QPoint &pnt)
                 if (((lineProperties[i] & LINE_WRAPPED) != 0) &&
                     charClass(image[j + 1]) == selClass &&
                     // A colon right before whitespace is never part of a word
-                    ! (image[j + 1].character == ':' && charClass(image[j + 2]) == QLatin1Char(' '))) {
+                    ! (image[j + 1].character == ':' && charClass(image[j + 2]) == u' ')) {
                     x = -1;
                     i++;
                     y++;
@@ -2994,7 +2994,7 @@ out:
     y -= curLine;
     // In word selection mode don't select @ (64) if at end of word.
     if (((image[j].rendition & RE_EXTENDED_CHAR) == 0) &&
-        (QChar(image[j].character) == QLatin1Char('@')) &&
+        (QChar(image[j].character) == u'@') &&
         (y > pnt.y() || x > pnt.x())) {
         if (x > 0) {
             x--;
@@ -3103,23 +3103,23 @@ QChar TerminalDisplay::charClass(const Character& ch) const
         if ((chars != nullptr) && extendedCharLength > 0) {
             const QString s = QString::fromUcs4(chars, extendedCharLength);
             if (_wordCharacters.contains(s, Qt::CaseInsensitive)) {
-                return QLatin1Char('a');
+                return u'a';
             }
             bool letterOrNumber = false;
             for (int i = 0; !letterOrNumber && i < s.size(); ++i) {
                 letterOrNumber = s.at(i).isLetterOrNumber();
             }
-            return letterOrNumber ? QLatin1Char('a') : s.at(0);
+            return letterOrNumber ? u'a' : s.at(0);
         }
         return 0;
     } else {
         const QChar qch(ch.character);
         if (qch.isSpace()) {
-            return QLatin1Char(' ');
+            return u' ';
         }
 
         if (qch.isLetterOrNumber() || _wordCharacters.contains(qch, Qt::CaseInsensitive)) {
-            return QLatin1Char('a');
+            return u'a';
         }
 
         return qch;
@@ -3176,7 +3176,7 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
     }
 
     if (appendReturn) {
-        text.append(QLatin1String("\r"));
+        text.append(u""_qs);
     }
 
     if (text.length() > 8000) {
@@ -3192,7 +3192,8 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
 
     QStringList unsafeCharacters;
     for (const QChar &c : text) {
-        if (!c.isPrint() && c != QLatin1Char('\t') && c != QLatin1Char('\n')) {
+        if (!c.isPrint() && c != u'	' && c != u'
+') {
             QString description;
             switch(c.unicode()) {
             case '\x03':
@@ -3248,7 +3249,8 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
             case KMessageBox::Yes: {
                 QString sanitized;
                 for (const QChar &c : text) {
-                    if (c.isPrint() || c == QLatin1Char('\t') || c == QLatin1Char('\n')) {
+                    if (c.isPrint() || c == u'	' || c == u'
+') {
                         sanitized.append(c);
                     }
                 }
@@ -3263,11 +3265,12 @@ void TerminalDisplay::doPaste(QString text, bool appendReturn)
     }
 
     if (!text.isEmpty()) {
-        text.replace(QLatin1Char('\n'), QLatin1Char('\r'));
+        text.replace(u'
+', u'');
         if (bracketedPasteMode()) {
-            text.remove(QLatin1String("\033"));
-            text.prepend(QLatin1String("\033[200~"));
-            text.append(QLatin1String("\033[201~"));
+            text.remove(u""_qs);
+            text.prepend(u"[200~"_qs);
+            text.append(u"[201~"_qs);
         }
         // perform paste by simulating keypress events
         QKeyEvent e(QEvent::KeyPress, 0, Qt::NoModifier, text);

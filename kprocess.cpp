@@ -176,7 +176,7 @@ void KProcess::setEnv(const QString &name, const QString &value, bool overwrite)
         env.removeAll(QString::fromLatin1(DUMMYENV));
     }
     QString fname(name);
-    fname.append(QLatin1Char('='));
+    fname.append(u'=');
     for (QStringList::Iterator it = env.begin(); it != env.end(); ++it)
         if ((*it).startsWith(fname)) {
             if (overwrite) {
@@ -197,7 +197,7 @@ void KProcess::unsetEnv(const QString &name)
         env.removeAll(QString::fromLatin1(DUMMYENV));
     }
     QString fname(name);
-    fname.append(QLatin1Char('='));
+    fname.append(u'=');
     for (QStringList::Iterator it = env.begin(); it != env.end(); ++it)
         if ((*it).startsWith(fname)) {
             env.erase(it);

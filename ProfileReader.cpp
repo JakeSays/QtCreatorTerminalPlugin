@@ -53,7 +53,7 @@ QStringList ProfileReader::findProfiles()
     for (const QString& dir : dirs) {
         const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.profile"));
         for (const QString& file : fileNames) {
-            profiles.append(dir + QLatin1Char('/') + file);
+            profiles.append(dir + u'/' + file);
         }
     }
     return profiles;

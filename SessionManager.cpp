@@ -208,9 +208,9 @@ void SessionManager::applyProfile(Session *session, const Profile::Ptr &profile,
         // e.g. the second version should be higher than the first one:
         // 18.04.12 -> 180412
         // 18.08.0  -> 180800
-        QStringList list = QStringLiteral(KONSOLE_VERSION).split(QLatin1Char('.'));
+        QStringList list = QStringLiteral(KONSOLE_VERSION).split(u'.');
         if (list[2].length() < 2) {
-                list[2].prepend(QLatin1String("0"));
+                list[2].prepend(u"0"_qs);
         }
         const QString &numericVersion = list.join(QString());
 
@@ -342,7 +342,7 @@ void SessionManager::saveSessions(KConfig *config)
 
     for (auto session : _sessions)
     {
-        QString name = QLatin1String("Session") + QString::number(n);
+        QString name = u"Session"_qs + QString::number(n);
         KConfigGroup group(config, name);
 
         group.writePathEntry("Profile",
@@ -368,7 +368,7 @@ void SessionManager::restoreSessions(KConfig *config)
 
     // Any sessions saved?
     for (int n = 1; n <= sessions; n++) {
-        const QString name = QLatin1String("Session") + QString::number(n);
+        const QString name = u"Session"_qs + QString::number(n);
         KConfigGroup sessionGroup(config, name);
 
         const QString profile = sessionGroup.readPathEntry("Profile", QString());

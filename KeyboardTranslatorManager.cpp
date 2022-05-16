@@ -85,7 +85,7 @@ bool KeyboardTranslatorManager::isTranslatorDeletable(const QString &name) const
 
 bool KeyboardTranslatorManager::isTranslatorResettable(const QString &name) const
 {
-    const QStringList &paths = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + name + QLatin1String(".keytab"));
+    const QStringList &paths = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, u"konsole/"_qs + name + u".keytab"_qs);
 
     return (paths.count() > 1);
 }
@@ -105,7 +105,7 @@ void KeyboardTranslatorManager::findTranslators()
     for (const QString &dir : dirs) {
         const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.keytab"));
         for (const QString &file : fileNames) {
-            list.append(dir + QLatin1Char('/') + file);
+            list.append(dir + u'/' + file);
         }
     }
 

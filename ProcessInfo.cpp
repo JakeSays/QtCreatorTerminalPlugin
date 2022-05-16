@@ -467,12 +467,12 @@ private:
             QString statusLine;
             do {
                 statusLine = stream.readLine();
-                if (statusLine.startsWith(QLatin1String("Uid:"))) {
+                if (statusLine.startsWith(u"Uid:"_qs)) {
                     uidLine = statusLine;
                 }
             } while (!statusLine.isNull() && uidLine.isNull());
 
-            uidStrings << uidLine.split(QLatin1Char('\t'), QString::SkipEmptyParts);
+            uidStrings << uidLine.split(u'	', Qt::SkipEmptyParts);
             // Must be 5 entries: 'Uid: %d %d %d %d' and
             // uid string must be less than 5 chars (uint)
             if (uidStrings.size() == 5) {
@@ -517,11 +517,11 @@ private:
             while (pos < data.count()) {
                 QChar c = data[pos];
 
-                if (c == QLatin1Char('(')) {
+                if (c == u'(') {
                     stack++;
-                } else if (c == QLatin1Char(')')) {
+                } else if (c == u')') {
                     stack--;
-                } else if (stack == 0 && c == QLatin1Char(' ')) {
+                } else if (stack == 0 && c == u' ') {
                     field++;
                 } else {
                     switch (field) {
@@ -577,7 +577,7 @@ private:
             QTextStream stream(&argumentsFile);
             const QString &data = stream.readAll();
 
-            const QStringList &argList = data.split(QLatin1Char('\0'));
+            const QStringList &argList = data.split(u' ');
 
             foreach (const QString &entry, argList) {
                 if (!entry.isEmpty()) {
@@ -1046,8 +1046,8 @@ SSHProcessInfo::SSHProcessInfo(const ProcessInfo &process) :
         for (int i = 1; i < args.count(); i++) {
             // If this one is an option ...
             // Most options together with its argument will be skipped.
-            if (args[i].startsWith(QLatin1Char('-'))) {
-                const QChar optionChar = (args[i].length() > 1) ? args[i][1] : QLatin1Char('\0');
+            if (args[i].startsWith(u'-')) {
+                const QChar optionChar = (args[i].length() > 1) ? args[i][1] : u' ';
                 // for example: -p2222 or -p 2222 ?
                 const bool optionArgumentCombined = args[i].length() > 2;
 
@@ -1066,11 +1066,11 @@ SSHProcessInfo::SSHProcessInfo(const ProcessInfo &process) :
                     }
 
                     // support using `-l user` to specify username.
-                    if (optionChar == QLatin1Char('l')) {
+                    if (optionChar == u'l') {
                         _user = argument;
                     }
                     // support using `-p port` to specify port.
-                    else if (optionChar == QLatin1Char('p')) {
+                    else if (optionChar == u'p') {
                         _port = argument;
                     }
 
@@ -1085,7 +1085,7 @@ SSHProcessInfo::SSHProcessInfo(const ProcessInfo &process) :
                 // both a username and host are specified ( in which case they
                 // are separated by an '@' character:  username@host )
 
-                const int separatorPosition = args[i].indexOf(QLatin1Char('@'));
+                const int separatorPosition = args[i].indexOf(u'@');
                 if (separatorPosition != -1) {
                     // username and host specified
                     _user = args[i].left(separatorPosition);
@@ -1104,7 +1104,7 @@ SSHProcessInfo::SSHProcessInfo(const ProcessInfo &process) :
                 if (_command.isEmpty()) {
                     _command = args[i];
                 } else {
-                    _command = _command + QLatin1Char(' ') + args[i];
+                    _command = _command + u' ' + args[i];
                 }
             }
         }
@@ -1140,7 +1140,7 @@ QString SSHProcessInfo::format(const QString &input) const
     QString output(input);
 
     // search for and replace known markers
-    output.replace(QLatin1String("%u"), _user);
+    output.replace(u"%u"_qs, _user);
 
     // provide 'user@' if user is defined -- this makes nicer
     // remote tabs possible: "%U%h %c" => User@Host Command
@@ -1148,9 +1148,9 @@ QString SSHProcessInfo::format(const QString &input) const
     // Depending on whether -l was passed to ssh (which is mostly not the
     // case due to ~/.ssh/config).
     if (_user.isEmpty()) {
-        output.remove(QLatin1String("%U"));
+        output.remove(u"%U"_qs);
     } else {
-        output.replace(QLatin1String("%U"), _user + QLatin1Char('@'));
+        output.replace(u"%U"_qs, _user + u'@');
     }
 
     // test whether host is an ip address
@@ -1160,13 +1160,13 @@ QString SSHProcessInfo::format(const QString &input) const
     struct in_addr address;
     const bool isIpAddress = inet_aton(_host.toLocal8Bit().constData(), &address) != 0;
     if (isIpAddress) {
-        output.replace(QLatin1String("%h"), _host);
+        output.replace(u"%h"_qs, _host);
     } else {
-        output.replace(QLatin1String("%h"), _host.left(_host.indexOf(QLatin1Char('.'))));
+        output.replace(u"%h"_qs, _host.left(_host.indexOf(u'.')));
     }
 
-    output.replace(QLatin1String("%H"), _host);
-    output.replace(QLatin1String("%c"), _command);
+    output.replace(u"%H"_qs, _host);
+    output.replace(u"%c"_qs, _command);
 
     return output;
 }

@@ -155,7 +155,7 @@ QStringList ColorSchemeManager::listColorSchemes()
     for (const QString &dir : dirs) {
         const QStringList fileNames = QDir(dir).entryList(QStringList() << QStringLiteral("*.colorscheme"));
         for (const QString &file : fileNames) {
-            colorschemes.append(dir + QLatin1Char('/') + file);
+            colorschemes.append(dir + u'/' + file);
         }
     }
     return colorschemes;
@@ -211,7 +211,7 @@ const ColorScheme *ColorSchemeManager::findColorScheme(const QString &name)
     // A fix to prevent infinite loops if users puts / in ColorScheme name
     // terminal will create a sub-folder in that case (bko 315086)
     // More code will have to go in to prevent the users from doing that.
-    if (name.contains(QLatin1String("/"))) {
+    if (name.contains(u"/"_qs)) {
         qCDebug(TerminalDebug)<<name<<" has an invalid character / in the name ... skipping";
         return defaultColorScheme();
     }
@@ -233,7 +233,7 @@ const ColorScheme *ColorSchemeManager::findColorScheme(const QString &name)
 
 QString ColorSchemeManager::findColorSchemePath(const QString &name) const
 {
-    QString path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + name + QLatin1String(".colorscheme"));
+    QString path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, u"konsole/"_qs + name + u".colorscheme"_qs);
 
     if (!path.isEmpty()) {
         return path;
@@ -244,7 +244,7 @@ QString ColorSchemeManager::findColorSchemePath(const QString &name) const
 
 bool ColorSchemeManager::pathIsColorScheme(const QString &path)
 {
-    return path.endsWith(QLatin1String(".colorscheme"));
+    return path.endsWith(u".colorscheme"_qs);
 }
 
 bool ColorSchemeManager::isColorSchemeDeletable(const QString &name)
@@ -259,7 +259,7 @@ bool ColorSchemeManager::isColorSchemeDeletable(const QString &name)
 
 bool ColorSchemeManager::canResetColorScheme(const QString &name)
 {
-    const QStringList paths = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + name + QLatin1String(".colorscheme"));
+    const QStringList paths = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, u"konsole/"_qs + name + u".colorscheme"_qs);
 
     // if the colorscheme exists in both a writable location under the
     // user's home dir and a system-wide location, then it's possible

@@ -605,7 +605,7 @@ void KConfigIniBackend::setFilePath(const QString &file)
     } else {
         const QString dir = info.dir().canonicalPath();
         if (!dir.isEmpty())
-            setLocalFilePath(dir + QLatin1Char('/') + info.fileName());
+            setLocalFilePath(dir + u'/' + info.fileName());
         else
             setLocalFilePath(file);
     }
@@ -629,7 +629,7 @@ bool KConfigIniBackend::lock()
     Q_ASSERT(!filePath().isEmpty());
 
     if (!lockFile) {
-        lockFile = new QLockFile(filePath() + QLatin1String(".lock"));
+        lockFile = new QLockFile(filePath() + u".lock"_qs);
     }
 
     lockFile->lock();

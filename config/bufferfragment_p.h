@@ -195,7 +195,7 @@ private:
     unsigned int len;
 };
 
-uint qHash(const KConfigIniBackend::BufferFragment fragment)
+size_t qHash(const KConfigIniBackend::BufferFragment fragment)
 {
     const uchar *p = reinterpret_cast<const uchar*>(fragment.constData());
     const int len = fragment.length();

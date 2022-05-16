@@ -92,8 +92,8 @@ public:
         QString text = _text;
         int i = 0;
         while (i < text.length()) {
-            if (text[ i ] == QLatin1Char('&')) {
-                text.insert(i, QLatin1Char('&'));
+            if (text[ i ] == u'&') {
+                text.insert(i, u'&');
                 i += 2;
             } else {
                 ++i;

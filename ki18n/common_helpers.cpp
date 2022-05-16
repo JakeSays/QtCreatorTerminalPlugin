@@ -24,7 +24,7 @@
 static QString removeReducedCJKAccMark(const QString &label, int pos)
 {
     if (pos > 0 && pos + 1 < label.length()
-            && label[pos - 1] == QLatin1Char('(') && label[pos + 1] == QLatin1Char(')')
+            && label[pos - 1] == u'(' && label[pos + 1] == u')'
             && label[pos].isLetterOrNumber()) {
         // Check if at start or end, ignoring non-alphanumerics.
         int len = label.length();
@@ -55,7 +55,7 @@ QString removeAcceleratorMarker(const QString &label_)
     int p = 0;
     bool accmarkRemoved = false;
     while (true) {
-        p = label.indexOf(QLatin1Char('&'), p);
+        p = label.indexOf(u'&', p);
         if (p < 0 || p + 1 == label.length()) {
             break;
         }
@@ -69,7 +69,7 @@ QString removeAcceleratorMarker(const QString &label_)
             label = removeReducedCJKAccMark(label, p);
 
             accmarkRemoved = true;
-        } else if (label[p + 1] == QLatin1Char('&')) {
+        } else if (label[p + 1] == u'&') {
             // Escaped accelerator marker.
             label = QString(label.leftRef(p) + label.midRef(p + 1));
         }
@@ -91,7 +91,7 @@ QString removeAcceleratorMarker(const QString &label_)
         if (hasCJK) {
             p = 0;
             while (true) {
-                p = label.indexOf(QLatin1Char('('), p);
+                p = label.indexOf(u'(', p);
                 if (p < 0) {
                     break;
                 }

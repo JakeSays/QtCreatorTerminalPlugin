@@ -279,9 +279,9 @@ constexpr char ESCAPE = 0x1B;
 
 QString tildeExpand(const QString &fname)
 {
-    if (!fname.isEmpty() && fname[0] == QLatin1Char('~'))
+    if (!fname.isEmpty() && fname[0] == u'~')
     {
-        int pos = fname.indexOf(QLatin1Char('/'));
+        int pos = fname.indexOf(u'/');
         if (pos < 0) {
             return QDir::homePath() + "/" + fname;
         }
@@ -290,7 +290,7 @@ QString tildeExpand(const QString &fname)
             ret += fname.midRef(pos);
         }
         return ret;
-    } else if (fname.length() > 1 && fname[0] == QLatin1Char(ESCAPE) && fname[1] == QLatin1Char('~')) {
+    } else if (fname.length() > 1 && fname[0] == QLatin1Char(ESCAPE) && fname[1] == u'~') {
         return fname.mid(1);
     }
     return fname;
@@ -485,7 +485,7 @@ void Session::terminalWarning(const QString& message)
 QString Session::shellSessionId() const
 {
     QString friendlyUuid(_uniqueIdentifier.toString());
-    friendlyUuid.remove(QLatin1Char('-')).remove(QLatin1Char('{')).remove(QLatin1Char('}'));
+    friendlyUuid.remove(u'-').remove(u'{').remove(u'}');
 
     return friendlyUuid;
 }
@@ -553,7 +553,7 @@ void Session::run()
     }
 
     // if no arguments are specified, fall back to program name
-    auto arguments = _arguments.join(QLatin1Char(' ')).isEmpty()
+    auto arguments = _arguments.join(u' ').isEmpty()
         ? QStringList() << exec
         : _arguments;
 
@@ -608,7 +608,7 @@ void Session::run()
     {
         terminalWarning(QString("Could not start program '%1' with arguments '%2'.")
                             .arg(exec)
-                            .arg(arguments.join(QLatin1Char(' '))));
+                            .arg(arguments.join(u' ')));
         terminalWarning(_shellProcess->errorString());
         return;
     }
@@ -639,7 +639,7 @@ void Session::setSessionAttribute(int what, const QString& caption)
     }
 
     if (what == TextColor || what == BackgroundColor) {
-        QString colorString = caption.section(QLatin1Char(';'), 0, 0);
+        QString colorString = caption.section(u';', 0, 0);
         QColor color = QColor(colorString);
         if (color.isValid()) {
             if (what == TextColor) {
@@ -696,7 +696,7 @@ void Session::setTabTitleFormat(TabTitleContext context , const QString& format)
     if (context == LocalTabTitle) {
         _localTabTitleFormat = format;
         ProcessInfo* process = getProcessInfo();
-        process->setUserNameRequired(format.contains(QLatin1String("%u")));
+        process->setUserNameRequired(format.contains(u"%u"_qs));
     } else if (context == RemoteTabTitle) {
         _remoteTabTitleFormat = format;
     }
@@ -925,9 +925,9 @@ void Session::reportBackgroundColor(const QColor& c)
 {
     #define to65k(a) (QStringLiteral("%1").arg(int(((a)*0xFFFF)), 4, 16, QLatin1Char('0')))
     QString msg = QStringLiteral("\033]11;rgb:")
-                + to65k(c.redF())   + QLatin1Char('/')
-                + to65k(c.greenF()) + QLatin1Char('/')
-                + to65k(c.blueF())  + QLatin1Char('\a');
+                + to65k(c.redF())   + u'/'
+                + to65k(c.greenF()) + u'/'
+                + to65k(c.blueF())  + u'';
     _emulation->sendString(msg.toUtf8());
     #undef to65k
 }
@@ -1045,7 +1045,8 @@ void Session::sendText(const QString& text) const
 // Only D-Bus calls this function
 void Session::runCommand(const QString& command) const
 {
-    sendText(command + QLatin1Char('\n'));
+    sendText(command + u'
+');
 }
 
 void Session::sendMouseEvent(int buttons, int column, int line, int eventType)
@@ -1252,20 +1253,20 @@ QString Session::getDynamicTitle()
 
     int UID = process->userId(&ok);
     if(!ok) {
-        title.replace(QLatin1String("%B"), QStringLiteral("-"));
+        title.replace(u"%B"_qs, QStringLiteral("-"));
     } else {
         //title.replace(QLatin1String("%I"), QString::number(UID));
         if (UID == 0) {
-            title.replace(QLatin1String("%B"), QStringLiteral("#"));
+            title.replace(u"%B"_qs, QStringLiteral("#"));
         } else {
-            title.replace(QLatin1String("%B"), QStringLiteral("$"));
+            title.replace(u"%B"_qs, QStringLiteral("$"));
         }
     }
 
 
-    title.replace(QLatin1String("%u"), process->userName());
-    title.replace(QLatin1String("%h"), terminal::ProcessInfo::localHost());
-    title.replace(QLatin1String("%n"), process->name(&ok));
+    title.replace(u"%u"_qs, process->userName());
+    title.replace(u"%h"_qs, terminal::ProcessInfo::localHost());
+    title.replace(u"%n"_qs, process->name(&ok));
 
     QString dir = _reportedWorkingUrl.toLocalFile();
     ok = true;
@@ -1275,19 +1276,19 @@ QString Session::getDynamicTitle()
         dir = process->currentDir(&ok);
     }
     if(!ok) {
-        title.replace(QLatin1String("%d"), QStringLiteral("-"));
-        title.replace(QLatin1String("%D"), QStringLiteral("-"));
+        title.replace(u"%d"_qs, QStringLiteral("-"));
+        title.replace(u"%D"_qs, QStringLiteral("-"));
     } else {
         // allow for shortname to have the ~ as homeDir
         const QString homeDir = process->userHomeDir();
         if (!homeDir.isEmpty()) {
             if (dir.startsWith(homeDir)) {
                 dir.remove(0, homeDir.length());
-                dir.prepend(QLatin1Char('~'));
+                dir.prepend(u'~');
             }
         }
-        title.replace(QLatin1String("%D"), dir);
-        title.replace(QLatin1String("%d"), process->formatShortDir(dir));
+        title.replace(u"%D"_qs, dir);
+        title.replace(u"%d"_qs, process->formatShortDir(dir));
     }
 
     return title;

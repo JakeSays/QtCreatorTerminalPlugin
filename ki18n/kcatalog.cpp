@@ -127,7 +127,7 @@ QString KCatalog::catalogLocaleDir(const QByteArray &domain,
     {
         QMutexLocker lock(&catalogStaticData->mutex);
         const QString customLocaleDir = catalogStaticData->customCatalogDirs.value(domain);
-        const QString filename = customLocaleDir + QLatin1Char('/') + relpath;
+        const QString filename = customLocaleDir + u'/' + relpath;
         if (!customLocaleDir.isEmpty() && QFileInfo::exists(filename)) {
 #if defined(Q_OS_ANDROID)
             // The exact file name must be returned on Android because libintl-lite loads a catalog by filename with bindtextdomain()

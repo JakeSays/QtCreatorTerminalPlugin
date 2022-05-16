@@ -35,7 +35,7 @@ ShellCommand::ShellCommand(const QString &aCommand)
         QChar ch = aCommand[i];
 
         const bool isLastChar = ( i == aCommand.count() - 1 );
-        const bool isQuote = ( ch == QLatin1Char('\'') || ch == QLatin1Char('\"') );
+        const bool isQuote = ( ch == u'\'' || ch == u'"' );
 
         if ( !isLastChar && isQuote ) {
             inQuotes = !inQuotes;
@@ -73,10 +73,10 @@ QString ShellCommand::fullCommand() const
             }
         }
         if (hasSpace) {
-            quotedArgs[i] = QLatin1Char('\"') + arg + QLatin1Char('\"');
+            quotedArgs[i] = u'"' + arg + u'"';
         }
     }
-    return quotedArgs.join(QLatin1Char(' '));
+    return quotedArgs.join(u' ');
 }
 
 QString ShellCommand::command() const

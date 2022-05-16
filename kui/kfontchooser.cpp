@@ -46,7 +46,7 @@ static int minimumListWidth(const QListWidget *list)
     for (int i = 0; i < list->count(); i++) {
         int itemWidth = list->visualItemRect(list->item(i)).width();
         // ...and add a space on both sides for not too tight look.
-        itemWidth += list->fontMetrics().horizontalAdvance(QLatin1Char(' ')) * 2;
+        itemWidth += list->fontMetrics().horizontalAdvance(u' ') * 2;
         w = qMax(w, itemWidth);
     }
     if (w == 0) {
@@ -882,7 +882,7 @@ void KFontChooser::Private::setupDisplay()
 
     // 1st family fallback.
     if (i == numEntries) {
-        const int bracketPos = family.indexOf(QLatin1Char('['));
+        const int bracketPos = family.indexOf(u'[');
         if (bracketPos != -1) {
             family = family.leftRef(bracketPos).trimmed().toString();
             for (i = 0; i < numEntries; ++i) {
@@ -896,7 +896,7 @@ void KFontChooser::Private::setupDisplay()
 
     // 2nd family fallback.
     if (i == numEntries) {
-        QString fallback = family + QLatin1String(" [");
+        QString fallback = family + u" ["_qs;
         for (i = 0; i < numEntries; ++i) {
             if (qtFamilies[familyListBox->item(i)->text()].toLower().startsWith(fallback)) {
                 familyListBox->setCurrentRow(i);
@@ -1013,7 +1013,7 @@ void KFontChooser::Private::fillFamilyListBox(bool onlyFixedFonts)
 // Hence, construct custom style identifiers sufficient for the purpose.
 QString KFontChooser::Private::styleIdentifier(const QFont &font)
 {
-    const QChar comma(QLatin1Char(','));
+    const QChar comma(u',');
     return   QString::number(font.weight()) + comma
              + QString::number((int)font.style()) + comma
              + QString::number(font.stretch());

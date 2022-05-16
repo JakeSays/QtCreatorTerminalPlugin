@@ -406,7 +406,7 @@ static bool cleanHomeDirPath(QString &path, const QString &homeDir)
 
     int len = homeDir.length();
     // replace by "$HOME" if possible
-    if (len && (path.length() == len || path[len] == QLatin1Char('/'))) {
+    if (len && (path.length() == len || path[len] == u'/')) {
         path.replace(0, len, QStringLiteral("$HOME"));
         return true;
     }
@@ -421,9 +421,9 @@ static QString translatePath(QString path)   // krazy:exclude=passbyvalue
     }
 
     // only "our" $HOME should be interpreted
-    path.replace(QLatin1Char('$'), QLatin1String("$$"));
+    path.replace(u'$', u"$$"_qs);
 
-    const bool startsWithFile = path.startsWith(QLatin1String("file:"), Qt::CaseInsensitive);
+    const bool startsWithFile = path.startsWith(u"file:"_qs, Qt::CaseInsensitive);
     path = startsWithFile ? QUrl(path).toLocalFile() : path;
 
     if (QDir::isRelativePath(path)) {
@@ -790,9 +790,9 @@ QStringList KConfigGroup::readXdgListEntry(const char *key, const QStringList &a
         if (quoted) {
             val += data[p];
             quoted = false;
-        } else if (data[p] == QLatin1Char('\\')) {
+        } else if (data[p] == u'\\') {
             quoted = true;
-        } else if (data[p] == QLatin1Char(';')) {
+        } else if (data[p] == u';') {
             value.append(val);
             val.clear();
             val.reserve(data.size() - p);
@@ -1110,9 +1110,9 @@ void KConfigGroup::writeXdgListEntry(const char *key, const QStringList &list, W
     const QStringList::ConstIterator end = list.constEnd();
     for (; it != end; ++it) {
         QString val(*it);
-        val.replace(QLatin1Char('\\'), QLatin1String("\\\\")).replace(QLatin1Char(';'), QLatin1String("\\;"));
+        val.replace(u'\\', u"\\"_qs).replace(u';', u"\;"_qs);
         value += val;
-        value += QLatin1Char(';');
+        value += u';';
     }
 
     writeEntry(key, value, flags);

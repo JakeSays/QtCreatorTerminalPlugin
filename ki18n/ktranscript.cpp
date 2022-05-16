@@ -246,7 +246,8 @@ int countLines(const QString &s, int p)
     int n = 1;
     int len = s.length();
     for (int i = 0; i < p && i < len; ++i) {
-        if (s[i] == QLatin1Char('\n')) {
+        if (s[i] == u'
+') {
             ++n;
         }
     }
@@ -299,18 +300,22 @@ QString trimSmart(const QString &raw)
     int len = raw.length();
 
     int is = 0;
-    while (is < len && raw[is].isSpace() && raw[is] != QLatin1Char('\n')) {
+    while (is < len && raw[is].isSpace() && raw[is] != u'
+') {
         ++is;
     }
-    if (is >= len || raw[is] != QLatin1Char('\n')) {
+    if (is >= len || raw[is] != u'
+') {
         is = -1;
     }
 
     int ie = len - 1;
-    while (ie >= 0 && raw[ie].isSpace() && raw[ie] != QLatin1Char('\n')) {
+    while (ie >= 0 && raw[ie].isSpace() && raw[ie] != u'
+') {
         --ie;
     }
-    if (ie < 0 || raw[ie] != QLatin1Char('\n')) {
+    if (ie < 0 || raw[ie] != u'
+') {
         ie = len;
     }
 
@@ -358,7 +363,7 @@ TsConfig readConfig(const QString &fname)
         int p1, p2;
 
         // Remove comment from the line.
-        p1 = line.indexOf(QLatin1Char('#'));
+        p1 = line.indexOf(u'#');
         if (p1 >= 0) {
             line.truncate(p1);
         }
@@ -367,10 +372,10 @@ TsConfig readConfig(const QString &fname)
             continue;
         }
 
-        if (line[0] == QLatin1Char('[')) {
+        if (line[0] == u'[') {
             // Group switch.
             p1 = 0;
-            p2 = line.indexOf(QLatin1Char(']'), p1 + 1);
+            p2 = line.indexOf(u']', p1 + 1);
             if (p2 < 0) {
                 continue;
             }
@@ -382,7 +387,7 @@ TsConfig readConfig(const QString &fname)
             }
         } else {
             // Field.
-            p1 = line.indexOf(QLatin1Char('='));
+            p1 = line.indexOf(u'=');
             if (p1 < 0) {
                 continue;
             }
@@ -458,7 +463,7 @@ KTranscriptImp::KTranscriptImp()
 
     QString tsConfigPath = QStandardPaths::locate(QStandardPaths::ConfigLocation, QStringLiteral("ktranscript.ini"));
     if (tsConfigPath.isEmpty()) {
-        tsConfigPath = QDir::homePath() + QLatin1Char('/') + QLatin1String(".transcriptrc");
+        tsConfigPath = QDir::homePath() + u'/' + u".transcriptrc"_qs;
     }
     config = readConfig(tsConfigPath);
 }
@@ -624,7 +629,7 @@ void KTranscriptImp::loadModules(const QList<QStringList> &mods,
 
         // Setup current module path for loading submodules.
         // (sort of closure over invocations of loadf)
-        int posls = mpath.lastIndexOf(QLatin1Char('/'));
+        int posls = mpath.lastIndexOf(u'/');
         if (posls < 1) {
             modErrors.append(QStringLiteral(
                                  "Funny module path '%1', skipping.").arg(mpath));
@@ -633,7 +638,7 @@ void KTranscriptImp::loadModules(const QList<QStringList> &mods,
         currentModulePath = mpath.left(posls);
         QString fname = mpath.mid(posls + 1);
         // Scriptface::loadf() wants no extension on the filename
-        fname = fname.left(fname.lastIndexOf(QLatin1Char('.')));
+        fname = fname.left(fname.lastIndexOf(u'.'));
 
         // Load the module.
         QJSValueList alist;
@@ -646,7 +651,8 @@ void KTranscriptImp::loadModules(const QList<QStringList> &mods,
     currentModulePath.clear();
 
     for (const QString &merr : qAsConst(modErrors)) {
-        error.append(merr + QLatin1Char('\n'));
+        error.append(merr + u'
+');
     }
 }
 
@@ -882,7 +888,7 @@ QJSValue Scriptface::msgid()
 
 QJSValue Scriptface::msgkey()
 {
-    return QJSValue(QString(*msgcontext + QLatin1Char('|') + *msgId));
+    return QJSValue(QString(*msgcontext + u'|' + *msgId));
 }
 
 QJSValue Scriptface::msgstrf()
@@ -939,16 +945,16 @@ QJSValue Scriptface::loadProps(const QJSValueList &fnames)
 
     for (int i = 0; i < fnames.size(); ++i) {
         QString qfname = fnames[i].toString();
-        QString qfpath_base = globalKTI()->currentModulePath + QLatin1Char('/') + qfname;
+        QString qfpath_base = globalKTI()->currentModulePath + u'/' + qfname;
 
         // Determine which kind of map is available.
         // Give preference to compiled map.
-        QString qfpath = qfpath_base + QLatin1String(".pmapc");
+        QString qfpath = qfpath_base + u".pmapc"_qs;
         bool haveCompiled = true;
         QFile file_check(qfpath);
         if (!file_check.open(QIODevice::ReadOnly)) {
             haveCompiled = false;
-            qfpath = qfpath_base + QLatin1String(".pmap");
+            qfpath = qfpath_base + u".pmap"_qs;
             QFile file_check(qfpath);
             if (!file_check.open(QIODevice::ReadOnly)) {
                 return throwError(scriptEngine,
@@ -1154,7 +1160,7 @@ QJSValue Scriptface::getConfBool(const QJSValue &key, const QJSValue &dval)
 
     static QStringList falsities;
     if (falsities.isEmpty()) {
-        falsities.append(QString(QLatin1Char('0')));
+        falsities.append(QString(u'0'));
         falsities.append(QStringLiteral("no"));
         falsities.append(QStringLiteral("false"));
     }
@@ -1213,7 +1219,7 @@ QJSValue Scriptface::load(const QJSValueList &fnames)
 
     for (int i = 0; i < fnames.size(); ++i) {
         QString qfname = fnames[i].toString();
-        QString qfpath = globalKTI()->currentModulePath + QLatin1Char('/') + qfname + QLatin1String(".js");
+        QString qfpath = globalKTI()->currentModulePath + u'/' + qfname + u".js"_qs;
 
         QFile file(qfpath);
         if (!file.open(QIODevice::ReadOnly)) {
@@ -1286,7 +1292,7 @@ QString Scriptface::loadProps_text(const QString &fpath)
                 return SPREF("loadProps_text: unexpected end "
                                            "of file in %1").arg(fpath);
             }
-            if (s[i] != QLatin1Char('#')) {
+            if (s[i] != u'#') {
                 // Separator characters for this entry.
                 key_sep = s[i];
                 prop_sep = s[i + 1];
@@ -1305,7 +1311,8 @@ QString Scriptface::loadProps_text(const QString &fpath)
                 state = s_nextKey;
             } else {
                 // This is a comment, skip to EOL, don't change state.
-                while (s[i] != QLatin1Char('\n')) {
+                while (s[i] != u'
+') {
                     ++i;
                     if (i >= slen) {
                         goto END_PROP_PARSE;

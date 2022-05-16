@@ -264,7 +264,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(int a, int fieldWidth = 0, int base = 10,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute an unsigned int argument into the message.
@@ -279,7 +279,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(uint a, int fieldWidth = 0, int base = 10,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute a long argument into the message.
@@ -294,7 +294,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(long a, int fieldWidth = 0, int base = 10,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute an unsigned long argument into the message.
@@ -309,7 +309,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(ulong a, int fieldWidth = 0, int base = 10,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute a long long argument into the message.
@@ -324,7 +324,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(qlonglong a, int fieldWidth = 0, int base = 10,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute an unsigned long long argument into the message.
@@ -339,7 +339,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(qulonglong a, int fieldWidth = 0, int base = 10,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute a double argument into the message.
@@ -355,7 +355,7 @@ public:
      */
     Q_REQUIRED_RESULT KLocalizedString subs(double a, int fieldWidth = 0,
                                             char format = 'g', int precision = -1,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute a \c QChar argument into the message.
@@ -368,7 +368,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(QChar a, int fieldWidth = 0,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute a \c QString argument into the message.
@@ -381,7 +381,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(const QString &a, int fieldWidth = 0,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Substitute another \c KLocalizedString into the message.
@@ -394,7 +394,7 @@ public:
      * \return updated \c KLocalizedString
      */
     Q_REQUIRED_RESULT KLocalizedString subs(const KLocalizedString &a, int fieldWidth = 0,
-                                            QChar fillChar = QLatin1Char(' ')) const;
+                                            QChar fillChar = u' ') const;
 
     /**
      * Add dynamic context to the message.

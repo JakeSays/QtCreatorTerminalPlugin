@@ -403,7 +403,7 @@ QString KuitStaticData::toKeyCombo(const QStringList &languages,
         keys.append(shstr);
     } else { // multi-key shortcut
         QChar oldDelim = shstr[p];
-        keys = shstr.split(oldDelim, QString::SkipEmptyParts);
+        keys = shstr.split(oldDelim, Qt::SkipEmptyParts);
     }
 
     for (int i = 0; i < keys.size(); ++i) {
@@ -430,7 +430,7 @@ QString KuitStaticData::toInterfacePath(const QStringList &languages,
         return inpstr;
     } else { // multi-element path
         QString oldDelim = delimRx.capturedTexts().at(0);
-        QStringList guiels = inpstr.split(oldDelim, QString::SkipEmptyParts);
+        QStringList guiels = inpstr.split(oldDelim, Qt::SkipEmptyParts);
         QString delim = guiPathDelim.value(format).toString(languages);
         return guiels.join(delim);
     }

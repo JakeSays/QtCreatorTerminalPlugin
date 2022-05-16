@@ -76,7 +76,7 @@ bool ConfigLoaderHandler::startElement(const QString &namespaceURI, const QStrin
         } else {
             d->groups.append(group);
             if (!d->baseGroup.isEmpty()) {
-                group = d->baseGroup + QLatin1Char('\x1d') + group;
+                group = d->baseGroup + u'' + group;
             }
         }
 
@@ -194,7 +194,7 @@ void ConfigLoaderHandler::addItem()
         m_name = m_key;
     }
 
-    m_name.remove(QLatin1Char(' '));
+    m_name.remove(u' ');
 
     KConfigSkeletonItem *item = nullptr;
 
@@ -240,7 +240,7 @@ void ConfigLoaderHandler::addItem()
         //FIXME: the split() is naive and will break on lists with ,'s in them
         //empty parts are not wanted in this case
         item = m_config->addItemStringList(m_name, *d->newStringList(),
-                                           m_default.split(QLatin1Char(','), QString::SkipEmptyParts), m_key);
+                                           m_default.split(u',', Qt::SkipEmptyParts), m_key);
     } else if (m_type == QLatin1String("uint")) {
         KConfigSkeleton::ItemUInt *uintItem =
             m_config->addItemUInt(m_name, *d->newUint(), m_default.toUInt(), m_key);
@@ -270,7 +270,7 @@ void ConfigLoaderHandler::addItem()
         }
         item = doubleItem;
     } else if (m_type == QLatin1String("intlist")) {
-        const QStringList tmpList = m_default.split(QLatin1Char(','));
+        const QStringList tmpList = m_default.split(u',');
         QList<int> defaultList;
         for (const QString &tmp : tmpList) {
             defaultList.append(tmp.toInt());
@@ -293,7 +293,7 @@ void ConfigLoaderHandler::addItem()
         */
     } else if (m_type == QLatin1String("point")) {
         QPoint defaultPoint;
-        QStringList tmpList = m_default.split(QLatin1Char(','));
+        QStringList tmpList = m_default.split(u',');
         if (tmpList.size() >= 2) {
             defaultPoint.setX(tmpList[0].toInt());
             defaultPoint.setY(tmpList[1].toInt());
@@ -301,7 +301,7 @@ void ConfigLoaderHandler::addItem()
         item = m_config->addItemPoint(m_name, *d->newPoint(), defaultPoint, m_key);
     } else if (m_type == QLatin1String("rect")) {
         QRect defaultRect;
-        QStringList tmpList = m_default.split(QLatin1Char(','));
+        QStringList tmpList = m_default.split(u',');
         if (tmpList.size() >= 4) {
             defaultRect.setCoords(tmpList[0].toInt(), tmpList[1].toInt(),
                                   tmpList[2].toInt(), tmpList[3].toInt());
@@ -309,7 +309,7 @@ void ConfigLoaderHandler::addItem()
         item = m_config->addItemRect(m_name, *d->newRect(), defaultRect, m_key);
     } else if (m_type == QLatin1String("size")) {
         QSize defaultSize;
-        QStringList tmpList = m_default.split(QLatin1Char(','));
+        QStringList tmpList = m_default.split(u',');
         if (tmpList.size() >= 2) {
             defaultSize.setWidth(tmpList[0].toInt());
             defaultSize.setHeight(tmpList[1].toInt());
@@ -383,7 +383,7 @@ KConfigLoader::KConfigLoader(const KConfigGroup &config, QIODevice *xml, QObject
     KConfigGroup group = config.parent();
     d->baseGroup = config.name();
     while (group.isValid() && group.name() != QLatin1String("<default>")) {
-        d->baseGroup = group.name() + QLatin1Char('\x1d') + d->baseGroup;
+        d->baseGroup = group.name() + u'' + d->baseGroup;
         group = group.parent();
     }
     d->parse(this, xml);

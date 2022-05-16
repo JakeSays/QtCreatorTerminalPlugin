@@ -244,7 +244,7 @@ bool KConfigDialogManager::parseChildren(const QWidget *widget, bool trackChange
         bool bParseChildren = true;
         bool bSaveInsideGroupBox = d->insideGroupBox;
 
-        if (widgetName.startsWith(QLatin1String("kcfg_"))) {
+        if (widgetName.startsWith(u"kcfg_"_qs)) {
             // This is one of our widgets!
             QString configId = widgetName.mid(5);
             KConfigSkeletonItem *item = d->m_conf->findItem(configId);
@@ -317,7 +317,7 @@ bool KConfigDialogManager::parseChildren(const QWidget *widget, bool trackChange
                 continue;
             }
             QString buddyName = buddy->objectName();
-            if (buddyName.startsWith(QLatin1String("kcfg_"))) {
+            if (buddyName.startsWith(u"kcfg_"_qs)) {
                 // This is one of our widgets!
                 QString configId = buddyName.mid(5);
                 d->buddyWidget.insert(configId, childWidget);

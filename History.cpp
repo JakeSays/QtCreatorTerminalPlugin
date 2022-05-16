@@ -108,7 +108,7 @@ HistoryFile::HistoryFile() :
         *historyFileLocation() = fileLocation;
     }
     const QString tmpDir = *historyFileLocation();
-    const QString tmpFormat = tmpDir + QLatin1Char('/') + QLatin1String("konsole-XXXXXX.history");
+    const QString tmpFormat = tmpDir + u'/' + u"konsole-XXXXXX.history"_qs;
     _tmpFile.setFileTemplate(tmpFormat);
     if (_tmpFile.open()) {
 #if defined(Q_OS_LINUX)

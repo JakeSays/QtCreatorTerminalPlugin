@@ -364,7 +364,9 @@ QDialogButtonBox::StandardButton createKMessageBox(QDialog *dialog, QDialogButto
     if ((options & KMessageBox::Notify)) {
         QString message = text;
         if (!strlist.isEmpty()) {
-            message += QLatin1Char('\n') + strlist.join(QLatin1Char('\n'));
+            message += u'
+' + strlist.join(u'
+');
         }
         notifyInterface()->sendNotification(notifyType, message, dialog->topLevelWidget());
     }

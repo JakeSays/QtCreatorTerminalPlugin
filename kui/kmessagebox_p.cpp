@@ -35,7 +35,7 @@ class KMessageBoxDontAskAgainQSettingsStorage : public KMessageBoxDontAskAgainIn
 public:
     KMessageBoxDontAskAgainQSettingsStorage()
     {
-        m_filePath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QLatin1Char('/') + QCoreApplication::instance()->applicationName() + QLatin1String(".kmessagebox");
+        m_filePath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + u'/' + QCoreApplication::instance()->applicationName() + u".kmessagebox"_qs;
         QSettings s(m_filePath, QSettings::IniFormat);
         const auto keys = s.allKeys();
         for (const QString &key : keys) {

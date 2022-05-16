@@ -261,7 +261,7 @@ PageItem *PageItem::findChild(const KPageWidgetItem *item)
 
 void PageItem::dump(int indent)
 {
-    const QString indentation(indent, QLatin1Char(' '));
+    const QString indentation(indent, u' ');
 
     const QString name = (mPageWidgetItem ? mPageWidgetItem->name() : QStringLiteral("root"));
     qCDebug(KWidgetsAddonsLog, "%s (%p)", qPrintable(QString(indentation + name)), (void *)this);

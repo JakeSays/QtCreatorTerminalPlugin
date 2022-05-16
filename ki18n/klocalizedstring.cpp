@@ -53,7 +53,7 @@ static QString shortenMessage(const QString &str)
     if (str.length() <= maxlen) {
         return str;
     } else {
-        return str.leftRef(maxlen) + QLatin1String("...");
+        return str.leftRef(maxlen) + u"..."_qs;
     }
 }
 
@@ -70,25 +70,25 @@ static void splitLocale(const QString &aLocale,
 
     // In case there are several concatenated locale specifications,
     // truncate all but first.
-    int f = locale.indexOf(QLatin1Char(':'));
+    int f = locale.indexOf(u':');
     if (f >= 0) {
         locale.truncate(f);
     }
 
     // now decompose into [language[_territory][.codeset][@modifier]]
-    f = locale.indexOf(QLatin1Char('@'));
+    f = locale.indexOf(u'@');
     if (f >= 0) {
         modifier = locale.mid(f + 1);
         locale.truncate(f);
     }
 
-    f = locale.indexOf(QLatin1Char('.'));
+    f = locale.indexOf(u'.');
     if (f >= 0) {
         charset = locale.mid(f + 1);
         locale.truncate(f);
     }
 
-    f = locale.indexOf(QLatin1Char('_'));
+    f = locale.indexOf(u'_');
     if (f >= 0) {
         country = locale.mid(f + 1);
         locale.truncate(f);
@@ -108,8 +108,8 @@ static void appendLocaleString(QStringList &languages, const QString &value)
     }
 
     if (!country.isEmpty() && !modifier.isEmpty()) {
-        languages +=   language + QLatin1Char('_')
-                       + country + QLatin1Char('@')
+        languages +=   language + u'_'
+                       + country + u'@'
                        + modifier;
     }
     // NOTE: Priority is unclear in case both the country and
@@ -117,10 +117,10 @@ static void appendLocaleString(QStringList &languages, const QString &value)
     // higher priority than language_country?
     // In at least one case (Serbian language), it is better this way.
     if (!modifier.isEmpty()) {
-        languages += language + QLatin1Char('@') + modifier;
+        languages += language + u'@' + modifier;
     }
     if (!country.isEmpty()) {
-        languages += language + QLatin1Char('_') + country;
+        languages += language + u'_' + country;
     }
     languages += language;
 }
@@ -132,7 +132,7 @@ static void appendLanguagesFromVariable(QStringList &languages,
     if (!qenvar.isEmpty()) {
         QString value = QFile::decodeName(qenvar);
         if (isList) {
-            const auto listLanguages = value.split(QLatin1Char(':'), QString::SkipEmptyParts);
+            const auto listLanguages = value.split(u':', Qt::SkipEmptyParts);
             for (const QString &v : listLanguages) {
                 appendLocaleString(languages, v);
             }
@@ -158,7 +158,7 @@ static QString extractCountry(const QStringList &languages)
 {
     QString country;
     for (const QString &language : languages) {
-        int pos1 = language.indexOf(QLatin1Char('_'));
+        int pos1 = language.indexOf(u'_');
         if (pos1 >= 0) {
             ++pos1;
             int pos2 = pos1;
@@ -223,7 +223,7 @@ class KLocalizedStringPrivate
                      bool isArgument = false) const;
     QString substituteSimple(const QString &translation,
                              const QStringList &arguments,
-                             QChar plchar = QLatin1Char('%'),
+                             QChar plchar = u'%',
                              bool isPartial = false) const;
     QString formatMarkup(const QByteArray &domain,
                          const QString &language,
@@ -322,8 +322,8 @@ KLocalizedStringPrivateStatics::KLocalizedStringPrivateStatics()
     , theFence(QStringLiteral("|/|"))
     , startInterp(QStringLiteral("$["))
     , endInterp(QStringLiteral("]"))
-    , scriptPlchar(QLatin1Char('%'))
-    , scriptVachar(QLatin1Char('^'))
+    , scriptPlchar(u'%')
+    , scriptVachar(u'^')
 
     , scriptDir(QStringLiteral("LC_SCRIPTS"))
     , scriptModules()
@@ -742,7 +742,7 @@ QString KLocalizedStringPrivate::substituteSimple(const QString &translation,
         finalTranslation.append(tsegs.at(i));
         if (plords.at(i) >= arguments.size()) { // too little arguments
             // put back the placeholder
-            finalTranslation.append(QLatin1Char('%') + QString::number(plords.at(i) + 1));
+            finalTranslation.append(u'%' + QString::number(plords.at(i) + 1));
 #ifndef NDEBUG
             if (!isPartial) {
                 // spoof the message
@@ -924,12 +924,12 @@ int KLocalizedStringPrivate::resolveInterpolation(const QString &scriptedTransla
         QVariant vref;
         while (!scriptedTranslation[tpos].isSpace()
                 && scriptedTranslation.mid(tpos, ielen) != s->endInterp) {
-            if (scriptedTranslation[tpos] == QLatin1Char('\'')) { // quoted segment
+            if (scriptedTranslation[tpos] == u'\'') { // quoted segment
                 QString seg;
                 ++tpos; // skip opening quote
                 // Find closing quote.
-                while (tpos < slen && scriptedTranslation[tpos] != QLatin1Char('\'')) {
-                    if (scriptedTranslation[tpos] == QLatin1Char('\\')) {
+                while (tpos < slen && scriptedTranslation[tpos] != u'\'') {
+                    if (scriptedTranslation[tpos] == u'\\') {
                         ++tpos;    // escape next character
                     }
                     seg.append(scriptedTranslation[tpos]);
@@ -967,10 +967,10 @@ int KLocalizedStringPrivate::resolveInterpolation(const QString &scriptedTransla
                 // Find whitespace, quote, opening or closing sequence.
                 while (tpos < slen
                         && !scriptedTranslation[tpos].isSpace()
-                        && scriptedTranslation[tpos] != QLatin1Char('\'')
+                        && scriptedTranslation[tpos] != u'\''
                         && scriptedTranslation.mid(tpos, islen) != s->startInterp
                         && scriptedTranslation.mid(tpos, ielen) != s->endInterp) {
-                    if (scriptedTranslation[tpos] == QLatin1Char('\\')) {
+                    if (scriptedTranslation[tpos] == u'\\') {
                         ++tpos;    // escape next character
                     }
                     seg.append(scriptedTranslation[tpos]);
@@ -1357,15 +1357,15 @@ void KLocalizedStringPrivate::locateScriptingModule(const QByteArray &domain,
     QMutexLocker lock(&s->klspMutex);
 
     // Assemble module's relative path.
-    QString modrpath =   language + QLatin1Char('/')
-                         + s->scriptDir + QLatin1Char('/')
-                         + QString::fromLatin1(domain) + QLatin1Char('/')
-                         + QString::fromLatin1(domain) + QLatin1String(".js");
+    QString modrpath =   language + u'/'
+                         + s->scriptDir + u'/'
+                         + QString::fromLatin1(domain) + u'/'
+                         + QString::fromLatin1(domain) + u".js"_qs;
 
     // Try to find this module.
     QString modapath = QStandardPaths::locate(
                            QStandardPaths::GenericDataLocation,
-                           QLatin1String("locale") + QLatin1Char('/') + modrpath);
+                           u"locale"_qs + u'/' + modrpath);
 
     // If the module exists and hasn't been already included.
     if (!modapath.isEmpty()
@@ -1426,8 +1426,8 @@ QString KLocalizedString::localizedFilePath(const QString &filePath)
 
     // Check if l10n subdirectory is present, stop if not.
     QFileInfo fileInfo(filePath);
-    QString locDirPath =   fileInfo.path() + QLatin1Char('/')
-                           + QLatin1String("l10n");
+    QString locDirPath =   fileInfo.path() + u'/'
+                           + u"l10n"_qs;
     QFileInfo locDirInfo(locDirPath);
     if (!locDirInfo.isDir()) {
         return filePath;
@@ -1437,8 +1437,8 @@ QString KLocalizedString::localizedFilePath(const QString &filePath)
     // return first that exists.
     QString fileName = fileInfo.fileName();
     for (const QString &lang : qAsConst(s->languages)) {
-        QString locFilePath =   locDirPath + QLatin1Char('/')
-                                + lang + QLatin1Char('/')
+        QString locFilePath =   locDirPath + u'/'
+                                + lang + u'/'
                                 + fileName;
         QFileInfo locFileInfo(locFilePath);
         if (locFileInfo.isFile() && locFileInfo.isReadable()) {

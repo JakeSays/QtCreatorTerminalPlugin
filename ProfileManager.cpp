@@ -80,11 +80,11 @@ static QString GetDefaultProfilePath(const QString& profileBaseName)
         return QString();
     }
 
-    auto path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + profileName);
+    auto path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, u"konsole/"_qs + profileName);
 
     if (path.isEmpty())
     {
-        path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + profileBaseName);
+        path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, u"konsole/"_qs + profileBaseName);
     }
 
     return path;
@@ -166,10 +166,10 @@ Profile::Ptr ProfileManager::loadProfile(const QString& shortPath)
     }
 
     if (fileInfo.suffix() != QLatin1String("profile")) {
-        path.append(QLatin1String(".profile"));
+        path.append(u".profile"_qs);
     }
-    if (fileInfo.path().isEmpty() || fileInfo.path() == QLatin1Char('.')) {
-        path.prepend(QLatin1String("konsole") + QDir::separator());
+    if (fileInfo.path().isEmpty() || fileInfo.path() == u'.') {
+        path.prepend(u"konsole"_qs + QDir::separator());
     }
 
     // if the file is not an absolute path, look it up
@@ -401,10 +401,10 @@ void ProfileManager::changeProfile(Profile::Ptr profile,
         QString newName;
         QString newTranslatedName;
         do {
-            newName = QLatin1String("Profile ") + QString::number(nameSuffix);
+            newName = u"Profile "_qs + QString::number(nameSuffix);
             newTranslatedName = i18nc("The default name of a profile", "Profile #%1", nameSuffix);
             // TODO: remove the # above and below - too many issues
-            newTranslatedName.remove(QLatin1Char('#'));
+            newTranslatedName.remove(u'#');
             nameSuffix++;
         } while (existingProfileNames.contains(newName));
 
@@ -582,7 +582,7 @@ void ProfileManager::loadShortcuts()
         // if the file is not an absolute path, look it up
         QFileInfo fileInfo(profilePath);
         if (!fileInfo.isAbsolute()) {
-            profilePath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("konsole/") + profilePath);
+            profilePath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, u"konsole/"_qs + profilePath);
         }
 
         data.profilePath = profilePath;

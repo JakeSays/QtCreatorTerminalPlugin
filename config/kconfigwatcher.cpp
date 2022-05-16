@@ -100,7 +100,7 @@ void KConfigWatcher::onConfigChangeNotification(const QHash<QString, QByteArrayL
 
     for(auto it = changes.constBegin(); it != changes.constEnd(); it++) {
         KConfigGroup group = d->m_config->group(QString());//top level group
-        const auto parts = it.key().split(QLatin1Char('\x1d')); //magic char, see KConfig
+        const auto parts = it.key().split(u''); //magic char, see KConfig
         for(const QString &groupName: parts) {
             group = group.group(groupName);
         }

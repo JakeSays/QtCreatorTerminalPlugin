@@ -481,7 +481,7 @@ public:
          */
         ItemString(const QString &_group, const QString &_key,
                    QString &reference,
-                   const QString &defaultValue = QLatin1String(""),  // NOT QString() !!
+                   const QString &defaultValue = u""_qs,  // NOT QString() !!
                    Type type = Normal);
 
         /** @copydoc KConfigSkeletonItem::writeConfig(KConfig*) */
@@ -512,7 +512,7 @@ public:
         /** @copydoc KConfigSkeletonGenericItem::KConfigSkeletonGenericItem */
         ItemPassword(const QString &_group, const QString &_key,
                      QString &reference,
-                     const QString &defaultValue = QLatin1String(""));  // NOT QString() !!
+                     const QString &defaultValue = u""_qs);  // NOT QString() !!
     };
 
     /**
@@ -1147,7 +1147,7 @@ public:
      * @return The created item
      */
     ItemString *addItemString(const QString &name, QString &reference,
-                              const QString &defaultValue = QLatin1String(""),  // NOT QString() !!
+                              const QString &defaultValue = u""_qs,  // NOT QString() !!
                               const QString &key = QString());
 
     /**
@@ -1164,7 +1164,7 @@ public:
      * @return The created item
      */
     ItemPassword *addItemPassword(const QString &name, QString &reference,
-                                  const QString &defaultValue = QLatin1String(""),
+                                  const QString &defaultValue = u""_qs,
                                   const QString &key = QString());
 
     /**
@@ -1181,7 +1181,7 @@ public:
      * @return The created item
      */
     ItemPath *addItemPath(const QString &name, QString &reference,
-                          const QString &defaultValue = QLatin1String(""),
+                          const QString &defaultValue = u""_qs,
                           const QString &key = QString());
 
     /**

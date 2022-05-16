@@ -168,15 +168,15 @@ QString KConfigPrivate::expandString(const QString &value)
     QString aValue = value;
 
     // check for environment variables and make necessary translations
-    int nDollarPos = aValue.indexOf(QLatin1Char('$'));
+    int nDollarPos = aValue.indexOf(u'$');
     while (nDollarPos != -1 && nDollarPos + 1 < aValue.length()) {
         // there is at least one $
-        if (aValue[nDollarPos + 1] != QLatin1Char('$')) {
+        if (aValue[nDollarPos + 1] != u'$') {
             int nEndPos = nDollarPos + 1;
             // the next character is not $
             QStringRef aVarName;
-            if (aValue[nEndPos] == QLatin1Char('{')) {
-                while ((nEndPos <= aValue.length()) && (aValue[nEndPos] != QLatin1Char('}'))) {
+            if (aValue[nEndPos] == u'{') {
+                while ((nEndPos <= aValue.length()) && (aValue[nEndPos] != u'}')) {
                     nEndPos++;
                 }
                 nEndPos++;
@@ -185,7 +185,7 @@ QString KConfigPrivate::expandString(const QString &value)
                 while (nEndPos <= aValue.length() &&
                         (aValue[nEndPos].isNumber() ||
                          aValue[nEndPos].isLetter() ||
-                         aValue[nEndPos] == QLatin1Char('_'))) {
+                         aValue[nEndPos] == u'_')) {
                     nEndPos++;
                 }
                 aVarName = aValue.midRef(nDollarPos + 1, nEndPos - nDollarPos - 1);
@@ -221,7 +221,7 @@ QString KConfigPrivate::expandString(const QString &value)
             aValue.remove(nDollarPos, 1);
             nDollarPos++;
         }
-        nDollarPos = aValue.indexOf(QLatin1Char('$'), nDollarPos);
+        nDollarPos = aValue.indexOf(u'$', nDollarPos);
     }
 
     return aValue;
@@ -272,7 +272,7 @@ QStringList KConfig::groupList() const
         const QByteArray group = key.mGroup;
         if (key.mKey.isNull() && !group.isEmpty() && group != "<default>" && group != "$Version") {
             const QString groupname = QString::fromUtf8(group);
-            groups << groupname.left(groupname.indexOf(QLatin1Char('\x1d')));
+            groups << groupname.left(groupname.indexOf(u''));
         }
     }
 
@@ -288,7 +288,7 @@ QStringList KConfigPrivate::groupList(const QByteArray &group) const
         const KEntryKey &key = entryMapIt.key();
         if (key.mKey.isNull() && key.mGroup.startsWith(theGroup)) {
             const QString groupname = QString::fromUtf8(key.mGroup.mid(theGroup.length()));
-            groups << groupname.left(groupname.indexOf(QLatin1Char('\x1d')));
+            groups << groupname.left(groupname.indexOf(u''));
         }
     }
 
@@ -468,7 +468,7 @@ bool KConfig::sync()
     }
 
     if (!notifyGroupsLocal.isEmpty()) {
-        d->notifyClients(notifyGroupsLocal, QLatin1Char('/') + name());
+        d->notifyClients(notifyGroupsLocal, u'/' + name());
     }
     if (!notifyGroupsGlobal.isEmpty()) {
         d->notifyClients(notifyGroupsGlobal, QStringLiteral("/kdeglobals"));
@@ -592,7 +592,7 @@ QString KConfig::mainConfigName()
     }
 
     QString appName = QCoreApplication::applicationName();
-    return appName + QLatin1String("rc");
+    return appName + u"rc"_qs;
 }
 
 void KConfigPrivate::changeFileName(const QString &name)
@@ -603,7 +603,7 @@ void KConfigPrivate::changeFileName(const QString &name)
     if (name.isEmpty()) {
         if (wantDefaults()) { // accessing default app-specific config "appnamerc"
             fileName = KConfig::mainConfigName();
-            file = QStandardPaths::writableLocation(resourceType) + QLatin1Char('/') + fileName;
+            file = QStandardPaths::writableLocation(resourceType) + u'/' + fileName;
         } else if (wantGlobals()) { // accessing "kdeglobals" by specifying no filename and NoCascade - XXX used anywhere?
             resourceType = QStandardPaths::GenericConfigLocation;
             fileName = QStringLiteral("kdeglobals");
@@ -620,7 +620,7 @@ void KConfigPrivate::changeFileName(const QString &name)
         }
         file = fileName;
     } else {
-        file = QStandardPaths::writableLocation(resourceType) + QLatin1Char('/') + fileName;
+        file = QStandardPaths::writableLocation(resourceType) + u'/' + fileName;
     }
 
     Q_ASSERT(!file.isEmpty());

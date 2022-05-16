@@ -115,7 +115,8 @@ void KSqueezedTextLabel::squeezeTextToLabel()
     const int labelWidth = contentsRect().width();
     QStringList squeezedLines;
     bool squeezed = false;
-    const auto textLines = d->fullText.split(QLatin1Char('\n'));
+    const auto textLines = d->fullText.split(u'
+');
     squeezedLines.reserve(textLines.size());
     for (const QString &line : textLines) {
         int lineWidth = fm.boundingRect(line).width();
@@ -128,7 +129,8 @@ void KSqueezedTextLabel::squeezeTextToLabel()
     }
 
     if (squeezed) {
-        QLabel::setText(squeezedLines.join(QLatin1Char('\n')));
+        QLabel::setText(squeezedLines.join(u'
+'));
         setToolTip(d->fullText);
     } else {
         QLabel::setText(d->fullText);
@@ -145,7 +147,7 @@ QRect KSqueezedTextLabel::contentsRect() const
         if (frameWidth() == 0) {
             indent = 0;
         } else {
-            indent = fontMetrics().horizontalAdvance(QLatin1Char('x')) / 2 - margin;
+            indent = fontMetrics().horizontalAdvance(u'x') / 2 - margin;
         }
     }
 

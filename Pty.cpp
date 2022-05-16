@@ -195,7 +195,7 @@ void Pty::setInitialWorkingDirectory(const QString &dir)
 
     // remove trailing slash in the path when appropriate
     // example: /usr/share/icons/ ==> /usr/share/icons
-    if (pwd.length() > 1 && pwd.endsWith(QLatin1Char('/'))) {
+    if (pwd.length() > 1 && pwd.endsWith(u'/')) {
         pwd.chop(1);
     }
 
@@ -213,7 +213,7 @@ void Pty::addEnvironmentVariables(const QStringList &environmentVariables)
 
     foreach (const QString &pair, environmentVariables) {
         // split on the first '=' character
-        const int separator = pair.indexOf(QLatin1Char('='));
+        const int separator = pair.indexOf(u'=');
 
         if (separator >= 0) {
             QString variable = pair.left(separator);

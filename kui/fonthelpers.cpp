@@ -38,7 +38,7 @@ QT_TRANSLATE_NOOP3("FontHelpers", "Monospace", "@item Font name");
 
 void splitFontString(const QString &name, QString *family, QString *foundry)
 {
-    int p1 = name.indexOf(QLatin1Char('['));
+    int p1 = name.indexOf(u'[');
     if (p1 < 0) {
         if (family) {
             *family = name.trimmed();
@@ -47,7 +47,7 @@ void splitFontString(const QString &name, QString *family, QString *foundry)
             foundry->clear();
         }
     } else {
-        int p2 = name.indexOf(QLatin1Char(']'), p1);
+        int p2 = name.indexOf(u']', p1);
         p2 = p2 > p1 ? p2 : name.length();
         if (family) {
             *family = name.leftRef(p1).trimmed().toString();

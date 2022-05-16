@@ -178,7 +178,8 @@ void TerminalImageFilterChain::setImage(const Character * const image, int lines
         // lines
         if ((lineProperties.value(i, LINE_DEFAULT) & LINE_WRAPPED) == 0)
         {
-            lineStream << QLatin1Char('\n');
+            lineStream << u'
+';
         }
     }
     decoder.end();
@@ -442,14 +443,14 @@ void UrlFilter::HotSpot::activate(QObject *object)
         {
             // if the URL path does not include the protocol ( eg. "www.kde.org" ) then
             // prepend http:// ( eg. "www.kde.org" --> "http://www.kde.org" )
-            if (!url.contains(QLatin1String("://")))
+            if (!url.contains(u"://"_qs))
             {
-                url.prepend(QLatin1String("http://"));
+                url.prepend(u"http://"_qs);
             }
         }
         else if (kind == Email)
         {
-            url.prepend(QLatin1String("mailto:"));
+            url.prepend(u"mailto:"_qs);
         }
 
 //        new KRun(QUrl(url), QApplication::activeWindow());
@@ -472,8 +473,8 @@ const QRegularExpression UrlFilter::EmailAddressRegExp(QStringLiteral("\\b(\\w|\
                                                        QRegularExpression::OptimizeOnFirstUsageOption);
 
 // matches full url or email address
-const QRegularExpression UrlFilter::CompleteUrlRegExp(QLatin1Char('(') + FullUrlRegExp.pattern() + QLatin1Char('|')
-                                                      + EmailAddressRegExp.pattern() + QLatin1Char(')'),
+const QRegularExpression UrlFilter::CompleteUrlRegExp(u'(' + FullUrlRegExp.pattern() + u'|'
+                                                      + EmailAddressRegExp.pattern() + u')',
                                                       QRegularExpression::OptimizeOnFirstUsageOption);
 
 UrlFilter::UrlFilter()
@@ -549,7 +550,7 @@ RegExpFilter::HotSpot *FileFilter::newHotSpot(int startLine, int startColumn, in
     }
 
     QString filename = capturedTexts[1];
-    if (filename.startsWith(QLatin1Char('\'')) && filename.endsWith(QLatin1Char('\'')))
+    if (filename.startsWith(u'\'') && filename.endsWith(u'\''))
     {
         filename.remove(0, 1);
         filename.chop(1);
@@ -646,23 +647,23 @@ static QString createFileRegex(const QStringList &patterns, const QString &fileP
 
     return QString(
                 // Optional path in front
-                pathPattern + QLatin1Char('?') +
+                pathPattern + u'?' +
                 // Files with known suffixes
-                QLatin1Char('(') +
+                u'(' +
                   filePattern +
-                    QLatin1String("(") +
-                      suffixes.join(QLatin1Char('|')) +
-                    QLatin1String(")") +
+                    u"("_qs +
+                      suffixes.join(u'|') +
+                    u")"_qs +
                 // Files with known prefixes
-                QLatin1String("|") +
-                    QLatin1String("(") +
-                      prefixes.join(QLatin1Char('|')) +
-                    QLatin1String(")") +
+                u"|"_qs +
+                    u"("_qs +
+                      prefixes.join(u'|') +
+                    u")"_qs +
                     filePattern +
                 // Files with known full names
-                QLatin1String("|") +
-                    fullNames.join(QLatin1Char('|')) +
-                QLatin1String(")")
+                u"|"_qs +
+                    fullNames.join(u'|') +
+                u")"_qs
     );
 }
 
@@ -683,11 +684,11 @@ FileFilter::FileFilter(Session *session /*= nullptr*/) :
 
     QString validFilename(QStringLiteral("[A-Za-z0-9\\._\\-]+"));
     QString pathRegex(QStringLiteral("([A-Za-z0-9\\._\\-/]+/)"));
-    QString noSpaceRegex = QLatin1String("\\b") + createFileRegex(patterns, validFilename, pathRegex) + QLatin1String("\\b");
+    QString noSpaceRegex = u"\b"_qs + createFileRegex(patterns, validFilename, pathRegex) + u"\b"_qs;
 
-    QString spaceRegex = QLatin1String("'") + createFileRegex(patterns, validFilename, pathRegex) + QLatin1String("'");
+    QString spaceRegex = u"'"_qs + createFileRegex(patterns, validFilename, pathRegex) + u"'"_qs;
 
-    QString regex = QLatin1String("(?<file>(") + noSpaceRegex + QLatin1String(")|(") + spaceRegex + QLatin1String("))(:(?<line>[0-9]+)(:(?<col>[0-9]+))?)?");
+    QString regex = u"(?<file>("_qs + noSpaceRegex + u")|("_qs + spaceRegex + u"))(:(?<line>[0-9]+)(:(?<col>[0-9]+))?)?"_qs;
 
     setRegExp(QRegularExpression(regex, QRegularExpression::DontCaptureOption));
 }

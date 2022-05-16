@@ -97,6 +97,7 @@ class ConfigLoaderPrivate;
  **/
 class KConfigLoader : public KConfigSkeleton
 {
+	Q_OBJECT
 public:
     /**
      * Creates a KConfigSkeleton populated using the definition found in

@@ -226,7 +226,7 @@ bool KAuthorized::authorizeAction(const QString &action)
         return true;
     }
 
-    return authorize(QLatin1String("action/") + action);
+    return authorize(u"action/"_qs + action);
 }
 
 //#if KCONFIGCORE_BUILD_DEPRECATED_SINCE(5, 24)
@@ -322,21 +322,21 @@ static void initUrlActionRestrictions()
         QString urlPath = rule[6];
         bool bEnabled   = (rule[7].toLower() == QLatin1String("true"));
 
-        if (refPath.startsWith(QLatin1String("$HOME"))) {
+        if (refPath.startsWith(u"$HOME"_qs)) {
             refPath.replace(0, 5, QDir::homePath());
-        } else if (refPath.startsWith(QLatin1Char('~'))) {
+        } else if (refPath.startsWith(u'~')) {
             refPath.replace(0, 1, QDir::homePath());
         }
-        if (urlPath.startsWith(QLatin1String("$HOME"))) {
+        if (urlPath.startsWith(u"$HOME"_qs)) {
             urlPath.replace(0, 5, QDir::homePath());
-        } else if (urlPath.startsWith(QLatin1Char('~'))) {
+        } else if (urlPath.startsWith(u'~')) {
             urlPath.replace(0, 1, QDir::homePath());
         }
 
-        if (refPath.startsWith(QLatin1String("$TMP"))) {
+        if (refPath.startsWith(u"$TMP"_qs)) {
             refPath.replace(0, 4, QDir::tempPath());
         }
-        if (urlPath.startsWith(QLatin1String("$TMP"))) {
+        if (urlPath.startsWith(u"$TMP"_qs)) {
             urlPath.replace(0, 4, QDir::tempPath());
         }
 

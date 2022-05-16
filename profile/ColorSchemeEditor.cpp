@@ -213,7 +213,7 @@ void ColorSchemeEditor::selectWallpaper()
     for (const QByteArray &mime : mimeTypes) {
         fileFormats += QStringLiteral("*.%1 ").arg(QLatin1String(mime));
     }
-    fileFormats += QLatin1Char(')');
+    fileFormats += u')';
 
     const QString fileName = QFileDialog::getOpenFileName(this,
                                                           i18nc("@title:window",

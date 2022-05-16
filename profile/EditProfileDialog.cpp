@@ -322,10 +322,10 @@ QString EditProfileDialog::groupProfileNames(const ProfileGroup::Ptr &group, int
     for (int i = 0; i < count; i++) {
         caption += group->profiles()[i]->name();
         if (i < (count - 1)) {
-            caption += QLatin1Char(',');
+            caption += u',';
             // limit caption length to prevent very long window titles
             if (maxLength > 0 && caption.length() > maxLength) {
-                caption += QLatin1String("...");
+                caption += u"..."_qs;
                 break;
             }
         }
@@ -471,14 +471,16 @@ void EditProfileDialog::showEnvironmentEditor()
     QString text = QInputDialog::getMultiLineText(this,
                                                   i18n("Edit Environment"),
                                                   i18n("One environment variable per line"),
-                                                  currentEnvironment.join(QLatin1Char('\n')),
+                                                  currentEnvironment.join(u'
+'),
                                                   &ok);
 
     QStringList newEnvironment;
 
     if (ok) {
         if(!text.isEmpty()) {
-            newEnvironment = text.split(QLatin1Char('\n'));
+            newEnvironment = text.split(u'
+');
             updateTempProfileProperty(Profile::Environment, newEnvironment);
         } else {
             // the user could have removed all entries so we return an empty list
@@ -837,7 +839,7 @@ bool EditProfileDialog::eventFilter(QObject *watched, QEvent *event)
 QSize EditProfileDialog::sizeHint() const
 {
     QFontMetrics fm(font());
-    const int ch = fm.boundingRect(QLatin1Char('0')).width();
+    const int ch = fm.boundingRect(u'0').width();
 
     // By default minimum size is used. Increase it to make text inputs
     // on "tabs" page wider and to add some whitespace on right side
