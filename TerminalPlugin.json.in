@@ -1,11 +1,11 @@
 {
-  \"Name\" : \"TerminalPlugin\",
-  \"Version\" : \"0.9.0\",
-  \"CompatVersion\" : \"0.9.0\",
-  \"Vendor\" : \"JakeSays\",
-  \"Copyright\" : \"(C) JakeSays, portions (C) The KDE Project\",
+  \"Name\" : \"Terminal\",
+  \"Version\" : \"$$QTCREATOR_VERSION\",
+  \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+  \"Vendor\" : \"Przemysław Adam Sowa\",
+  \"Copyright\" : \"(C) Przemysław Adam Sowa, JakeSays, portions (C) The KDE Project\",
   \"License\" : \"GNU GPL\",
   \"Description\" : \"The best damn terminal plugin ever!\",
-  \"Url\" : \"http://www.jakesays.com\",
+  \"Url\" : \"https://github.com/pa-sowa/QtCreatorTerminalPlugin\",
   $$dependencyList
 }
