@@ -42,7 +42,6 @@
 #include "TerminalCharacterDecoder.h"
 
 #include <projectexplorer/fileinsessionfinder.h>
-//#include "fileinsessionfinder.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -739,14 +738,12 @@ void FileFilter::HotSpot::activate(QObject* object)
             _deets->DocumentColumn == -1)
         {
             Core::EditorManager::openEditor(Utils::FilePath::fromString(_deets->FullPath));
+        } else {
+            auto path = Utils::FilePath::fromString(_deets->FullPath);
+            Core::EditorManager::openEditorAt(Utils::Link(path,
+                _deets->DocumentLine,
+                qMax(0, _deets->DocumentColumn)));
         }
-
-        // TODO: Adam Sowa, port to new API
-//        Core::EditorManager::openEditorAt(Utils::FilePath::fromString(_deets->FullPath),
-//            _deets->DocumentLine,
-//            _deets->DocumentColumn == -1
-//                ? 0
-//                : _deets->DocumentColumn);
         return;
     }
 
