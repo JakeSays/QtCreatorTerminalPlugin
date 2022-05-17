@@ -292,3 +292,10 @@ target_include_directories(Terminal SYSTEM PRIVATE
     settings
     ki18n
 )
+
+find_file(QTCREATOR_EXECUTABLE NAMES qtcreator PATHS ${CMAKE_PREFIX_PATH} PATH_SUFFIXES bin NO_DEFAULT_PATH)
+
+add_custom_target(run_qtcreator
+    COMMAND "${QTCREATOR_EXECUTABLE}" -pluginpath "${CMAKE_BINARY_DIR}/lib/qtcreator/plugins" -tcs
+    COMMENT "Running Qt Creator"
+)
