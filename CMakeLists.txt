@@ -15,7 +15,7 @@ find_package(QT NAMES Qt5 REQUIRED COMPONENTS Qml Widgets Xml Network Core5Compa
 #find_package(KF5I18n NO_MODULE)
 set(QtX Qt${QT_VERSION_MAJOR})
 
-add_qtc_plugin(TerminalPlugin
+add_qtc_plugin(Terminal
   PLUGIN_DEPENDS
     QtCreator::Core
     QtCreator::TextEditor
@@ -282,12 +282,12 @@ CharacterWidth.h
     settings/HistorySizeWidget.ui
 )
 
-target_link_libraries(TerminalPlugin PRIVATE
+target_link_libraries(Terminal PRIVATE
     Qt6::Core5Compat
     #KF5::I18n
 )
 
-target_include_directories(TerminalPlugin SYSTEM PRIVATE
+target_include_directories(Terminal SYSTEM PRIVATE
     kui
     settings
     ki18n
