@@ -12,23 +12,31 @@ To build all that is needed is an environment suitable for building Qt Creator p
 
 More specifically:
 
-* Qt version 5.13.1 or later. Earlier versions may work - use at your own risk. Qt Creator builds are usually tied to a particular version of Qt so try to match the two as close as possible.
-* A Qt Creator version 4.10+ install. This can be either locally built or an official installation.
-* The Qt Creator 4.10+ source code. Even though building Qt Creator is not required, plugins are reliant on internal headers which are only available via the source code. Because of this the terminal plugin (along with all Qt Creator plugins) are tightly coupled to the Qt Creator version they were built against.
+* Qt version 6 or later (for QtCreator 6 or later or Qt5 for QtCreator 4 and 5). Qt Creator builds are usually tied to a particular version of Qt so try to match the two as close as possible.
+* A Qt Creator install with _Qt Creator Plugin Development_ component or a local Qt Creator build with source code.
 
-> I have yet to confirm this but I believe the required Qt Creator headers are now provided independent of the source code. If anyone knows anything about this feel free to let me know.
-
-Beyond these requirements if you can successfully build and run a Qt application then you should be able to build the plugin.
-
-* Set two environment variables
-    `QTCREATOR_SOURCES=Path to the root of the Qt creator source tree`
-    `IDE_BUILD_TREE=Path to the root of the Qt Creator binary installation`
-* Open `terminal.pro` in creator and configure your kit.
-* Build!
+ Run CMake and specify two path:
+ * Qt folder
+ * A Qt Creator installation or build directory
 
 For example, on my system the two environment variables are set to:
+`mkdir build`
+`cd build`
+`cmake -DCMAKE_PREFIX_PATH="~/Programs/Qt/6.2.4/gcc_64;~/Programs/qtcreator-7.0.1" ..`
+or when compiling against a local Qt Creator build:
+`cmake -DCMAKE_PREFIX_PATH="~/Programs/Qt/6.2.4/gcc_64;~/Sources/qt-creator/build" ..`
 
-`QTCREATOR_SOURCES=/p/qt/qt-creator-opensource-src-4.10.0` and `IDE_BUILD_TREE=/apps/Qt5.13.1/Tools/QtCreator`.
+When building using QtCreator you don't only need to specify path to Qt Creator, so the easiest way is to add it as a line in CMakeLists.txt:
+`list(APPEND CMAKE_PREFIX_PATH "/home/developer/Programs/qtcreator-7.0.1")`
+
+
+#### Running
+In order to run from the build directory you need to 'build' the **qt_creator** target:
+`cmake --build . -t qtcreator_run`
+
+When building using Qt Creator you need to edit the run settings:
+Executable: `<path to>/bin/qtcreator`
+Arguments: `-pluginpath "%{buildDir}/lib/qtcreator/plugins" -tcs`
 
 ### Installation
 By default `libTerminalPlugin.so` is moved to `$IDE_BUILD_TREE/lib/qtcreator/plugins` directory after a successful build. This can be changed to Qt Creator's user settings directory by setting the environment variable `USE_USER_DESTDIR=yes`. On Linux one of these two locations will be used: `$XDG_DATA_HOME/data/QtProject/qtcreator` or `~/.local/share/data/QtProject/qtcreator`. On Ubuntu 19.10 Qt Creator uses the second of the two.
