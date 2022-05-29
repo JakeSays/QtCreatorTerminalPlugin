@@ -35,7 +35,7 @@ When building using QtCreator you only need to specify path to Qt Creator, so th
 
 #### Running
 In order to run from the build directory you need to 'build' the **qt_creator** target:
-`cmake --build . -t qtcreator_run`
+`cmake --build . -t run_qtcreator`
 
 When building using Qt Creator you need to edit the run settings:
 Executable: `<path to>/bin/qtcreator`
