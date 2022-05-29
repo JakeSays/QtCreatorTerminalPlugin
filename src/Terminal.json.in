@@ -5,7 +5,7 @@
   \"Vendor\" : \"Przemysław Adam Sowa\",
   \"Copyright\" : \"(C) Przemysław Adam Sowa, JakeSays, portions (C) The KDE Project\",
   \"License\" : \"GNU GPL\",
-  \"Description\" : \"The best damn terminal plugin ever!\",
+  \"Description\" : \"An embedded terminal\",
   \"Url\" : \"https://github.com/pa-sowa/QtCreatorTerminalPlugin\",
   $$dependencyList
 }
