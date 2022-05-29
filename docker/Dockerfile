@@ -27,7 +27,7 @@ LABEL "org.opencontainers.image.title"="qtcreator-terminalplugin-dev"
 LABEL "org.opencontainers.image.description"="A container for building the Qt Creator Terminal plugin for Linux desktop platform"
 LABEL "org.opencontainers.image.version"="TerminalPlugin $VERSION, Qt Creator $QT_CREATOR_VERSION, Qt $QT_VERSION"
 LABEL "org.opencontainers.image.source"="https://github.com/pa-sowa/QtCreatorTerminalPlugin"
-LABEL "org.opencontainers.image.author"="Przemysław Adam Sowa <pa.sowa.dev@gmail.com>"
+LABEL "org.opencontainers.image.authors"="Przemysław Adam Sowa <pa.sowa.dev@gmail.com>"
 
 ENV QTDIR=/opt/qt/$QT_VERSION/gcc_64
 ENV QTCREATOR_DIR=/opt/qtcreator
