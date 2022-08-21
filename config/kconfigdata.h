@@ -157,29 +157,31 @@ QDebug operator<<(QDebug dbg, const KEntry &entry);
  * with the group name.
  * @internal
  */
+enum class SearchFlag {
+    None = 0,
+    SearchDefaults = 1,
+    SearchLocalized = 2
+};
+Q_DECLARE_FLAGS(SearchFlags, SearchFlag)
+
+enum class EntryOption {
+    NoEntry = 0,
+    EntryDirty = 1,
+    EntryGlobal = 2,
+    EntryImmutable = 4,
+    EntryDeleted = 8,
+    EntryExpansion = 16,
+    EntryRawKey = 32,
+    EntryLocalizedCountry = 64,
+    EntryNotify = 128,
+    EntryDefault = (int(SearchFlag::SearchDefaults) << 16),
+    EntryLocalized = (int(SearchFlag::SearchLocalized ) << 16)
+};
+Q_DECLARE_FLAGS(EntryOptions, EntryOption)
+
 class KEntryMap : public QMap<KEntryKey, KEntry>
 {
 public:
-    enum SearchFlag {
-        SearchDefaults = 1,
-        SearchLocalized = 2
-    };
-    Q_DECLARE_FLAGS(SearchFlags, SearchFlag)
-
-    enum EntryOption {
-        EntryDirty = 1,
-        EntryGlobal = 2,
-        EntryImmutable = 4,
-        EntryDeleted = 8,
-        EntryExpansion = 16,
-        EntryRawKey = 32,
-        EntryLocalizedCountry = 64,
-        EntryNotify = 128,
-        EntryDefault = (SearchDefaults << 16),
-        EntryLocalized = (SearchLocalized << 16)
-    };
-    Q_DECLARE_FLAGS(EntryOptions, EntryOption)
-
     Iterator findExactEntry(const QByteArray &group, const QByteArray &key = QByteArray(),
                             SearchFlags flags = SearchFlags());
 
@@ -225,8 +227,8 @@ public:
 
     bool revertEntry(const QByteArray &group, const QByteArray &key, EntryOptions options, SearchFlags flags = SearchFlags());
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(KEntryMap::SearchFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(KEntryMap::EntryOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SearchFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(EntryOptions)
 
 /**
  * \relates KEntry

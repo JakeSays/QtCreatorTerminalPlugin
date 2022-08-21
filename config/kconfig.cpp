@@ -43,6 +43,7 @@
 #include <QSet>
 #include <QBasicMutex>
 #include <QMutexLocker>
+#include <QStringRef>
 
 #if KCONFIG_USE_DBUS
 #include <QDBusMessage>
@@ -70,10 +71,10 @@ KConfigPrivate::KConfigPrivate(KConfig::OpenFlags flags,
       configState(KConfigBase::NoAccess)
 {
     static QBasicAtomicInt use_etc_kderc = Q_BASIC_ATOMIC_INITIALIZER(-1);
-    if (use_etc_kderc.load() < 0) {
-        use_etc_kderc.store( !qEnvironmentVariableIsSet("KDE_SKIP_KDERC"));    // for unit tests
+    if (use_etc_kderc.loadRelaxed() < 0) {
+        use_etc_kderc.storeRelaxed( !qEnvironmentVariableIsSet("KDE_SKIP_KDERC"));    // for unit tests
     }
-    if (use_etc_kderc.load()) {
+    if (use_etc_kderc.loadRelaxed()) {
 
         etc_kderc =
 #ifdef Q_OS_WIN
@@ -82,7 +83,7 @@ KConfigPrivate::KConfigPrivate(KConfig::OpenFlags flags,
             QStringLiteral("/etc/kde5rc");
 #endif
         if (!QFileInfo(etc_kderc).isReadable()) {
-            use_etc_kderc.store(false);
+            use_etc_kderc.storeRelaxed(false);
             etc_kderc.clear();
         }
     }
@@ -174,13 +175,13 @@ QString KConfigPrivate::expandString(const QString &value)
         if (aValue[nDollarPos + 1] != QLatin1Char('$')) {
             int nEndPos = nDollarPos + 1;
             // the next character is not $
-            QStringRef aVarName;
+            QString aVarName;
             if (aValue[nEndPos] == QLatin1Char('{')) {
                 while ((nEndPos <= aValue.length()) && (aValue[nEndPos] != QLatin1Char('}'))) {
                     nEndPos++;
                 }
                 nEndPos++;
-                aVarName = aValue.midRef(nDollarPos + 2, nEndPos - nDollarPos - 3);
+                aVarName = aValue.mid(nDollarPos + 2, nEndPos - nDollarPos - 3);
             } else {
                 while (nEndPos <= aValue.length() &&
                         (aValue[nEndPos].isNumber() ||
@@ -188,7 +189,7 @@ QString KConfigPrivate::expandString(const QString &value)
                          aValue[nEndPos] == QLatin1Char('_'))) {
                     nEndPos++;
                 }
-                aVarName = aValue.midRef(nDollarPos + 1, nEndPos - nDollarPos - 1);
+                aVarName = aValue.mid(nDollarPos + 1, nEndPos - nDollarPos - 1);
             }
             QString env;
             if (!aVarName.isEmpty()) {
@@ -256,7 +257,7 @@ KConfig::KConfig(KConfigPrivate &d)
 KConfig::~KConfig()
 {
     Q_D(KConfig);
-    if (d->bDirty && (d->mBackend && d->mBackend->ref.load() == 1)) {
+    if (d->bDirty && (d->mBackend && d->mBackend->ref.loadRelaxed() == 1)) {
         sync();
     }
     delete d;
@@ -276,7 +277,7 @@ QStringList KConfig::groupList() const
         }
     }
 
-    return groups.toList();
+    return groups.values();
 }
 
 QStringList KConfigPrivate::groupList(const QByteArray &group) const
@@ -292,7 +293,7 @@ QStringList KConfigPrivate::groupList(const QByteArray &group) const
         }
     }
 
-    return groups.toList();
+    return groups.values();
 }
 
 static bool isGroupOrSubGroupMatch(const QByteArray &potentialGroup, const QByteArray &group)
@@ -345,7 +346,7 @@ QStringList KConfigPrivate::keyListImpl(const QByteArray &theGroup) const
                 tmp << QString::fromUtf8(key.mKey);
             }
         }
-        keys = tmp.toList();
+        keys = tmp.values();
     }
 
     return keys;
@@ -365,7 +366,7 @@ QMap<QString, QString> KConfig::entryMap(const QString &aGroup) const
     const QByteArray theGroup(aGroup.isEmpty() ? "<default>" : aGroup.toUtf8());
 
     const KEntryMapConstIterator theEnd = d->entryMap.constEnd();
-    KEntryMapConstIterator it = d->entryMap.findEntry(theGroup, nullptr, nullptr);
+    KEntryMapConstIterator it = d->entryMap.findEntry(theGroup, nullptr, SearchFlags());
     if (it != theEnd) {
         ++it; // advance past the special group entry marker
 
@@ -847,7 +848,7 @@ bool KConfig::isImmutable() const
 bool KConfig::isGroupImmutableImpl(const QByteArray &aGroup) const
 {
     Q_D(const KConfig);
-    return isImmutable() || d->entryMap.getEntryOption(aGroup, nullptr, nullptr, KEntryMap::EntryImmutable);
+    return isImmutable() || d->entryMap.getEntryOption(aGroup, nullptr, SearchFlags(), EntryOption::EntryImmutable);
 }
 
 //#if KCONFIGCORE_BUILD_DEPRECATED_SINCE(4, 0)
@@ -876,21 +877,21 @@ const KConfigGroup KConfig::groupImpl(const QByteArray &group) const
     return KConfigGroup(this, group.constData());
 }
 
-KEntryMap::EntryOptions convertToOptions(KConfig::WriteConfigFlags flags)
+EntryOptions convertToOptions(KConfig::WriteConfigFlags flags)
 {
-    KEntryMap::EntryOptions options = nullptr;
+    EntryOptions options = EntryOption::NoEntry;
 
     if (flags & KConfig::Persistent) {
-        options |= KEntryMap::EntryDirty;
+        options |= EntryOption::EntryDirty;
     }
     if (flags & KConfig::Global) {
-        options |= KEntryMap::EntryGlobal;
+        options |= EntryOption::EntryGlobal;
     }
     if (flags & KConfig::Localized) {
-        options |= KEntryMap::EntryLocalized;
+        options |= EntryOption::EntryLocalized;
     }
     if (flags.testFlag(KConfig::Notify)) {
-        options |= KEntryMap::EntryNotify;
+        options |= EntryOption::EntryNotify;
     }
     return options;
 }
@@ -898,7 +899,7 @@ KEntryMap::EntryOptions convertToOptions(KConfig::WriteConfigFlags flags)
 void KConfig::deleteGroupImpl(const QByteArray &aGroup, WriteConfigFlags flags)
 {
     Q_D(KConfig);
-    KEntryMap::EntryOptions options = convertToOptions(flags) | KEntryMap::EntryDeleted;
+    EntryOptions options = convertToOptions(flags) | EntryOption::EntryDeleted;
 
     const QSet<QByteArray> groups = d->allSubGroups(aGroup);
     for (const QByteArray &group : groups) {
@@ -952,7 +953,7 @@ bool KConfig::hasGroupImpl(const QByteArray &aGroup) const
 bool KConfigPrivate::canWriteEntry(const QByteArray &group, const char *key, bool isDefault) const
 {
     if (bFileImmutable ||
-            entryMap.getEntryOption(group, key, KEntryMap::SearchLocalized, KEntryMap::EntryImmutable)) {
+        entryMap.getEntryOption(group, key, SearchFlag::SearchLocalized, EntryOption::EntryImmutable)) {
         return isDefault;
     }
     return true;
@@ -961,17 +962,17 @@ bool KConfigPrivate::canWriteEntry(const QByteArray &group, const char *key, boo
 void KConfigPrivate::putData(const QByteArray &group, const char *key,
                              const QByteArray &value, KConfigBase::WriteConfigFlags flags, bool expand)
 {
-    KEntryMap::EntryOptions options = convertToOptions(flags);
+    EntryOptions options = convertToOptions(flags);
 
     if (bForceGlobal) {
-        options |= KEntryMap::EntryGlobal;
+        options |= EntryOption::EntryGlobal;
     }
     if (expand) {
-        options |= KEntryMap::EntryExpansion;
+        options |= EntryOption::EntryExpansion;
     }
 
     if (value.isNull()) { // deleting entry
-        options |= KEntryMap::EntryDeleted;
+        options |= EntryOption::EntryDeleted;
     }
 
     bool dirtied = entryMap.setEntry(group, key, value, options);
@@ -982,7 +983,7 @@ void KConfigPrivate::putData(const QByteArray &group, const char *key,
 
 void KConfigPrivate::revertEntry(const QByteArray &group, const char *key, KConfigBase::WriteConfigFlags flags)
 {
-    KEntryMap::EntryOptions options = convertToOptions(flags);
+    EntryOptions options = convertToOptions(flags);
 
     bool dirtied = entryMap.revertEntry(group, key, options);
     if (dirtied) {
@@ -991,10 +992,10 @@ void KConfigPrivate::revertEntry(const QByteArray &group, const char *key, KConf
 }
 
 QByteArray KConfigPrivate::lookupData(const QByteArray &group, const char *key,
-                                      KEntryMap::SearchFlags flags) const
+                                      SearchFlags flags) const
 {
     if (bReadDefaults) {
-        flags |= KEntryMap::SearchDefaults;
+        flags |= SearchFlag::SearchDefaults;
     }
     const KEntryMapConstIterator it = entryMap.findEntry(group, key, flags);
     if (it == entryMap.constEnd()) {
@@ -1004,10 +1005,10 @@ QByteArray KConfigPrivate::lookupData(const QByteArray &group, const char *key,
 }
 
 QString KConfigPrivate::lookupData(const QByteArray &group, const char *key,
-                                   KEntryMap::SearchFlags flags, bool *expand) const
+                                   SearchFlags flags, bool *expand) const
 {
     if (bReadDefaults) {
-        flags |= KEntryMap::SearchDefaults;
+        flags |= SearchFlag::SearchDefaults;
     }
     return entryMap.getEntry(group, key, QString(), flags, expand);
 }

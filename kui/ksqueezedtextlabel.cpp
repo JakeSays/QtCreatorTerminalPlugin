@@ -17,9 +17,9 @@
 */
 
 #include "ksqueezedtextlabel.h"
+#include "qregularexpression.h"
 #include <QAction>
 #include <QContextMenuEvent>
-#include <QDesktopWidget>
 #include <QMenu>
 #include <QClipboard>
 #include <QApplication>
@@ -75,7 +75,7 @@ QSize KSqueezedTextLabel::minimumSizeHint() const
 
 QSize KSqueezedTextLabel::sizeHint() const
 {
-    int maxWidth = QApplication::desktop()->screenGeometry(this).width() * 3 / 4;
+    int maxWidth = QGuiApplication::primaryScreen()->geometry().width() * 3 / 4;
     QFontMetrics fm(fontMetrics());
     int textWidth = fm.boundingRect(d->fullText).width();
     if (textWidth > maxWidth) {
@@ -246,7 +246,7 @@ void KSqueezedTextLabel::mouseReleaseEvent(QMouseEvent *ev)
             // Strip markup tags
             if (textFormat() == Qt::RichText
                     || (textFormat() == Qt::AutoText && Qt::mightBeRichText(txt))) {
-                txt.remove(QRegExp(QStringLiteral("<[^>]*>")));
+                txt.remove(QRegularExpression(QStringLiteral("<[^>]*>")));
                 // account for stripped characters
                 charsAfterSelection -= d->fullText.length() - txt.length();
             }

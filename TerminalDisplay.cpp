@@ -259,13 +259,13 @@ void TerminalDisplay::fontChange(const QFont&)
     // "Base character width on widest ASCII character. This prevents too wide
     //  characters in the presence of double wide (e.g. Japanese) characters."
     // Get the width from representative normal width characters
-    _fontWidth = qRound((static_cast<double>(fm.width(QStringLiteral(REPCHAR))) / static_cast<double>(qstrlen(REPCHAR))));
+    _fontWidth = qRound((static_cast<double>(fm.boundingRect(QStringLiteral(REPCHAR)).width()) / static_cast<double>(qstrlen(REPCHAR))));
 
     _fixedFont = true;
 
-    const int fw = fm.width(QLatin1Char(REPCHAR[0]));
+    const int fw = fm.boundingRect(QLatin1Char(REPCHAR[0])).width();
     for (unsigned int i = 1; i < qstrlen(REPCHAR); i++) {
-        if (fw != fm.width(QLatin1Char(REPCHAR[i]))) {
+        if (fw != fm.boundingRect(QLatin1Char(REPCHAR[i])).width()) {
             _fixedFont = false;
             break;
         }
@@ -292,7 +292,7 @@ void TerminalDisplay::setVTFont(const QFont& f)
     strategy |= _antialiasText ? QFont::PreferAntialias : QFont::NoAntialias;
 
     // terminal cannot handle non-integer font metrics
-    strategy |= QFont::ForceIntegerMetrics;
+//    strategy |= QFont::ForceIntegerMetrics;
 
     // In case the provided font doesn't have some specific characters it should
     // fall back to a Monospace fonts.
@@ -308,7 +308,7 @@ void TerminalDisplay::setVTFont(const QFont& f)
         // Font listed in profile's dialog will not be updated.
         newFont = QFont(QStringLiteral("Monospace"));
         // Set style strategy without ForceIntegerMetrics for the font
-        strategy &= ~QFont::ForceIntegerMetrics;
+        //strategy &= ~QFont::ForceIntegerMetrics;
         newFont.setStyleHint(QFont::TypeWriter, QFont::StyleStrategy(strategy));
         qCDebug(TerminalDebug)<<"Font changed to "<<newFont.toString();
     }
@@ -825,7 +825,7 @@ void TerminalDisplay::drawCharacters(QPainter& painter,
             || currentFont.italic() != useItalic
             || currentFont.strikeOut() != useStrikeOut
             || currentFont.overline() != useOverline) {
-        currentFont.setWeight(useBold ? boldWeight : normalWeight);
+        currentFont.setWeight(useBold ? QFont::Weight::Bold : QFont::Weight::Normal);
         currentFont.setUnderline(useUnderline);
         currentFont.setItalic(useItalic);
         currentFont.setStrikeOut(useStrikeOut);
@@ -1398,10 +1398,7 @@ void TerminalDisplay::paintFilters(QPainter& painter)
     // get color of character under mouse and use it to draw
     // lines for filters
     QPoint cursorPos = mapFromGlobal(QCursor::pos());
-    int cursorLine;
-    int cursorColumn;
-
-    getCharacterPosition(cursorPos, cursorLine, cursorColumn, false);
+    auto [cursorLine, cursorColumn] = getCharacterPosition(cursorPos, false);
     Character cursorCharacter = _image[loc(qMin(cursorColumn, _columns - 1), cursorLine)];
 
     painter.setPen(QPen(cursorCharacter.foregroundColor.color(_colorTable)));
@@ -1676,7 +1673,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
             univec.resize(p);
 
             // Create a text scaling matrix for double width and double height lines.
-            QMatrix textScale;
+            QTransform textScale;
 
             if (y < _lineProperties.size()) {
                 if ((_lineProperties[y] & LINE_DOUBLEWIDTH) != 0) {
@@ -1690,7 +1687,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
 
             //Apply text scaling matrix.
             // TODO: setWorldMatrix is obsolete, change to setWorldTransform
-            paint.setWorldMatrix(textScale, true);
+            paint.setWorldTransform(textScale, true);
 
             //calculate the area in which the text will be drawn
             QRect textArea = QRect(_contentRect.left() + contentsRect().left() + _fontWidth * x,
@@ -1725,7 +1722,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
 
             //reset back to single-width, single-height _lines
             // TODO: setWorldMatrix is obsolete, change to setWorldTransform
-            paint.setWorldMatrix(textScale.inverted(), true);
+            paint.setWorldTransform(textScale.inverted(), true);
 
             if (y < _lineProperties.size() - 1) {
                 //double-height _lines are represented by two adjacent _lines
@@ -2185,9 +2182,7 @@ void TerminalDisplay::mousePressEvent(QMouseEvent* ev)
         }
     }
 
-    int charLine;
-    int charColumn;
-    getCharacterPosition(ev->pos(), charLine, charColumn, !_usesMouseTracking);
+    auto [charLine, charColumn] = getCharacterPosition(ev->pos(), !_usesMouseTracking);
     QPoint pos = QPoint(charColumn, charLine);
 
     if (ev->button() == Qt::LeftButton) {
@@ -2250,7 +2245,7 @@ void TerminalDisplay::mousePressEvent(QMouseEvent* ev)
                 }
             }
         //}
-    } else if (ev->button() == Qt::MidButton) {
+    } else if (ev->button() == Qt::MiddleButton) {
         processMidButtonClick(ev);
     } else if (ev->button() == Qt::RightButton) {
         if (!_usesMouseTracking || ((ev->modifiers() & Qt::ShiftModifier) != 0u)) {
@@ -2269,8 +2264,7 @@ void TerminalDisplay::mousePressEvent(QMouseEvent* ev)
 
 QList<QAction*> TerminalDisplay::filterActions(const QPoint& position)
 {
-    int charLine, charColumn;
-    getCharacterPosition(position, charLine, charColumn, false);
+    auto [charLine, charColumn] = getCharacterPosition(position, false);
 
     Filter::HotSpot* spot = _filterChain->hotSpotAt(charLine, charColumn);
 
@@ -2279,9 +2273,7 @@ QList<QAction*> TerminalDisplay::filterActions(const QPoint& position)
 
 void TerminalDisplay::mouseMoveEvent(QMouseEvent* ev)
 {
-    int charLine = 0;
-    int charColumn = 0;
-    getCharacterPosition(ev->pos(), charLine, charColumn, !_usesMouseTracking);
+    auto [charLine, charColumn] = getCharacterPosition(ev->pos(), !_usesMouseTracking);
 
     processFilters();
     // handle filters
@@ -2345,7 +2337,7 @@ void TerminalDisplay::mouseMoveEvent(QMouseEvent* ev)
         if ((ev->buttons() & Qt::LeftButton) != 0u) {
             button = 0;
         }
-        if ((ev->buttons() & Qt::MidButton) != 0u) {
+        if ((ev->buttons() & Qt::MiddleButton) != 0u) {
             button = 1;
         }
         if ((ev->buttons() & Qt::RightButton) != 0u) {
@@ -2384,7 +2376,7 @@ void TerminalDisplay::mouseMoveEvent(QMouseEvent* ev)
     }
 
 // don't extend selection while pasting
-    if ((ev->buttons() & Qt::MidButton) != 0u) {
+    if ((ev->buttons() & Qt::MiddleButton) != 0u) {
         return;
     }
 
@@ -2440,9 +2432,7 @@ void TerminalDisplay::extendSelection(const QPoint& position)
         _scrollBar->setValue(_scrollBar->value() - linesBeyondWidget - 1); // history
     }
 
-    int charColumn = 0;
-    int charLine = 0;
-    getCharacterPosition(pos, charLine, charColumn, true);
+    auto [charLine, charColumn] = getCharacterPosition(pos, true);
 
     QPoint here = QPoint(charColumn, charLine);
     QPoint ohere;
@@ -2570,9 +2560,7 @@ void TerminalDisplay::mouseReleaseEvent(QMouseEvent* ev)
         return;
     }
 
-    int charLine;
-    int charColumn;
-    getCharacterPosition(ev->pos(), charLine, charColumn, !_usesMouseTracking);
+    auto [charLine, charColumn] = getCharacterPosition(ev->pos(), !_usesMouseTracking);
 
     if (ev->button() == Qt::LeftButton) {
 //        if (_dragInfo.state == diPending) {
@@ -2599,16 +2587,16 @@ void TerminalDisplay::mouseReleaseEvent(QMouseEvent* ev)
     }
 
     if (_usesMouseTracking &&
-            (ev->button() == Qt::RightButton || ev->button() == Qt::MidButton) &&
+            (ev->button() == Qt::RightButton || ev->button() == Qt::MiddleButton) &&
             !(ev->modifiers() & Qt::ShiftModifier)) {
-        emit mouseSignal(ev->button() == Qt::MidButton ? 1 : 2,
+        emit mouseSignal(ev->button() == Qt::MiddleButton ? 1 : 2,
                          charColumn + 1,
                          charLine + 1 + _scrollBar->value() - _scrollBar->maximum() ,
                          2);
     }
 }
 
-void TerminalDisplay::getCharacterPosition(const QPoint& widgetPoint, int& line, int& column, bool edge) const
+QPair<int, int> TerminalDisplay::getCharacterPosition(const QPoint& widgetPoint, bool edge) const
 {
     // the column value returned can be equal to _usedColumns (when edge == true),
     // which is the position just after the last character displayed in a line.
@@ -2617,8 +2605,9 @@ void TerminalDisplay::getCharacterPosition(const QPoint& widgetPoint, int& line,
     // column (or left-most for right-to-left input)
     const int columnMax = edge ? _usedColumns : _usedColumns - 1;
     const int xOffset = edge ? _fontWidth / 2 : 0;
-    column = qBound(0, (widgetPoint.x() + xOffset - contentsRect().left() - _contentRect.left()) / _fontWidth, columnMax);
-    line = qBound(0, (widgetPoint.y() - contentsRect().top() - _contentRect.top()) / _fontHeight, _usedLines - 1);
+    auto column = qBound(0, (widgetPoint.x() + xOffset - contentsRect().left() - _contentRect.left()) / _fontWidth, columnMax);
+    auto line = qBound(0, (widgetPoint.y() - contentsRect().top() - _contentRect.top()) / _fontHeight, _usedLines - 1);
+    return qMakePair(line, column);
 }
 
 void TerminalDisplay::updateLineProperties()
@@ -2644,9 +2633,7 @@ void TerminalDisplay::processMidButtonClick(QMouseEvent* ev)
         }
     } else {
         if(!_readOnly) {
-            int charLine = 0;
-            int charColumn = 0;
-            getCharacterPosition(ev->pos(), charLine, charColumn, !_usesMouseTracking);
+            auto [charLine, charColumn] = getCharacterPosition(ev->pos(), !_usesMouseTracking);
 
             emit mouseSignal(1, charColumn + 1, charLine + 1 + _scrollBar->value() - _scrollBar->maximum() , 0);
         }
@@ -2656,7 +2643,7 @@ void TerminalDisplay::processMidButtonClick(QMouseEvent* ev)
 void TerminalDisplay::mouseDoubleClickEvent(QMouseEvent* ev)
 {
     // Yes, successive middle click can trigger this event
-    if (ev->button() == Qt::MidButton) {
+    if (ev->button() == Qt::MiddleButton) {
         processMidButtonClick(ev);
         return;
     }
@@ -2668,10 +2655,7 @@ void TerminalDisplay::mouseDoubleClickEvent(QMouseEvent* ev)
         return;
     }
 
-    int charLine = 0;
-    int charColumn = 0;
-
-    getCharacterPosition(ev->pos(), charLine, charColumn, !_usesMouseTracking);
+    auto [charLine, charColumn] = getCharacterPosition(ev->pos(), !_usesMouseTracking);
 
     QPoint pos(qMin(charColumn, _columns - 1), qMin(charLine, _lines - 1));
 
@@ -2718,7 +2702,7 @@ void TerminalDisplay::mouseDoubleClickEvent(QMouseEvent* ev)
 void TerminalDisplay::wheelEvent(QWheelEvent* ev)
 {
     // Only vertical scrolling is supported
-    if (ev->orientation() != Qt::Vertical) {
+    if (qAbs(ev->angleDelta().y()) < qAbs(ev->angleDelta().x())) {
         return;
     }
 
@@ -2777,9 +2761,7 @@ void TerminalDisplay::wheelEvent(QWheelEvent* ev)
         } else if (_usesMouseTracking) {
             // terminal program wants notification of mouse activity
 
-            int charLine;
-            int charColumn;
-            getCharacterPosition(ev->pos() , charLine , charColumn, !_usesMouseTracking);
+            auto [charLine, charColumn] = getCharacterPosition(ev->position().toPoint(), !usesMouseTracking());
             const int steps = _scrollWheelState.consumeLegacySteps(ScrollState::DEFAULT_ANGLE_SCROLL_LINE);
             const int button = (steps > 0) ? 4 : 5;
             for (int i = 0; i < abs(steps); ++i) {
@@ -3029,9 +3011,7 @@ void TerminalDisplay::mouseTripleClickEvent(QMouseEvent* ev)
         return;
     }
 
-    int charLine;
-    int charColumn;
-    getCharacterPosition(ev->pos(), charLine, charColumn, true);
+    auto [charLine, charColumn] = getCharacterPosition(ev->pos(), true);
     selectLine(QPoint(charColumn, charLine),
                _tripleClickMode == Enum::SelectWholeLine);
 }
@@ -3111,7 +3091,7 @@ QChar TerminalDisplay::charClass(const Character& ch) const
             }
             return letterOrNumber ? QLatin1Char('a') : s.at(0);
         }
-        return 0;
+        return QChar{0};
     } else {
         const QChar qch(ch.character);
         if (qch.isSpace()) {
@@ -3377,8 +3357,8 @@ QVariant TerminalDisplay::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     const QPoint cursorPos = cursorPosition();
     switch (query) {
-    case Qt::ImMicroFocus:
-        return imageToWidget(QRect(cursorPos.x(), cursorPos.y(), 1, 1));
+//    case Qt::ImMicroFocus:
+//        return imageToWidget(QRect(cursorPos.x(), cursorPos.y(), 1, 1));
     case Qt::ImFont:
         return font();
     case Qt::ImCursorPosition:

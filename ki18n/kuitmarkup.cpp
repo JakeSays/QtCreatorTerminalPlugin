@@ -19,7 +19,7 @@
 
 #include <QHash>
 #include <QSet>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStack>
 #include <QXmlStreamReader>
 #include <QStringList>
@@ -31,6 +31,7 @@
 #include <KLocalizedString>
 
 #include "ki18n_logging_kuit.h"
+#include "qregularexpression.h"
 
 #define QL1S(x) QLatin1String(x)
 #define QSL(x) QStringLiteral(x)
@@ -70,8 +71,15 @@ static QString shorten(const QString &str)
     if (str.length() <= maxlen) {
         return str;
     } else {
-        return str.leftRef(maxlen) + QSL("...");
+        return str.left(maxlen) + QSL("...");
     }
+}
+static int IndexIn(const QRegularExpression& regex, const QString& text, int start = 0)
+{
+    auto match = regex.match(text);
+    return match.hasMatch()
+        ? match.capturedStart()
+        : -1;
 }
 
 static void parseUiMarker(const QString &context_,
@@ -83,9 +91,9 @@ static void parseUiMarker(const QString &context_,
     // and must start just after any leading whitespace in the context string.
     QString context = context_.trimmed();
     if (context.startsWith(QL1C('@'))) { // found UI marker
-        static QRegExp staticWsRx(QStringLiteral("\\s"));
-        QRegExp wsRx = staticWsRx; // QRegExp not thread-safe
-        context = context.mid(1, wsRx.indexIn(context) - 1);
+        static QRegularExpression staticWsRx(QStringLiteral("\\s"));
+        QRegularExpression wsRx = staticWsRx; // QRegExp not thread-safe
+        context = context.mid(1, IndexIn(wsRx, context) - 1);
 
         // Possible format.
         int pfmt = context.indexOf(QL1C('/'));
@@ -394,16 +402,16 @@ QString KuitStaticData::toKeyCombo(const QStringList &languages,
 {
     // Take '+' or '-' as input shortcut delimiter,
     // whichever is first encountered.
-    static QRegExp staticDelimRx(QStringLiteral("[+-]"));
-    QRegExp delimRx = staticDelimRx; // QRegExp not thread-safe
+    static QRegularExpression staticDelimRx(QStringLiteral("[+-]"));
+    QRegularExpression delimRx = staticDelimRx; // QRegExp not thread-safe
 
-    int p = delimRx.indexIn(shstr); // find delimiter
+    int p = IndexIn(delimRx, shstr); // find delimiter
     QStringList keys;
     if (p < 0) { // single-key shortcut, no delimiter found
         keys.append(shstr);
     } else { // multi-key shortcut
         QChar oldDelim = shstr[p];
-        keys = shstr.split(oldDelim, QString::SkipEmptyParts);
+        keys = shstr.split(oldDelim, Qt::SkipEmptyParts);
     }
 
     for (int i = 0; i < keys.size(); ++i) {
@@ -422,15 +430,16 @@ QString KuitStaticData::toInterfacePath(const QStringList &languages,
 {
     // Take '/', '|' or "->" as input path delimiter,
     // whichever is first encountered.
-    static QRegExp staticDelimRx(QStringLiteral("\\||->"));
-    QRegExp delimRx = staticDelimRx; // QRegExp not thread-safe
+    static QRegularExpression staticDelimRx(QStringLiteral("\\||->"));
+    auto delimRx = staticDelimRx; // QRegExp not thread-safe
 
-    int p = delimRx.indexIn(inpstr); // find delimiter
+    int p = IndexIn(delimRx, inpstr); // find delimiter
     if (p < 0) { // single-element path, no delimiter found
         return inpstr;
     } else { // multi-element path
-        QString oldDelim = delimRx.capturedTexts().at(0);
-        QStringList guiels = inpstr.split(oldDelim, QString::SkipEmptyParts);
+        auto match = delimRx.match(inpstr);
+        QString oldDelim = match.capturedTexts().at(0);
+        QStringList guiels = inpstr.split(oldDelim, Qt::SkipEmptyParts);
         QString delim = guiPathDelim.value(format).toString(languages);
         return guiels.join(delim);
     }
@@ -1314,12 +1323,15 @@ bool KuitFormatterPrivate::determineIsStructured(const QString &text,
 {
     // If the text opens with a structuring tag, then it is structured,
     // otherwise not. Leading whitespace is ignored for this purpose.
-    static QRegExp staticOpensWithTagRx(QStringLiteral("^\\s*<\\s*(\\w+)[^>]*>"));
-    QRegExp opensWithTagRx = staticOpensWithTagRx; // QRegExp not thread-safe
+    static QRegularExpression staticOpensWithTagRx(QStringLiteral("^\\s*<\\s*(\\w+)[^>]*>"));
+    auto opensWithTagRx = staticOpensWithTagRx; // QRegExp not thread-safe
     bool isStructured = false;
-    int p = opensWithTagRx.indexIn(text);
+    auto match = opensWithTagRx.match(text);
+    int p = match.hasMatch()
+        ? match.capturedStart()
+        : -1;
     if (p >= 0) {
-        QString tagName = opensWithTagRx.capturedTexts().at(1).toLower();
+        QString tagName = match.capturedTexts().at(1).toLower();
         if (setup.d->knownTags.contains(tagName)) {
             const KuitTag &tag = setup.d->knownTags.value(tagName);
             isStructured = (tag.type == Kuit::StructTag);
@@ -1342,10 +1354,10 @@ QString KuitFormatterPrivate::toVisualText(const QString &text_,
     QString text;
     int p = original.indexOf(QL1C('&'));
     while (p >= 0) {
-        text.append(original.midRef(0, p + 1));
+        text.append(original.mid(0, p + 1));
         original.remove(0, p + 1);
-        static QRegExp staticRestRx(QLatin1String("^(" ENTITY_SUBRX ");"));
-        QRegExp restRx = staticRestRx; // QRegExp not thread-safe
+        static QRegularExpression staticRestRx(QLatin1String("^(" ENTITY_SUBRX ");"));
+        QRegularExpression restRx = staticRestRx; // QRegExp not thread-safe
         if (original.indexOf(restRx) != 0) { // not an entity
             text.append(QSL("amp;"));
         }
@@ -1366,7 +1378,7 @@ QString KuitFormatterPrivate::toVisualText(const QString &text_,
     QStack<OpenEl> openEls;
     QXmlStreamReader xml(text);
     xml.setEntityResolver(&s->xmlEntityResolver);
-    QStringRef lastElementName;
+    QStringView lastElementName;
 
     while (!xml.atEnd()) {
         xml.readNext();
@@ -1563,21 +1575,24 @@ QString KuitFormatterPrivate::finalizeVisualText(const QString &text_,
 
     // Resolve XML entities.
     if (format != Kuit::RichText) {
-        static QRegExp staticEntRx(QLatin1String("&(" ENTITY_SUBRX ");"));
-        QRegExp entRx = staticEntRx; // QRegExp not thread-safe
-        int p = entRx.indexIn(text);
+        static QRegularExpression staticEntRx(QLatin1String("&(" ENTITY_SUBRX ");"));
+        auto entRx = staticEntRx; // QRegExp not thread-safe
+        auto match = entRx.match(text);
+        int p = match.hasMatch()
+            ? match.capturedStart()
+            : -1;
         QString plain;
         while (p >= 0) {
-            QString ent = entRx.capturedTexts().at(1);
-            plain.append(text.midRef(0, p));
+            QString ent = match.capturedTexts().at(1);
+            plain.append(text.mid(0, p));
             text.remove(0, p + ent.length() + 2);
             if (ent.startsWith(QL1C('#'))) { // numeric character entity
                 QChar c;
                 bool ok;
                 if (ent[1] == QL1C('x')) {
-                    c = QChar(ent.midRef(2).toInt(&ok, 16));
+                    c = QChar(ent.mid(2).toInt(&ok, 16));
                 } else {
-                    c = QChar(ent.midRef(1).toInt(&ok, 10));
+                    c = QChar(ent.mid(1).toInt(&ok, 10));
                 }
                 if (ok) {
                     plain.append(c);
@@ -1589,8 +1604,10 @@ QString KuitFormatterPrivate::finalizeVisualText(const QString &text_,
             } else { // unknown entity, just leave as is
                 plain.append(QL1C('&') + ent + QL1C(';'));
             }
-            p = entRx.indexIn(text);
-        }
+
+            p = match.hasMatch()
+                ? match.capturedStart()
+                : -1;        }
         plain.append(text);
         text = plain;
     }
@@ -1614,20 +1631,23 @@ QString KuitFormatterPrivate::salvageMarkup(const QString &text_,
     // Resolve tags simple-mindedly.
 
     // - tags with content
-    static QRegExp staticWrapRx(QStringLiteral("(<\\s*(\\w+)\\b([^>]*)>)(.*)(<\\s*/\\s*\\2\\s*>)"));
-    QRegExp wrapRx = staticWrapRx; // QRegExp not thread-safe
-    wrapRx.setMinimal(true);
+    static QRegularExpression staticWrapRx(QStringLiteral("(<\\s*(\\w+)\\b([^>]*)>)(.*)(<\\s*/\\s*\\2\\s*>)"));
+    auto wrapRx = staticWrapRx; // QRegExp not thread-safe
+    //wrapRx.setMinimal(true);
     pos = 0;
     //ntext.clear();
     while (true) {
         int previousPos = pos;
-        pos = wrapRx.indexIn(text, previousPos);
+        auto match = wrapRx.match(text);
+        pos = match.hasMatch()
+            ? match.capturedStart()
+            : -1;
         if (pos < 0) {
-            ntext += text.midRef(previousPos);
+            ntext += text.mid(previousPos);
             break;
         }
-        ntext += text.midRef(previousPos, pos - previousPos);
-        const QStringList capts = wrapRx.capturedTexts();
+        ntext += text.mid(previousPos, pos - previousPos);
+        const QStringList capts = match.capturedTexts();
         QString tagname = capts[2].toLower();
         QString content = salvageMarkup(capts[4], format, setup);
         if (setup.d->knownTags.contains(tagname)) {
@@ -1640,25 +1660,28 @@ QString KuitFormatterPrivate::salvageMarkup(const QString &text_,
         } else {
             ntext += capts[1] + content + capts[5];
         }
-        pos += wrapRx.matchedLength();
+        pos += match.capturedLength();
     }
     text = ntext;
 
     // - tags without content
-    static QRegExp staticNowrRx(QStringLiteral("<\\s*(\\w+)\\b([^>]*)/\\s*>"));
-    QRegExp nowrRx = staticNowrRx; // QRegExp not thread-safe
-    nowrRx.setMinimal(true);
+    static QRegularExpression staticNowrRx(QStringLiteral("<\\s*(\\w+)\\b([^>]*)/\\s*>"));
+    auto nowrRx = staticNowrRx; // QRegExp not thread-safe
+//    nowrRx.setMinimal(true);
     pos = 0;
     ntext.clear();
     while (true) {
         int previousPos = pos;
-        pos = nowrRx.indexIn(text, previousPos);
+        auto match = nowrRx.match(text, previousPos);
+        pos = match.hasMatch()
+            ? match.capturedStart()
+            : -1;
         if (pos < 0) {
-            ntext += text.midRef(previousPos);
+            ntext += text.mid(previousPos);
             break;
         }
-        ntext += text.midRef(previousPos, pos - previousPos);
-        const QStringList capts = nowrRx.capturedTexts();
+        ntext += text.mid(previousPos, pos - previousPos);
+        const QStringList capts = match.capturedTexts();
         QString tagname = capts[1].toLower();
         if (setup.d->knownTags.contains(tagname)) {
             const KuitTag &tag = setup.d->knownTags.value(tagname);
@@ -1668,7 +1691,7 @@ QString KuitFormatterPrivate::salvageMarkup(const QString &text_,
         } else {
             ntext += capts[0];
         }
-        pos += nowrRx.matchedLength();
+        pos += match.capturedLength();
     }
     text = ntext;
 

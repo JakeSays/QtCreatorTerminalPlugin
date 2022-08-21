@@ -32,7 +32,7 @@
 // terminal
 
 
-class QStringList;
+#include <QStringList>
 
 namespace terminal {
 /**
@@ -165,9 +165,6 @@ Q_SIGNALS:
      * @param length Length of @p buffer
      */
     void receivedData(const char *buffer, int length);
-
-protected:
-    void setupChildProcess() Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
     // called when data is received from the terminal process

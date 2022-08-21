@@ -660,7 +660,7 @@ QString KConfigGroup::readEntryUntranslated(const char *key, const QString &aDef
 {
     Q_ASSERT_X(isValid(), "KConfigGroup::readEntryUntranslated", "accessing an invalid group");
 
-    QString result = config()->d_func()->lookupData(d->fullName(), key, KEntryMap::SearchFlags(), nullptr);
+    QString result = config()->d_func()->lookupData(d->fullName(), key, SearchFlags(), nullptr);
     if (result.isNull()) {
         return aDefault;
     }
@@ -684,7 +684,7 @@ QString KConfigGroup::readEntry(const char *key, const QString &aDefault) const
     bool expand = false;
 
     // read value from the entry map
-    QString aValue = config()->d_func()->lookupData(d->fullName(), key, KEntryMap::SearchLocalized,
+    QString aValue = config()->d_func()->lookupData(d->fullName(), key, SearchFlag::SearchLocalized,
                      &expand);
     if (aValue.isNull()) {
         aValue = aDefault;
@@ -723,7 +723,7 @@ QVariant KConfigGroup::readEntry(const char *key, const QVariant &aDefault) cons
 {
     Q_ASSERT_X(isValid(), "KConfigGroup::readEntry", "accessing an invalid group");
 
-    const QByteArray data = config()->d_func()->lookupData(d->fullName(), key, KEntryMap::SearchLocalized);
+    const QByteArray data = config()->d_func()->lookupData(d->fullName(), key, SearchFlag::SearchLocalized);
     if (data.isNull()) {
         return aDefault;
     }
@@ -817,7 +817,7 @@ QString KConfigGroup::readPathEntry(const char *key, const QString &aDefault) co
 
     bool expand = false;
 
-    QString aValue = config()->d_func()->lookupData(d->fullName(), key, KEntryMap::SearchLocalized,
+    QString aValue = config()->d_func()->lookupData(d->fullName(), key, SearchFlag::SearchLocalized,
                      &expand);
     if (aValue.isNull()) {
         aValue = aDefault;
@@ -1190,7 +1190,7 @@ bool KConfigGroup::hasDefault(const char *key) const
 {
     Q_ASSERT_X(isValid(), "KConfigGroup::hasDefault", "accessing an invalid group");
 
-    KEntryMap::SearchFlags flags = KEntryMap::SearchDefaults | KEntryMap::SearchLocalized;
+    SearchFlags flags = SearchFlag::SearchDefaults | SearchFlag::SearchLocalized;
 
     return !config()->d_func()->lookupData(d->fullName(), key, flags).isNull();
 }
@@ -1204,9 +1204,9 @@ bool KConfigGroup::hasKey(const char *key) const
 {
     Q_ASSERT_X(isValid(), "KConfigGroup::hasKey", "accessing an invalid group");
 
-    KEntryMap::SearchFlags flags = KEntryMap::SearchLocalized;
+    SearchFlags flags = SearchFlag::SearchLocalized;
     if (config()->readDefaults()) {
-        flags |= KEntryMap::SearchDefaults;
+        flags |= SearchFlag::SearchDefaults;
     }
 
     return !config()->d_func()->lookupData(d->fullName(), key, flags).isNull();

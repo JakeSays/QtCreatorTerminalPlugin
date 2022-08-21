@@ -26,6 +26,7 @@
 #include <QButtonGroup>
 #include <QWidget>
 #include <QGridLayout>
+#include <QTextCodec>
 
 // KDE
 #include <kui/kpagedialog.h>

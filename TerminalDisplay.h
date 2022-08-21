@@ -661,7 +661,7 @@ private:
     // maps a point on the widget to the position ( ie. line and column )
     // of the character at that point. When the edge is true, it maps to
     // a character which left edge is closest to the point.
-    void getCharacterPosition(const QPoint &widgetPoint, int &line, int &column, bool edge) const;
+    QPair<int, int> getCharacterPosition(const QPoint &widgetPoint, bool edge) const;
 
     // the area where the preedit string for input methods will be draw
     QRect preeditRect() const;

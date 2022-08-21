@@ -163,7 +163,7 @@ KFontChooser::KFontChooser(QWidget *parent,
     // attribute widgets and preview on the top, and XLFD data at the bottom.
     QVBoxLayout *topLayout = new QVBoxLayout(this);
     topLayout->setContentsMargins(0, 0, 0, 0);
-    const int spacingHint = style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+    const int spacingHint = style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
     int checkBoxGap = spacingHint / 2;
 
     // The splitter contains font attribute widgets in the top part,
@@ -884,7 +884,7 @@ void KFontChooser::Private::setupDisplay()
     if (i == numEntries) {
         const int bracketPos = family.indexOf(QLatin1Char('['));
         if (bracketPos != -1) {
-            family = family.leftRef(bracketPos).trimmed().toString();
+            family = family.left(bracketPos).trimmed();
             for (i = 0; i < numEntries; ++i) {
                 if (family == qtFamilies[familyListBox->item(i)->text()].toLower()) {
                     familyListBox->setCurrentRow(i);

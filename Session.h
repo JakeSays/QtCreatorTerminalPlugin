@@ -32,6 +32,7 @@
 #include <QProcess>
 #include <QWidget>
 #include <QUrl>
+#include <QTextCodec>
 
 // terminal
 

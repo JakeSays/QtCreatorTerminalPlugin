@@ -1,7 +1,7 @@
 {
   \"Name\" : \"TerminalPlugin\",
-  \"Version\" : \"0.9.0\",
-  \"CompatVersion\" : \"0.9.0\",
+  \"Version\" : \"1.0.0\",
+  \"CompatVersion\" : \"1.0.0\",
   \"Vendor\" : \"JakeSays\",
   \"Copyright\" : \"(C) JakeSays, portions (C) The KDE Project\",
   \"License\" : \"GNU GPL\",

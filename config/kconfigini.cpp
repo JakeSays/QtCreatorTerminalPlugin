@@ -167,7 +167,7 @@ KConfigIniBackend::parseConfig(const QByteArray &currentLocale, KEntryMap &entry
             } while ((start = end + 2) <= line.length() && line.at(end + 1) == '[');
             currentGroup = newGroup;
 
-            groupSkip = entryMap.getEntryOption(currentGroup, nullptr, nullptr, KEntryMap::EntryImmutable);
+            groupSkip = entryMap.getEntryOption(currentGroup, nullptr, SearchFlag::None, EntryOption::EntryImmutable);
 
             if (groupSkip && !bDefault) {
                 continue;
@@ -201,9 +201,9 @@ KConfigIniBackend::parseConfig(const QByteArray &currentLocale, KEntryMap &entry
                 continue;
             }
 
-            KEntryMap::EntryOptions entryOptions = nullptr;
+            EntryOptions entryOptions;
             if (groupOptionImmutable) {
-                entryOptions |= KEntryMap::EntryImmutable;
+                entryOptions |= EntryOption::EntryImmutable;
             }
 
             BufferFragment locale;
@@ -220,16 +220,16 @@ KConfigIniBackend::parseConfig(const QByteArray &currentLocale, KEntryMap &entry
                         switch (aKey.at(i)) {
                         case 'i':
                             if (!kde_kiosk_exception) {
-                                entryOptions |= KEntryMap::EntryImmutable;
+                                entryOptions |= EntryOption::EntryImmutable;
                             }
                             break;
                         case 'e':
                             if (allowExecutableValues) {
-                                entryOptions |= KEntryMap::EntryExpansion;
+                                entryOptions |= EntryOption::EntryExpansion;
                             }
                             break;
                         case 'd':
-                            entryOptions |= KEntryMap::EntryDeleted;
+                            entryOptions |= EntryOption::EntryDeleted;
                             aKey.truncate(start);
                             printableToString(&aKey, file, lineNo);
                             entryMap.setEntry(currentGroup, aKey.toByteArray(), QByteArray(), entryOptions);
@@ -260,7 +260,7 @@ KConfigIniBackend::parseConfig(const QByteArray &currentLocale, KEntryMap &entry
                     // backward compatibility. C == en_US
                     if (locale.at(0) != 'C' || currentLocale != "en_US") {
                         if (merging) {
-                            entryOptions |= KEntryMap::EntryRawKey;
+                            entryOptions |= EntryOption::EntryRawKey;
                         } else {
                             goto next_line;    // skip this entry if we're not merging
                         }
@@ -268,24 +268,24 @@ KConfigIniBackend::parseConfig(const QByteArray &currentLocale, KEntryMap &entry
                 }
             }
 
-            if (!(entryOptions & KEntryMap::EntryRawKey)) {
+            if (!(entryOptions & EntryOption::EntryRawKey)) {
                 printableToString(&aKey, file, lineNo);
             }
 
             if (options & ParseGlobal) {
-                entryOptions |= KEntryMap::EntryGlobal;
+                entryOptions |= EntryOption::EntryGlobal;
             }
             if (bDefault) {
-                entryOptions |= KEntryMap::EntryDefault;
+                entryOptions |= EntryOption::EntryDefault;
             }
             if (!locale.isNull()) {
-                entryOptions |= KEntryMap::EntryLocalized;
+                entryOptions |= EntryOption::EntryLocalized;
                 if (locale.indexOf('_') != -1) {
-                    entryOptions |= KEntryMap::EntryLocalizedCountry;
+                    entryOptions |= EntryOption::EntryLocalizedCountry;
                 }
             }
             printableToString(&line, file, lineNo);
-            if (entryOptions & KEntryMap::EntryRawKey) {
+            if (entryOptions & EntryOption::EntryRawKey) {
                 QByteArray rawKey;
                 rawKey.reserve(aKey.length() + locale.length() + 2);
                 rawKey.append(aKey.toVolatileByteArray());
@@ -301,7 +301,7 @@ KConfigIniBackend::parseConfig(const QByteArray &currentLocale, KEntryMap &entry
 
     // now make sure immutable groups are marked immutable
     for (const QByteArray &group : qAsConst(immutableGroups)) {
-        entryMap.setEntry(group, QByteArray(), QByteArray(), KEntryMap::EntryImmutable);
+        entryMap.setEntry(group, QByteArray(), QByteArray(), EntryOption::EntryImmutable);
     }
 
     return fileOptionImmutable ? ParseImmutable : ParseOk;

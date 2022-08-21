@@ -46,6 +46,7 @@
 #include "QContainerAdapters.h"
 
 // Konsole
+#include "qabstractbutton.h"
 #include "ui_EditProfileGeneralPage.h"
 #include "ui_EditProfileAppearancePage.h"
 #include "ui_EditProfileScrollingPage.h"
@@ -1317,8 +1318,9 @@ void EditProfileDialog::setupButtonGroup(const ButtonGroupOptions &options, cons
     }
     activeButton->setChecked(true);
 
-    connect(options.group, QOverload<int>::of(&QButtonGroup::buttonClicked),
-            this, [this, options](int value) {
+    connect(options.group, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
+            this, [this, options](QAbstractButton* button) {
+            auto value = options.group->id(button);
         if (options.preview) {
             preview(options.profileProperty, value);
         }

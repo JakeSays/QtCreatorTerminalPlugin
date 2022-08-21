@@ -168,7 +168,7 @@ QString ColorScheme::translatedColorNameForIndex(int index)
 {
     Q_ASSERT(index >= 0 && index < TABLE_COLORS);
 
-    return QString(QLatin1Literal(translatedColorNames[index]));
+    return QString(QLatin1String(translatedColorNames[index]));
 }
 
 ColorScheme::ColorScheme() :

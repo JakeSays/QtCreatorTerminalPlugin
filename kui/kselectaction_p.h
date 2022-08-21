@@ -33,6 +33,10 @@
 #define KSELECTACTION_P_H
 
 #include <QComboBox>
+#include <QActionGroup>
+#include <QToolButton>
+
+#include "kselectaction.h"
 
 class KSelectActionPrivate
 {

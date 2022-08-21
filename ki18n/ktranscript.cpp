@@ -352,7 +352,7 @@ TsConfig readConfig(const QString &fname)
         return config;
     }
     QTextStream stream(&file);
-    stream.setCodec("UTF-8");
+    stream.setEncoding(QStringConverter::Utf8);
     while (!stream.atEnd()) {
         QString line = stream.readLine();
         int p1, p2;
@@ -386,10 +386,10 @@ TsConfig readConfig(const QString &fname)
             if (p1 < 0) {
                 continue;
             }
-            QStringRef field = line.leftRef(p1).trimmed();
-            QStringRef value = line.midRef(p1 + 1).trimmed();
+            QString field = line.left(p1).trimmed();
+            QString value = line.mid(p1 + 1).trimmed();
             if (!field.isEmpty()) {
-                (*configGroup)[field.toString()] = value.toString();
+                (*configGroup)[field] = value;
             }
         }
     }
@@ -826,7 +826,7 @@ QJSValue Scriptface::fallback()
 
 QJSValue Scriptface::nsubs()
 {
-    return QJSValue(subList->size());
+    return QJSValue(uint32_t(subList->size()));
 }
 
 QJSValue Scriptface::subs(const QJSValue &index)
@@ -1043,7 +1043,7 @@ static QString toCaseFirst(const QString &qstr, int qnalt, bool toupper)
     while (i < len) {
         QChar c = qstr[i];
 
-        if (qnalt && !remainingAlts && qstr.midRef(i, hlen) == head) {
+        if (qnalt && !remainingAlts && qstr.mid(i, hlen) == head) {
             // An alternatives directive is just starting.
             i += 2;
             if (i >= len) {
@@ -1223,7 +1223,7 @@ QJSValue Scriptface::load(const QJSValueList &fnames)
         }
 
         QTextStream stream(&file);
-        stream.setCodec("UTF-8");
+        stream.setEncoding(QStringConverter::Utf8);
         QString source = stream.readAll();
         file.close();
 
@@ -1257,7 +1257,7 @@ QString Scriptface::loadProps_text(const QString &fpath)
                .arg(fpath);
     }
     QTextStream stream(&file);
-    stream.setCodec("UTF-8");
+    stream.setEncoding(QStringConverter::Utf8);
     QString s = stream.readAll();
     file.close();
 

@@ -27,8 +27,8 @@
 
 
 #include <QtGlobal>
+#include <QStringList>
 
-class QStringList;
 class KConfigGroup;
 class KConfigBasePrivate;
 

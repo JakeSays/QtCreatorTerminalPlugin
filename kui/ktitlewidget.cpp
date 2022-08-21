@@ -196,7 +196,7 @@ QString KTitleWidget::comment() const
     return d->commentLabel->text();
 }
 
-const QPixmap *KTitleWidget::pixmap() const
+const QPixmap KTitleWidget::pixmap() const
 {
     return d->imageLabel->pixmap();
 }

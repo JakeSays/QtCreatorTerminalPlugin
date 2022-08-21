@@ -625,7 +625,7 @@ public:
      *             Qt's \c lupdate and \c lconvert commands.
      */
     KI18N_DEPRECATED_VERSION(5, 0, "See API docs")
-    Q_REQUIRED_RESULT static QString translateQt(const char *context, const char *text,
+    /*Q_REQUIRED_RESULT*/ static QString translateQt(const char *context, const char *text,
                                                  const char *comment, int n);
 #endif
 

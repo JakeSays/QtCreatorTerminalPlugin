@@ -20,7 +20,7 @@
 
 #include <config/kconfiggroup.h>
 
-#include <QMutableStringListIterator>
+#include <QMutableListIterator>
 #include <QColor>
 #include <QDebug>
 #include <QFont>

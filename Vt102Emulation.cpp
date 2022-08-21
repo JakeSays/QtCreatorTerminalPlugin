@@ -39,6 +39,7 @@
 #include "KeyboardTranslator.h"
 //#include "SessionController.h"
 #include "TerminalDisplay.h"
+#include "qnamespace.h"
 
 using terminal::Vt102Emulation;
 
@@ -491,9 +492,9 @@ void Vt102Emulation::processSessionAttributeRequest()
   }
 
   QString value;
-  value.reserve(tokenBufferPos-i-2);
+  value.resize(tokenBufferPos-i-2);
   for (int j = 0; j < tokenBufferPos-i-2; j++) {
-    value[j] = tokenBuffer[i+1+j];
+      value[j] = QChar(tokenBuffer[i+1+j]);
   }
 
   if (value == QLatin1String("?")) {
@@ -1067,8 +1068,8 @@ void Vt102Emulation::sendMouseEvent(int cb, int cx, int cy, int eventType)
             // coordinate+32, no matter what the locale is. We could easily
             // convert manually, but QString can also do it for us.
             QChar coords[2];
-            coords[0] = cx + 0x20;
-            coords[1] = cy + 0x20;
+            coords[0] = QChar(cx + 0x20);
+            coords[1] = QChar(cy + 0x20);
             QString coordsStr = QString(coords, 2);
             QByteArray utf8 = coordsStr.toUtf8();
             snprintf(command, sizeof(command), "\033[M%c%s", cb + 0x20, utf8.constData());
@@ -1487,8 +1488,8 @@ char Vt102Emulation::eraseChar() const
 {
     KeyboardTranslator::Entry entry = _keyTranslator->findEntry(
         Qt::Key_Backspace,
-        nullptr,
-        nullptr);
+        Qt::KeyboardModifiers(),
+        KeyboardTranslator::States());
     if (entry.text().count() > 0) {
         return entry.text().at(0);
     } else {

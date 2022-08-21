@@ -145,7 +145,7 @@ extern "C" {
 #include <QDebug>
 #include <qplatformdefs.h>
 
-#include <Q_PID>
+//#include <Q_PID>
 
 #define TTY_GROUP "tty"
 

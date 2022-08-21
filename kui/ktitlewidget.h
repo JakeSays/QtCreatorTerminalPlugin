@@ -120,7 +120,7 @@ public:
      * @return the pixmap displayed in the title
      * @see setPixmap()
      */
-    const QPixmap *pixmap() const;
+    const QPixmap pixmap() const;
 
     /**
      * Sets this label's buddy to buddy.

@@ -387,12 +387,10 @@ QList<KeyboardTranslatorReader::Token> KeyboardTranslatorReader::tokenize(const 
     text = text.simplified();
 
     // title line: keyboard "title"
-    static const QRegularExpression title(QStringLiteral("keyboard\\s+\"(.*)\""),
-                                          QRegularExpression::OptimizeOnFirstUsageOption);
+    static const QRegularExpression title(QStringLiteral("keyboard\\s+\"(.*)\""));
     // key line: key KeySequence : "output"
     // key line: key KeySequence : command
-    static const QRegularExpression key(QStringLiteral("key\\s+(.+?)\\s*:\\s*(\"(.*)\"|\\w+)"),
-                                        QRegularExpression::OptimizeOnFirstUsageOption);
+    static const QRegularExpression key(QStringLiteral("key\\s+(.+?)\\s*:\\s*(\"(.*)\"|\\w+)"));
 
     QList<Token> list;
     if (text.isEmpty()) {
@@ -422,7 +420,7 @@ QList<KeyboardTranslatorReader::Token> KeyboardTranslatorReader::tokenize(const 
 
     list << keyToken << sequenceToken;
 
-    if (keyMatch.capturedRef(3).isEmpty()) {
+    if (keyMatch.captured(3).isEmpty()) {
         // capturedTexts().at(2) is a command
         Token commandToken = { Token::Command, keyMatch.captured(2) };
         list << commandToken;
@@ -529,7 +527,11 @@ QByteArray KeyboardTranslator::Entry::escapedText(bool expandWildCards,
         }
 
         if (replacement == 'x') {
-            result.replace(i, 1, "\\x" + QByteArray(1, ch).toHex());
+            constexpr auto hex = "0123456789ABCD";
+            QByteArray rv("\\x");
+            rv.append(hex[(ch >> 4)]);
+            rv.append(hex[(ch & 0x0F)]);
+            result.replace(i, 1, rv);
         } else if (replacement != 0) {
             result.remove(i, 1);
             result.insert(i, '\\');
@@ -545,7 +547,7 @@ QByteArray KeyboardTranslator::Entry::unescape(const QByteArray &text) const
     QByteArray result(text);
 
     for (int i = 0; i < result.count() - 1; i++) {
-        QByteRef ch = result[i];
+        auto ch = result[i];
         if (ch == '\\') {
             char replacement[2] = {0, 0};
             int charsToRemove = 2;
@@ -768,7 +770,7 @@ KeyboardTranslator::Entry KeyboardTranslator::findEntry(int keyCode,
                                                         Qt::KeyboardModifiers modifiers,
                                                         States state) const
 {
-    QHash<int, KeyboardTranslator::Entry>::const_iterator i = _entries.find(keyCode);
+    auto i = _entries.find(keyCode);
     while (i != _entries.constEnd() && i.key() == keyCode) {
         if (i.value().matches(keyCode, modifiers, state)) {
             return i.value();

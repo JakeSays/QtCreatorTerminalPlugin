@@ -56,6 +56,25 @@ void Pty::init()
     _xonXoff = true;
     _utf8 = true;
 
+    auto parentChildProcModifier = KProcess::childProcessModifier();
+    setChildProcessModifier([this, parentChildProcModifier]() {
+        if (parentChildProcModifier)
+        {
+            parentChildProcModifier();
+        }
+        // reset all signal handlers
+        // this ensures that terminal applications respond to
+        // signals generated via key sequences such as Ctrl+C
+        // (which sends SIGINT)
+        struct sigaction action;
+        sigemptyset(&action.sa_mask);
+        action.sa_handler = SIG_DFL;
+        action.sa_flags = 0;
+        for (int signal = 1; signal < NSIG; signal++) {
+            sigaction(signal, &action, nullptr);
+        }
+    });
+
     setEraseChar(_eraseChar);
     setFlowControlEnabled(_xonXoff);
     setUtf8Mode(_utf8);
@@ -321,21 +340,4 @@ int Pty::foregroundProcessGroup() const
     }
 
     return 0;
-}
-
-void Pty::setupChildProcess()
-{
-    KPtyProcess::setupChildProcess();
-
-    // reset all signal handlers
-    // this ensures that terminal applications respond to
-    // signals generated via key sequences such as Ctrl+C
-    // (which sends SIGINT)
-    struct sigaction action;
-    sigemptyset(&action.sa_mask);
-    action.sa_handler = SIG_DFL;
-    action.sa_flags = 0;
-    for (int signal = 1; signal < NSIG; signal++) {
-        sigaction(signal, &action, nullptr);
-    }
 }

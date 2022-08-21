@@ -22,10 +22,10 @@
 #define KAUTHORIZED_H
 
 
+#include <QStringList>
 
 class QUrl;
 class QString;
-class QStringList;
 
 /**
 * The functions in this namespace provide the core of the Kiosk action

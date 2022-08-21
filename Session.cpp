@@ -287,7 +287,7 @@ QString tildeExpand(const QString &fname)
         }
         QString ret = QDir::homePath() + fname.mid(1, pos - 1);
         if (!ret.isNull()) {
-            ret += fname.midRef(pos);
+            ret += fname.mid(pos);
         }
         return ret;
     } else if (fname.length() > 1 && fname[0] == QLatin1Char(ESCAPE) && fname[1] == QLatin1Char('~')) {

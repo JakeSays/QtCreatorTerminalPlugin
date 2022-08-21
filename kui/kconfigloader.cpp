@@ -24,9 +24,9 @@
 #include <QColor>
 #include <QFont>
 #include <QHash>
-#include <QtXml/QXmlContentHandler>
-#include <QtXml/QXmlInputSource>
-#include <QtXml/QXmlSimpleReader>
+#include <QXmlContentHandler>
+#include <QXmlInputSource>
+#include <QXmlSimpleReader>
 #include <QUrl>
 
 #include <QDebug>
@@ -240,7 +240,7 @@ void ConfigLoaderHandler::addItem()
         //FIXME: the split() is naive and will break on lists with ,'s in them
         //empty parts are not wanted in this case
         item = m_config->addItemStringList(m_name, *d->newStringList(),
-                                           m_default.split(QLatin1Char(','), QString::SkipEmptyParts), m_key);
+                                           m_default.split(QLatin1Char(','), Qt::SkipEmptyParts), m_key);
     } else if (m_type == QLatin1String("uint")) {
         KConfigSkeleton::ItemUInt *uintItem =
             m_config->addItemUInt(m_name, *d->newUint(), m_default.toUInt(), m_key);

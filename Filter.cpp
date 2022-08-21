@@ -40,11 +40,14 @@
 // terminal
 #include "Session.h"
 #include "TerminalCharacterDecoder.h"
+#include "utils/filepath.h"
+#include "utils/link.h"
 
 #include <projectexplorer/fileinsessionfinder.h>
 //#include "fileinsessionfinder.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/fileutils.h>
 
 using namespace terminal;
 
@@ -464,17 +467,14 @@ void UrlFilter::HotSpot::activate(QObject *object)
 //regexp matches:
 // full url:
 // protocolname:// or www. followed by anything other than whitespaces, <, >, ' or ", and ends before whitespaces, <, >, ', ", ], !, ), :, comma and dot
-const QRegularExpression UrlFilter::FullUrlRegExp(QStringLiteral("(www\\.(?!\\.)|[a-z][a-z0-9+.-]*://)[^\\s<>'\"]+[^!,\\.\\s<>'\"\\]\\)\\:]"),
-                                                  QRegularExpression::OptimizeOnFirstUsageOption);
+const QRegularExpression UrlFilter::FullUrlRegExp(QStringLiteral("(www\\.(?!\\.)|[a-z][a-z0-9+.-]*://)[^\\s<>'\"]+[^!,\\.\\s<>'\"\\]\\)\\:]"));
 // email address:
 // [word chars, dots or dashes]@[word chars, dots or dashes].[word chars]
-const QRegularExpression UrlFilter::EmailAddressRegExp(QStringLiteral("\\b(\\w|\\.|-|\\+)+@(\\w|\\.|-)+\\.\\w+\\b"),
-                                                       QRegularExpression::OptimizeOnFirstUsageOption);
+const QRegularExpression UrlFilter::EmailAddressRegExp(QStringLiteral("\\b(\\w|\\.|-|\\+)+@(\\w|\\.|-)+\\.\\w+\\b"));
 
 // matches full url or email address
 const QRegularExpression UrlFilter::CompleteUrlRegExp(QLatin1Char('(') + FullUrlRegExp.pattern() + QLatin1Char('|')
-                                                      + EmailAddressRegExp.pattern() + QLatin1Char(')'),
-                                                      QRegularExpression::OptimizeOnFirstUsageOption);
+                                                      + EmailAddressRegExp.pattern() + QLatin1Char(')'));
 
 UrlFilter::UrlFilter()
 {
@@ -738,17 +738,19 @@ void FileFilter::HotSpot::activate(QObject* object)
 
     if (actionName == QLatin1String("open-action"))
     {
+        auto fp = Utils::FilePath::fromString(_deets->FullPath);
         if (_deets->DocumentLine == -1 &&
             _deets->DocumentColumn == -1)
         {
-            Core::EditorManager::openEditor(_deets->FullPath);
+            Core::EditorManager::openEditor(fp);
+            return;
         }
 
-        Core::EditorManager::openEditorAt(_deets->FullPath,
-            _deets->DocumentLine,
-            _deets->DocumentColumn == -1
+        auto link = Utils::Link(fp, _deets->DocumentLine, _deets->DocumentColumn == -1
                 ? 0
                 : _deets->DocumentColumn);
+
+        Core::EditorManager::openEditorAt(link);
         return;
     }
 

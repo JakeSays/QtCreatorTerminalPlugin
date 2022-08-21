@@ -29,12 +29,12 @@
 #include <QLayout>
 #include <QListWidget>
 #include <QPushButton>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QWindow>
-
+#include <QScreen>
 #include <qapplication.h>
 #if 0
 // NOTE waiting for the notification framework plan
@@ -200,7 +200,7 @@ QDialogButtonBox::StandardButton createKMessageBox(QDialog *dialog, QDialogButto
 
     QWidget *mainWidget = new QWidget(dialog);
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
-    const int spacingHint = mainWidget->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+    const int spacingHint = mainWidget->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
     mainLayout->setSpacing(spacingHint * 2); // provide extra spacing
     mainLayout->setContentsMargins(0, 0, 0, 0);
     buttons->setParent(dialog);
@@ -234,7 +234,8 @@ QDialogButtonBox::StandardButton createKMessageBox(QDialog *dialog, QDialogButto
     }
     messageLabel->setTextInteractionFlags(flags);
 
-    QRect desktop = QApplication::desktop()->screenGeometry(dialog);
+    QRect desktop = QGuiApplication::primaryScreen()->geometry();
+
     bool usingSqueezedTextLabel = false;
     if (messageLabel->sizeHint().width() > desktop.width() * 0.5) {
         // enable automatic wrapping of messages which are longer than 50% of screen width
