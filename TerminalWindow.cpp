@@ -13,9 +13,11 @@
 using namespace terminal;
 
 
-TerminalWindow::TerminalWindow(QWidget *parent)
-    : QWidget(parent)
-      , _parent(parent)
+TerminalWindow::TerminalWindow(QWidget *parent, QString title, int id)
+    : QWidget(parent),
+      _title(title),
+      _id(id),
+      _parent(parent)
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
     _copyAction = new QAction("Copy", this);

@@ -17,10 +17,12 @@ class TerminalWindow : public QWidget
     Q_OBJECT
 
 public:
-    TerminalWindow(QWidget *parent);
+    TerminalWindow(QWidget *parent, QString title = QString(), int id = -1);
     void initialze();
 
     TerminalDisplay *Display() const { return _display; }
+    QString Title() const { return _title; }
+    int Id() const { return _id; }
 
     Session* session() const { return _session; }
 
@@ -51,6 +53,8 @@ private slots:
 private:
     void CreateDisplay();
 
+    QString _title;
+    int _id;
     Session* _session = nullptr;
     QVBoxLayout *_layout = nullptr;
     TerminalDisplay *_display = nullptr;

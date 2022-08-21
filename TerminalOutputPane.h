@@ -5,12 +5,18 @@
 #pragma once
 
 #include "TerminalWindow.h"
-
+#include <QVector>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
-QT_FORWARD_DECLARE_CLASS(QLabel)
-QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
+#include <memory>
+
+class QLabel;
+class QVBoxLayout;
+class QToolButton;
+class QTabWidget;
+class QWidget;
+class QAction;
 
 namespace terminal
 {
@@ -38,9 +44,25 @@ public:
 
 private slots:
     void termInitialized();
+    void AddTab();
+    void ActiveTabChanged(int index);
+    void ShowContextMenu(const QPoint &pos);
 
 private:
-    TerminalWindow* _window;
+    std::unique_ptr<QTabWidget> _tabs;
+    TerminalWindow* _activeWindow;
+    QToolButton* _addButton;
+    QVector<TerminalWindow*> _windows;
+
+    QAction* _closeCurrentAction;
+    QAction* _closeAllAction;
+    QAction* _closeOtherAction;
+
+    void CreateControls();
+    bool CloseTab(int index);
+    void CloseAllTabs(int except = -1);
+    int WindowIndex(TerminalWindow* window);
+    void UpdateCloseState();
 };
 
 } // namespace terminal
