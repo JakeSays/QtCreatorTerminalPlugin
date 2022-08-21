@@ -1,3 +1,5 @@
+##NOTE: This branch (qtc4.15) is will only work with QtCreator 4.15 and Qt 5.15
+
 ## A plugin for Qt Creator that provides an embedded terminal.
 
 This is basically a fork of KDE's Konsole with all standalone functionality removed. It has also been de-KDE'ified and should work in non-KDE environments (untested).
