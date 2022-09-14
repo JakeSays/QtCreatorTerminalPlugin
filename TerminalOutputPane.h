@@ -5,7 +5,7 @@
 #pragma once
 
 #include "TerminalWindow.h"
-#include <QVector>
+#include <QMap>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
@@ -52,7 +52,8 @@ private:
     std::unique_ptr<QTabWidget> _tabs;
     TerminalWindow* _activeWindow;
     QToolButton* _addButton;
-    QVector<TerminalWindow*> _windows;
+    QMap<int, TerminalWindow*> _windows;
+    int _nextTerminalNumber;
 
     QAction* _closeCurrentAction;
     QAction* _closeAllAction;
@@ -61,7 +62,6 @@ private:
     void CreateControls();
     bool CloseTab(int index);
     void CloseAllTabs(int except = -1);
-    int WindowIndex(TerminalWindow* window);
     void UpdateCloseState();
 };
 

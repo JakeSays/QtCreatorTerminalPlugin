@@ -3,6 +3,7 @@
  */
 
 #include "TerminalOutputPane.h"
+#include "TerminalWindow.h"
 #include "qtabwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -43,12 +44,19 @@ int IndexOf(const TContainer& container, Predicate function)
     typename TContainer::const_iterator it = std::find_if(begin, end, function);
     return it == end ? -1 : std::distance(begin, it);
 }
+
+inline
+TerminalWindow* AsTerminal(QWidget* widget)
+{
+    return reinterpret_cast<TerminalWindow*>(widget);
+}
 }
 
 TerminalOutputPane::TerminalOutputPane(QObject *parent)
    : IOutputPane(parent),
     _tabs(nullptr),
     _activeWindow(nullptr),
+    _nextTerminalNumber(1),
     _closeCurrentAction(new QAction("Close Tab", this)),
     _closeAllAction(new QAction("Close All Tabs", this)),
     _closeOtherAction(new QAction("Close Other Tabs", this))
@@ -114,25 +122,19 @@ void TerminalOutputPane::visibilityChanged(bool visible)
 
 void TerminalOutputPane::termInitialized()
 {
-    //moved to Session
-//    if (Core::IDocument *doc = Core::EditorManager::instance()->currentDocument()) {
-//        const QDir dir = doc->filePath().toFileInfo().absoluteDir();
-//        if (dir.exists())
-//            _window->termWidget()->setWorkingDirectory(dir.canonicalPath());
-    //    }
 }
 
 void TerminalOutputPane::AddTab()
 {
-    auto windowNumber = _windows.size() + 1;
-    auto title = QString::asprintf("Terminal %d", int(windowNumber));
+    auto id = _nextTerminalNumber++;
+    auto title = QString::asprintf("Terminal %d", id);
 
-    auto newWindow = new TerminalWindow(_tabs.get(), title, windowNumber - 1);
+    auto newWindow = new TerminalWindow(_tabs.get(), title, id);
     newWindow->initialze();
-    _windows.append(newWindow);
+    _windows.insert(id, newWindow);
 
-    _tabs->addTab(newWindow, title);
-    _tabs->setCurrentIndex(windowNumber - 1);
+    auto newWindowIndex = _tabs->addTab(newWindow, title);
+    _tabs->setCurrentIndex(newWindowIndex);
 
     UpdateCloseState();
 }
@@ -142,12 +144,10 @@ void TerminalOutputPane::ActiveTabChanged(int index)
     if (index < 0)
     {
         _activeWindow = nullptr;
+        return;
     }
-    if (!_windows.isEmpty() && index >= 0)
-    {
-        _activeWindow = _windows[index];
-        _activeWindow->setFocus(Qt::OtherFocusReason);
-    }
+    _activeWindow = AsTerminal(_tabs->currentWidget());
+    _activeWindow->setFocus(Qt::OtherFocusReason);
 }
 
 void TerminalOutputPane::CreateControls()
@@ -162,16 +162,15 @@ void TerminalOutputPane::CreateControls()
 
 bool TerminalOutputPane::CloseTab(int index)
 {
-    auto windowIndex = WindowIndex(reinterpret_cast<TerminalWindow*>(_tabs->widget(index)));
     QTC_ASSERT(index != -1, return true);
 
-    auto window = _windows[index];
+    auto terminal = AsTerminal(_tabs->widget(index));
 
-    _windows.removeAt(index);
+    _windows.remove(terminal->Id());
 
     _tabs->removeTab(index);
 
-    delete window;
+    delete terminal;
 
     UpdateCloseState();
 
@@ -185,18 +184,13 @@ bool TerminalOutputPane::CloseTab(int index)
 
 void TerminalOutputPane::CloseAllTabs(int except)
 {
-    for (auto window : _windows)
+    for (auto index = _tabs->count() - 1; index >= 0; index--)
     {
-        if (window->Id() != except)
+        if (index != except)
         {
-            CloseTab(window->Id());
+            CloseTab(index);
         }
     }
-}
-
-int TerminalOutputPane::WindowIndex(TerminalWindow* window)
-{
-    return IndexOf(_windows, [window](auto wnd) { return wnd == window; });
 }
 
 void TerminalOutputPane::UpdateCloseState()
@@ -215,13 +209,11 @@ void TerminalOutputPane::ShowContextMenu(const QPoint& pos)
     }
 
     auto index = _tabs->tabBar()->tabAt(pos);
+    _closeCurrentAction->setEnabled(index >= 0);
+    _closeOtherAction->setEnabled(index >= 0);
 
     QList<QAction*> actions {_closeCurrentAction, _closeAllAction, _closeOtherAction};
     auto action = QMenu::exec(actions, _tabs->mapToGlobal(pos), nullptr, _tabs.get());
-
-    auto currentIndex = index != -1
-        ? index
-        : _activeWindow->Id();
 
     if (action == _closeCurrentAction)
     {
