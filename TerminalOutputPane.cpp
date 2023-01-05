@@ -57,6 +57,7 @@ TerminalOutputPane::TerminalOutputPane(QObject *parent)
     _tabs(nullptr),
     _activeWindow(nullptr),
     _nextTerminalNumber(1),
+    _delayCloseTimer(this),
     _closeCurrentAction(new QAction("Close Tab", this)),
     _closeAllAction(new QAction("Close All Tabs", this)),
     _closeOtherAction(new QAction("Close Other Tabs", this))
@@ -64,6 +65,8 @@ TerminalOutputPane::TerminalOutputPane(QObject *parent)
     Core::Context context("Terminal.Window");
 
     CreateControls();
+
+    _delayCloseTimer.setSingleShot(true);
 }
 
 QWidget *TerminalOutputPane::outputWidget(QWidget *parent)
@@ -130,13 +133,33 @@ void TerminalOutputPane::AddTab()
     auto title = QString::asprintf("Terminal %d", id);
 
     auto newWindow = new TerminalWindow(_tabs.get(), title, id);
-    newWindow->initialze();
+    newWindow->initialze();    
     _windows.insert(id, newWindow);
 
     auto newWindowIndex = _tabs->addTab(newWindow, title);
     _tabs->setCurrentIndex(newWindowIndex);
+    newWindow->setTabIndex(newWindowIndex);
+
+    connect(newWindow, &TerminalWindow::sessionEnded, this, &TerminalOutputPane::SessionEnded);
 
     UpdateCloseState();
+}
+
+void TerminalOutputPane::SessionEnded(int terminalId)
+{
+    auto pos = _windows.find(terminalId);
+    if (pos == _windows.end())
+    {
+        return;
+    }
+
+    auto terminal = pos.value();
+    disconnect(terminal);
+
+    QTimer::singleShot(200, this, [this, idx = terminal->tabIndex()]
+        {
+            CloseTab(idx);
+        });
 }
 
 void TerminalOutputPane::ActiveTabChanged(int index)

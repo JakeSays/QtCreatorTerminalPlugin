@@ -28,8 +28,12 @@ public:
 
     void ClearDisplay();
 
+    int tabIndex() const;
+    void setTabIndex(int newTabIndex);
+
 signals:
     void initialized();
+    void sessionEnded(int terminalId);
 
 private:
     void focusInEvent(QFocusEvent *event) override;
@@ -55,6 +59,7 @@ private:
 
     QString _title;
     int _id;
+    int _tabIndex;
     Session* _session = nullptr;
     QVBoxLayout *_layout = nullptr;
     TerminalDisplay *_display = nullptr;

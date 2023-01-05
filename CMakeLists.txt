@@ -263,6 +263,7 @@ add_qtc_plugin(TerminalPlugin
   kptydevice.cpp
   kptyprocess.cpp
   profile/ColorSchemeEditor.cpp
+  profile/ColorSchemeEditor.ui
   profile/EditProfileDialog.cpp
   profile/FontDialog.cpp
   profile/KeyBindingEditor.cpp

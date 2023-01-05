@@ -33,35 +33,8 @@ class KConfig;
 class QPixmap;
 class QPainter;
 
-namespace terminal {
-/**
- * This class holds the wallpaper pixmap associated with a color scheme.
- * The wallpaper object is shared between multiple TerminalDisplay.
- */
-class ColorSchemeWallpaper : public QSharedData
+namespace terminal
 {
-public:
-    typedef QExplicitlySharedDataPointer<ColorSchemeWallpaper> Ptr;
-
-    explicit ColorSchemeWallpaper(const QString &path);
-    ~ColorSchemeWallpaper();
-
-    void load();
-
-    /** Returns true if wallpaper available and drawn */
-    bool draw(QPainter &painter, const QRect rect, qreal opacity = 1.0);
-
-    bool isNull() const;
-
-    QString path() const;
-
-private:
-    Q_DISABLE_COPY(ColorSchemeWallpaper)
-
-    QString _path;
-    QPixmap *_picture;
-};
-
 /**
  * Represents a color scheme for a terminal display.
  *
@@ -138,37 +111,6 @@ public:
     bool hasDarkBackground() const;
 
     /**
-     * Sets the opacity level of the display background. @p opacity ranges
-     * between 0 (completely transparent background) and 1 (completely
-     * opaque background).
-     *
-     * Defaults to 1.
-     *
-     * TODO: More documentation
-     */
-    void setOpacity(qreal opacity);
-    /**
-     * Returns the opacity level for this color scheme, see setOpacity()
-     * TODO: More documentation
-     */
-    qreal opacity() const;
-
-    /**
-     * Enables blur behind the transparent window
-     *
-     * Defaults to false.
-     */
-    void setBlur(bool blur);
-    /**
-     * Returns whether blur is enabled for this color scheme, see setBlur()
-     */
-    bool blur() const;
-
-    void setWallpaper(const QString &path);
-
-    ColorSchemeWallpaper::Ptr wallpaper() const;
-
-    /**
      * Enables colors randomization. This will cause the palette
      * returned by getColorTable() and colorEntry() to be adjusted
      * depending on the parameters of color randomization and the
@@ -231,14 +173,7 @@ private:
     // scheme support randomization
     RandomizationRange *_randomTable;
 
-    qreal _opacity;
-
-    // enables blur behind the terminal window
-    bool _blur;
-
     bool _colorRandomization;
-
-    ColorSchemeWallpaper::Ptr _wallpaper;
 
     static const char * const colorNames[TABLE_COLORS];
     static const char * const translatedColorNames[TABLE_COLORS];

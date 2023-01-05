@@ -105,7 +105,7 @@ public:
     void setOpacity(qreal opacity);
 
     /** Sets the background picture */
-    void setWallpaper(const ColorSchemeWallpaper::Ptr &p);
+//    void setWallpaper(const ColorSchemeWallpaper::Ptr &p);
 
     /**
      * Specifies whether the terminal display has a vertical scroll bar, and if so whether it
@@ -501,6 +501,9 @@ public Q_SLOTS:
     // Used to show/hide the message widget
     void updateReadOnlyState(bool readonly);
 //    IncrementalSearchBar *searchBar() const;
+
+    void onSessionEnded();
+
 Q_SIGNALS:
     void requestToggleExpansion();
     /**
@@ -762,6 +765,7 @@ private:
     bool _usesMouseTracking;
     bool _alternateScrolling;
     bool _bracketedPasteMode;
+    bool _sessionTerminated;
 
     QPoint _iPntSel;  // initial selection point
     QPoint _pntSel;  // current selection point
@@ -818,7 +822,7 @@ private:
     QRgb _blendColor;
 
     ColorScheme const* _colorScheme;
-    ColorSchemeWallpaper::Ptr _wallpaper;
+//    ColorSchemeWallpaper::Ptr _wallpaper;
 
     // list of filters currently applied to the display.  used for links and
     // search highlight

@@ -6,6 +6,8 @@
 
 #include "TerminalWindow.h"
 #include <QMap>
+#include <QTimer>
+#include <QQueue>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
@@ -47,6 +49,7 @@ private slots:
     void AddTab();
     void ActiveTabChanged(int index);
     void ShowContextMenu(const QPoint &pos);
+    void SessionEnded(int terminalId);
 
 private:
     std::unique_ptr<QTabWidget> _tabs;
@@ -54,6 +57,7 @@ private:
     QToolButton* _addButton;
     QMap<int, TerminalWindow*> _windows;
     int _nextTerminalNumber;
+    QTimer _delayCloseTimer;
 
     QAction* _closeCurrentAction;
     QAction* _closeAllAction;

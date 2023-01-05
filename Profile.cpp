@@ -66,8 +66,6 @@ const Profile::PropertyInfo Profile::DefaultPropertyNames[] = {
     , { LocalTabTitleFormat , "LocalTabTitleFormat" , GENERAL_GROUP , QVariant::String }
     , { LocalTabTitleFormat , "tabtitle" , nullptr , QVariant::String }
     , { RemoteTabTitleFormat , "RemoteTabTitleFormat" , GENERAL_GROUP , QVariant::String }
-    , { ShowTerminalSizeHint , "ShowTerminalSizeHint" , GENERAL_GROUP , QVariant::Bool }
-    , { DimWhenInactive , "DimWhenInactive" , GENERAL_GROUP , QVariant::Bool }
     , { StartInCurrentSessionDir , "StartInCurrentSessionDir" , GENERAL_GROUP , QVariant::Bool }
     , { SilenceSeconds, "SilenceSeconds" , GENERAL_GROUP , QVariant::Int }
     , { TerminalColumns, "TerminalColumns" , GENERAL_GROUP , QVariant::Int }
@@ -166,8 +164,6 @@ void Profile::useFallback()
     setProperty(Environment, QStringList() << QStringLiteral("TERM=xterm-256color") << QStringLiteral("COLORTERM=truecolor"));
     setProperty(LocalTabTitleFormat, QStringLiteral("%d : %n"));
     setProperty(RemoteTabTitleFormat, QStringLiteral("(%u) %H"));
-    setProperty(ShowTerminalSizeHint, true);
-    setProperty(DimWhenInactive, false);
     setProperty(StartInCurrentSessionDir, true);
     setProperty(MenuIndex, QStringLiteral("0"));
     setProperty(SilenceSeconds, 10);
@@ -342,7 +338,8 @@ QHash<Profile::Property, QVariant> ProfileCommandParser::parse(const QString& in
     static const QRegularExpression regExp(QStringLiteral("([a-zA-Z]+)=([^;]+)"));
 
     QRegularExpressionMatchIterator iterator(regExp.globalMatch(input));
-    while (iterator.hasNext()) {
+    while (iterator.hasNext())
+    {
         QRegularExpressionMatch match(iterator.next());
         Profile::Property property = Profile::lookupByName(match.captured(1));
         const QString value = match.captured(2);
@@ -355,24 +352,30 @@ QHash<Profile::Property, QVariant> ProfileCommandParser::parse(const QString& in
 void ProfileGroup::updateValues()
 {
     const PropertyInfo* properties = Profile::DefaultPropertyNames;
-    while (properties->name != nullptr) {
+    while (properties->name != nullptr)
+    {
         // the profile group does not store a value for some properties
         // (eg. name, path) if even they are equal between profiles -
         //
         // the exception is when the group has only one profile in which
         // case it behaves like a standard Profile
         if (_profiles.count() > 1 &&
-                !canInheritProperty(properties->property)) {
+                !canInheritProperty(properties->property))
+        {
             properties++;
             continue;
         }
 
         QVariant value;
-        for (int i = 0; i < _profiles.count(); i++) {
+        for (int i = 0; i < _profiles.count(); i++)
+        {
             QVariant profileValue = _profiles[i]->property<QVariant>(properties->property);
-            if (value.isNull()) {
+            if (value.isNull())
+            {
                 value = profileValue;
-            } else if (value != profileValue) {
+            }
+            else if (value != profileValue)
+            {
                 value = QVariant();
                 break;
             }
@@ -383,12 +386,14 @@ void ProfileGroup::updateValues()
 }
 void ProfileGroup::setProperty(Property p, const QVariant& value)
 {
-    if (_profiles.count() > 1 && !canInheritProperty(p)) {
+    if (_profiles.count() > 1 && !canInheritProperty(p))
+    {
         return;
     }
 
     Profile::setProperty(p, value);
-    foreach(Profile::Ptr profile, _profiles) {
+    foreach(Profile::Ptr profile, _profiles)
+    {
         profile->setProperty(p, value);
     }
 }

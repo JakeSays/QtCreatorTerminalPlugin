@@ -111,13 +111,6 @@ public:
          * running a remote command (eg. SSH)
          */
         RemoteTabTitleFormat,
-        /** (bool) Specifies whether show hint for terminal size after
-         * resizing the application window.
-         */
-        ShowTerminalSizeHint,
-        /** (bool) If the background color should change to indicate if the window is active
-         */
-        DimWhenInactive,
         /** (QFont) The font to use in terminal displays using this profile. */
         Font,
         /** (QString) The name of the color scheme to use in terminal
@@ -437,18 +430,6 @@ public:
     QString remoteTabTitleFormat() const
     {
         return property<QString>(Profile::RemoteTabTitleFormat);
-    }
-
-    /** Convenience method for property<bool>(Profile::ShowTerminalSizeHint) */
-    bool showTerminalSizeHint() const
-    {
-        return property<bool>(Profile::ShowTerminalSizeHint);
-    }
-
-    /** Convenience method for property<bool>(Profile::DimWhenInactive) */
-    bool dimWhenInactive() const
-    {
-        return property<bool>(Profile::DimWhenInactive);
     }
 
     /** Convenience method for property<QFont>(Profile::Font) */

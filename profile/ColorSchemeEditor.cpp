@@ -93,17 +93,6 @@ ColorSchemeEditor::ColorSchemeEditor(QWidget *parent) :
     connect(_ui->descriptionEdit, &QLineEdit::textChanged, this,
             &terminal::ColorSchemeEditor::setDescription);
 
-    // transparency slider
-    QFontMetrics metrics(font());
-    _ui->transparencyPercentLabel->setMinimumWidth(metrics.boundingRect(QStringLiteral("100%")).width());
-
-    connect(_ui->transparencySlider, &QSlider::valueChanged, this,
-            &terminal::ColorSchemeEditor::setTransparencyPercentLabel);
-
-    // blur behind window
-    connect(_ui->blurCheckBox, &QCheckBox::toggled, this,
-            &terminal::ColorSchemeEditor::setBlur);
-
     // randomized background
     connect(_ui->randomizedBackgroundCheck, &QCheckBox::toggled, this,
             &terminal::ColorSchemeEditor::setRandomizedBackgroundColor);
@@ -114,15 +103,6 @@ ColorSchemeEditor::ColorSchemeEditor(QWidget *parent) :
     dirModel->setRootPath(QStringLiteral("/"));
     auto completer = new QCompleter(this);
     completer->setModel(dirModel);
-    _ui->wallpaperPath->setCompleter(completer);
-
-    _ui->wallpaperPath->setClearButtonEnabled(true);
-    _ui->wallpaperSelectButton->setIcon(QIcon::fromTheme(QStringLiteral("image-x-generic")));
-
-    connect(_ui->wallpaperSelectButton, &QToolButton::clicked, this,
-            &terminal::ColorSchemeEditor::selectWallpaper);
-    connect(_ui->wallpaperPath, &QLineEdit::textChanged, this,
-            &terminal::ColorSchemeEditor::wallpaperPathChanged);
 
     // color table
     _ui->colorTable->setColumnCount(4);
@@ -151,20 +131,6 @@ ColorSchemeEditor::ColorSchemeEditor(QWidget *parent) :
 
     connect(_ui->colorTable, &QTableWidget::itemClicked, this,
             &terminal::ColorSchemeEditor::editColorItem);
-
-    // warning label when transparency is not available
-    _ui->transparencyWarningWidget->setWordWrap(true);
-    _ui->transparencyWarningWidget->setCloseButtonVisible(false);
-    _ui->transparencyWarningWidget->setMessageType(KMessageWidget::Warning);
-
-    if (compositingActive()) {
-        _ui->transparencyWarningWidget->setVisible(false);
-    } else {
-        _ui->transparencyWarningWidget->setText(i18nc("@info:status",
-                                                      "The background transparency setting will not"
-                                                      " be used because your desktop does not appear to support"
-                                                      " transparent windows."));
-    }
 }
 
 ColorSchemeEditor::~ColorSchemeEditor()
@@ -205,41 +171,6 @@ void ColorSchemeEditor::editColorItem(QTableWidgetItem *item)
     }
 }
 
-void ColorSchemeEditor::selectWallpaper()
-{
-    // Get supported image formats and convert to QString for getOpenFileName()
-    const QList<QByteArray> mimeTypes = QImageReader::supportedImageFormats();
-    QString fileFormats = QStringLiteral("(");
-    for (const QByteArray &mime : mimeTypes) {
-        fileFormats += QStringLiteral("*.%1 ").arg(QLatin1String(mime));
-    }
-    fileFormats += QLatin1Char(')');
-
-    const QString fileName = QFileDialog::getOpenFileName(this,
-                                                          i18nc("@title:window",
-                                                                "Select wallpaper image file"),
-                                                          _ui->wallpaperPath->text(),
-                                                          i18nc("@label:textbox Filter in file open dialog",
-                                                                "Supported Images") + fileFormats);
-
-    if (!fileName.isEmpty()) {
-        _ui->wallpaperPath->setText(fileName);
-    }
-}
-
-void ColorSchemeEditor::wallpaperPathChanged(const QString &path)
-{
-    if (path.isEmpty()) {
-        _colors->setWallpaper(path);
-    } else {
-        QFileInfo i(path);
-
-        if (i.exists() && i.isFile() && i.isReadable()) {
-            _colors->setWallpaper(path);
-        }
-    }
-}
-
 void ColorSchemeEditor::setDescription(const QString &description)
 {
     if (_colors != nullptr) {
@@ -249,19 +180,6 @@ void ColorSchemeEditor::setDescription(const QString &description)
     if (_ui->descriptionEdit->text() != description) {
         _ui->descriptionEdit->setText(description);
     }
-}
-
-void ColorSchemeEditor::setTransparencyPercentLabel(int percent)
-{
-    _ui->transparencyPercentLabel->setText(QStringLiteral("%1%").arg(percent));
-
-    const qreal opacity = (100.0 - percent) / 100.0;
-    _colors->setOpacity(opacity);
-}
-
-void ColorSchemeEditor::setBlur(bool blur)
-{
-    _colors->setBlur(blur);
 }
 
 void ColorSchemeEditor::setRandomizedBackgroundColor(bool randomized)
@@ -291,18 +209,10 @@ void ColorSchemeEditor::setup(const ColorScheme *scheme, bool isNewScheme)
     setupColorTable(_colors);
 
     // setup transparency slider
-    const int transparencyPercent = qRound((1 - _colors->opacity()) * 100);
-    _ui->transparencySlider->setValue(transparencyPercent);
-    setTransparencyPercentLabel(transparencyPercent);
-
-    // blur behind window checkbox
-    _ui->blurCheckBox->setChecked(scheme->blur());
+//    const int transparencyPercent = qRound((1 - _colors->opacity()) * 100);
 
     // randomized background color checkbox
     _ui->randomizedBackgroundCheck->setChecked(scheme->isColorRandomizationEnabled());
-
-    // wallpaper stuff
-    _ui->wallpaperPath->setText(scheme->wallpaper()->path());
 }
 
 void ColorSchemeEditor::setupColorTable(const ColorScheme *colors)

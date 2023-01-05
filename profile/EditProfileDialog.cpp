@@ -1665,7 +1665,7 @@ void ColorSchemeViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     if (transparencyAvailable) {
         painter->save();
         QColor color = scheme->backgroundColor();
-        color.setAlphaF(scheme->opacity());
+        color.setAlphaF(1.0f/*scheme->opacity()*/);
         painter->setPen(Qt::NoPen);
         painter->setCompositionMode(QPainter::CompositionMode_Source);
         painter->setBrush(color);

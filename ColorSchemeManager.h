@@ -31,7 +31,8 @@
 #include "ColorScheme.h"
 #include "Profile.h"
 
-namespace terminal {
+namespace terminal
+{
 /**
  * Manages the color schemes available for use by terminal displays.
  * See ColorScheme
@@ -123,7 +124,7 @@ private:
     // @returns whether a path is a valid color scheme name
     static bool pathIsColorScheme(const QString &path);
 
-    QHash<QString, const ColorScheme *> _colorSchemes;
+    QHash<QString, const ColorScheme*> _colorSchemes;
 
     bool _haveLoadedAll;
 

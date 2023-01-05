@@ -151,10 +151,10 @@ void TerminalDisplay::onColorsChanged()
 
     QColor buttonTextColor = _colorTable[DEFAULT_FORE_COLOR];
     QColor backgroundColor = _colorTable[DEFAULT_BACK_COLOR];
-    backgroundColor.setAlphaF(_opacity);
+    backgroundColor.setAlphaF((float)_opacity);
 
     QColor buttonColor = backgroundColor.toHsv();
-    if (buttonColor.valueF() < 0.5) {
+    if (buttonColor.valueF() < 0.5f) {
         buttonColor = buttonColor.lighter();
     } else {
         buttonColor = buttonColor.darker();
@@ -456,6 +456,7 @@ TerminalDisplay::TerminalDisplay(Session* session, QWidget* parent)
     , _usesMouseTracking(false)
     , _alternateScrolling(true)
     , _bracketedPasteMode(false)
+    , _sessionTerminated(false)
     , _iPntSel(QPoint())
     , _pntSel(QPoint())
     , _tripleSelBegin(QPoint())
@@ -492,7 +493,7 @@ TerminalDisplay::TerminalDisplay(Session* session, QWidget* parent)
     , _lineSpacing(0)
     , _size(QSize())
     , _blendColor(qRgba(0, 0, 0, 0xff))
-    , _wallpaper(nullptr)
+//    , _wallpaper(nullptr)
     , _filterChain(new TerminalImageFilterChain())
     , _mouseOverHotspotArea(QRegion())
     , _filterUpdateRequired(true)
@@ -518,6 +519,8 @@ TerminalDisplay::TerminalDisplay(Session* session, QWidget* parent)
     , _drawOverlay(false)
 {
     _session = session;
+
+    connect(_session, &terminal::Session::finished, this, &TerminalDisplay::onSessionEnded);
 
     // terminal applications are not designed with Right-To-Left in mind,
     // so the layout is forced to Left-To-Right
@@ -580,6 +583,7 @@ TerminalDisplay::~TerminalDisplay()
 {    
     disconnect(_blinkTextTimer);
     disconnect(_blinkCursorTimer);
+    disconnect(_session);
 
     _filterChain->removeFilter(_fileFilter);
     delete _fileFilter;
@@ -691,17 +695,17 @@ QColor TerminalDisplay::keyboardCursorColor() const
 void TerminalDisplay::setOpacity(qreal opacity)
 {
     QColor color(_blendColor);
-    color.setAlphaF(opacity);
+    color.setAlphaF((float)opacity);
     _opacity = opacity;
 
     _blendColor = color.rgba();
     onColorsChanged();
 }
 
-void TerminalDisplay::setWallpaper(const ColorSchemeWallpaper::Ptr &p)
-{
-    _wallpaper = p;
-}
+//void TerminalDisplay::setWallpaper(const ColorSchemeWallpaper::Ptr &p)
+//{
+//    _wallpaper = p;
+//}
 
 void TerminalDisplay::drawBackground(QPainter& painter, const QRect& rect, const QColor& backgroundColor, bool useOpacitySetting)
 {
@@ -713,9 +717,10 @@ void TerminalDisplay::drawBackground(QPainter& painter, const QRect& rect, const
     // being outside of the terminal display and visual consistency with other KDE
     // applications.
 
-    if (useOpacitySetting && !_wallpaper->isNull() &&
-            _wallpaper->draw(painter, rect, _opacity)) {
-    } else if (qAlpha(_blendColor) < 0xff && useOpacitySetting) {
+//    if (useOpacitySetting && !_wallpaper->isNull() &&
+//            _wallpaper->draw(painter, rect, _opacity)) {
+//    } else
+    if (qAlpha(_blendColor) < 0xff && useOpacitySetting) {
 #if defined(Q_OS_MACOS)
         // TODO - On MacOS, using CompositionMode doesn't work.  Altering the
         //        transparency in the color scheme alters the brightness.
@@ -1409,7 +1414,7 @@ void TerminalDisplay::paintFilters(QPainter& painter)
     QList<Filter::HotSpot*> spots = _filterChain->hotSpots();
     int urlNumber, urlNumInc;
     if (_reverseUrlHints) {
-        urlNumber = spots.size() + 1;
+        urlNumber = (int)spots.size() + 1;
         urlNumInc = -1;
     } else {
         urlNumber = 0;
@@ -1663,7 +1668,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
                 len++; // Adjust for trailing part of multi-column character
             }
 
-            const bool save__fixedFont = _fixedFont;
+            const bool save_fixedFont = _fixedFont;
             if (lineDraw) {
                 _fixedFont = false;
             }
@@ -1718,7 +1723,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
                                  &_image[loc(x, y)]);
             }
 
-            _fixedFont = save__fixedFont;
+            _fixedFont = save_fixedFont;
 
             //reset back to single-width, single-height _lines
             // TODO: setWorldMatrix is obsolete, change to setWorldTransform
@@ -1742,7 +1747,7 @@ void TerminalDisplay::drawContents(QPainter& paint, const QRect& rect)
 
 void TerminalDisplay::drawCurrentResultRect(QPainter& painter)
 {
-    if(_screenWindow->currentResultLine() == -1) {
+    if(_screenWindow.isNull() || _screenWindow->currentResultLine() == -1) {
         return;
     }
 
@@ -1958,7 +1963,7 @@ void TerminalDisplay::updateImageSize()
 
 void TerminalDisplay::makeImage()
 {
-    _wallpaper->load();
+//    _wallpaper->load();
 
     calcGeometry();
 
@@ -2786,7 +2791,7 @@ void TerminalDisplay::viewScrolledByUser()
 */
 QPoint TerminalDisplay::findLineStart(const QPoint &pnt)
 {
-    const int visibleScreenLines = _lineProperties.size();
+    const int visibleScreenLines = (int)_lineProperties.size();
     const int topVisibleLine = _screenWindow->currentLine();
     Screen *screen = _screenWindow->screen();
     int line = pnt.y();
@@ -2819,7 +2824,7 @@ QPoint TerminalDisplay::findLineStart(const QPoint &pnt)
 */
 QPoint TerminalDisplay::findLineEnd(const QPoint &pnt)
 {
-    const int visibleScreenLines = _lineProperties.size();
+    const int visibleScreenLines = (int)_lineProperties.size();
     const int topVisibleLine = _screenWindow->currentLine();
     const int maxY = _screenWindow->lineCount() - 1;
     Screen *screen = _screenWindow->screen();
@@ -2932,7 +2937,7 @@ QPoint TerminalDisplay::findWordEnd(const QPoint &pnt)
     const int maxX = _columns - 1;
 
     while (true) {
-        const int lineCount = lineProperties.count();
+        const int lineCount = (int)lineProperties.count();
         for (;;j++, x++) {
             if (x < maxX) {
                 if (charClass(image[j + 1]) == selClass &&
@@ -3496,6 +3501,12 @@ void TerminalDisplay::updateReadOnlyState(bool readonly) {
     _readOnly = readonly;
 }
 
+void TerminalDisplay::onSessionEnded()
+{
+    _sessionTerminated = true;
+    disconnect(_session);
+}
+
 void TerminalDisplay::scrollScreenWindow(enum ScreenWindow::RelativeScrollMode mode, int amount)
 {
     _screenWindow->scrollBy(mode, amount, _scrollFullPage);
@@ -3507,9 +3518,15 @@ void TerminalDisplay::scrollScreenWindow(enum ScreenWindow::RelativeScrollMode m
 
 void TerminalDisplay::keyPressEvent(QKeyEvent* event)
 {
+    if (_sessionTerminated)
+    {
+        event->ignore();
+        return;
+    }
+
     if ((_urlHintsModifiers != 0u) && event->modifiers() == _urlHintsModifiers)
     {
-        int nHotSpots = _filterChain->hotSpots().count();
+        int nHotSpots = (int)_filterChain->hotSpots().count();
         int hintSelected = event->key() - 0x31;
         if (hintSelected >= 0 && hintSelected < 10 && hintSelected < nHotSpots)
         {
@@ -3638,6 +3655,7 @@ bool TerminalDisplay::handleShortcutOverrideEvent(QKeyEvent* keyEvent)
 bool TerminalDisplay::event(QEvent* event)
 {
     bool eventHandled = false;
+    auto type = event->type();
     switch (event->type())
     {
         case QEvent::KeyPress:
@@ -3962,8 +3980,8 @@ void TerminalDisplay::applyProfile(const Profile::Ptr &profile)
     _colorScheme = ColorSchemeManager::instance()->colorSchemeForProfile(profile);
     _colorScheme->getColorTable(table, randomSeed());
     setColorTable(table);
-    setOpacity(_colorScheme->opacity());
-    setWallpaper(_colorScheme->wallpaper());
+//    setOpacity(_colorScheme->opacity());
+//    setWallpaper(_colorScheme->wallpaper());
 
     // load font
     _antialiasText = profile->antiAliasFonts();
@@ -3976,8 +3994,8 @@ void TerminalDisplay::applyProfile(const Profile::Ptr &profile)
     setScrollFullPage(profile->property<bool>(Profile::ScrollFullPage));
 
     // show hint about terminal size after resizing
-    _showTerminalSizeHint = profile->showTerminalSizeHint();
-    _dimWhenInactive = profile->dimWhenInactive();
+//    _showTerminalSizeHint = profile->showTerminalSizeHint();
+//    _dimWhenInactive = profile->dimWhenInactive();
 
     // terminal features
     setBlinkingCursorEnabled(profile->blinkingCursorEnabled());

@@ -17,6 +17,7 @@ TerminalWindow::TerminalWindow(QWidget *parent, QString title, int id)
     : QWidget(parent),
       _title(title),
       _id(id),
+      _tabIndex(-1),
       _parent(parent)
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -55,6 +56,11 @@ void TerminalWindow::CreateDisplay()
     Q_ASSERT(profile);
 
     _session = SessionManager::instance()->createSession(profile);
+    connect(_session, &terminal::Session::finished, this,
+        [this]() {
+            disconnect(_session);
+            emit sessionEnded(Id());
+        });
 
     auto startupProject = ProjectExplorer::SessionManager::startupProject();
 
@@ -83,6 +89,16 @@ void TerminalWindow::CreateDisplay()
     display->setFocus(Qt::OtherFocusReason);
 
     _display = display;
+}
+
+int TerminalWindow::tabIndex() const
+{
+    return _tabIndex;
+}
+
+void TerminalWindow::setTabIndex(int newTabIndex)
+{
+    _tabIndex = newTabIndex;
 }
 
 void TerminalWindow::initialze()
@@ -217,5 +233,5 @@ void TerminalWindow::displayFocusLost()
 
 void TerminalWindow::displayFocusGained()
 {
- //   RemoveActions();
+    //   RemoveActions();
 }
