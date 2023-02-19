@@ -22,3 +22,8 @@ docker build -f "$SCRIPT_DIR/Dockerfile" --build-arg VERSION=7.0.0 --build-arg Q
     --label org.opencontainers.image.revision=$(git rev-parse --short HEAD) \
     --label org.opencontainers.image.created="$(date --rfc-3339=seconds --utc)"
 
+# Qt Creator 9.x
+docker build -f "$SCRIPT_DIR/Dockerfile" --build-arg VERSION=9.0.0 --build-arg QT_CREATOR_VERSION=9.0.0 --build-arg QT_CREATOR_VERSION_MAJOR=9.0 --build-arg QT_VERSION=6.4.0 -t pasowa/qtcreator-terminal-plugin-dev:9.0 "$SCRIPT_DIR" \
+    --label org.opencontainers.image.revision=$(git rev-parse --short HEAD) \
+    --label org.opencontainers.image.created="$(date --rfc-3339=seconds --utc)"
+
