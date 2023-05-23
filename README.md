@@ -14,8 +14,9 @@ More specifically:
 
 * Qt version 6.3.1 or later. Earlier versions may work - use at your own risk, but at least Qt 6 is required. Qt Creator builds are usually tied to a particular version of Qt so try to match the two as close as possible.
 * A Qt Creator version 8+ install. This can be either locally built or an official installation.
-* **Easy way**: Install plugin support when installing Qt Creator.
-* **Hard way**: The Qt Creator 8+ source code. Even though building Qt Creator is not required, plugins are reliant on internal headers which are only available via the source code. Because of this the terminal plugin (along with all Qt Creator plugins) are tightly coupled to the Qt Creator version they were built against. This method is currently untested.
+* One of the following:
+    * **Easy way**: Install plugin support when installing Qt Creator.
+    * **Hard way**: The Qt Creator 8+ source code. Even though building Qt Creator is not required, plugins are reliant on internal headers which are only available via the source code. Because of this the terminal plugin (along with all Qt Creator plugins) are tightly coupled to the Qt Creator version they were built against. This method is currently untested.
 
 * Open the project in Qt Creator (It's cmake based, so open CMakeLists.txt)
 * In the Build Settings add the following cmake variable:
