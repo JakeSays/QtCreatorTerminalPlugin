@@ -1190,7 +1190,3 @@ ProcessInfo *ProcessInfo::newInstance(int pid)
     info->readProcessInfo(pid);
     return info;
 }
-
-LinuxProcessInfo::~LinuxProcessInfo()
-{
-}

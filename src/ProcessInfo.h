@@ -79,9 +79,7 @@ public:
      */
     static ProcessInfo *newInstance(int pid);
 
-    virtual ~ProcessInfo()
-    {
-    }
+    virtual ~ProcessInfo() = default;
 
     /**
      * Updates the information about the process.  This must

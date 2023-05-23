@@ -305,7 +305,7 @@ QString KCatalog::translate(const QByteArray &msgctxt,
 
 void KCatalog::addDomainLocaleDir(const QByteArray &domain, const QString &path)
 {
-    QMutexLocker(&catalogStaticData()->mutex);
+    QMutexLocker locker(&catalogStaticData()->mutex);
     catalogStaticData()->customCatalogDirs.insert(domain, path);
 }
 
