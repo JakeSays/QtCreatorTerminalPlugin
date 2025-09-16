@@ -1,3 +1,7 @@
+## This project is now archived ##
+Qt Creator now ships with a terminal built in, so this project is no longer needed.
+
+
 ## A plugin for Qt Creator that provides an embedded terminal (QtCreator v8+).
 
 This is basically a fork of KDE's Konsole with all standalone functionality removed. It has also been de-KDE'ified and should work in non-KDE environments (untested).
