@@ -25,6 +25,8 @@
 #include "kpty_p.h"
 
 #include <QProcess>
+#include <QFile>
+#include <QFileInfo>
 
 #ifdef __sgi
 #define __svr4__

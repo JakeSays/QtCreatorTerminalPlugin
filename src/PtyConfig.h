@@ -13,16 +13,29 @@
 #define HAVE_TCSETATTR 1
 
 #define HAVE_LIBUTIL_H 0
+#ifdef __APPLE__
+#define HAVE_UTIL_H 1
+#define HAVE_PTY_H 0
+#else
 #define HAVE_UTIL_H 0
 #define HAVE_PTY_H 1
+#endif // __APPLE__
 /* Unused ? */
 #define HAVE_TERMIOS_H 1
+#ifdef __APPLE__
+#define HAVE_TERMIO_H 0
+#else
 #define HAVE_TERMIO_H 1
+#endif // __APPLE__
 #define HAVE_SYS_STROPTS_H 0
 #define HAVE_SYS_FILIO_H 0
 
 #define HAVE_UTEMPTER 1
+#ifdef __APPLE__
+#define HAVE_LOGIN 1
+#else
 #define HAVE_LOGIN 0
+#endif // __APPLE__
 #define HAVE_UTMPX 0
 #define HAVE_LOGINX 0
 #define HAVE_STRUCT_UTMP_UT_TYPE 0

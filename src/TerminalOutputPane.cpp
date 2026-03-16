@@ -185,8 +185,6 @@ void TerminalOutputPane::CreateControls()
 
 bool TerminalOutputPane::CloseTab(int index)
 {
-    QTC_ASSERT(index != -1, return true);
-
     auto terminal = AsTerminal(_tabs->widget(index));
 
     _windows.remove(terminal->Id());
